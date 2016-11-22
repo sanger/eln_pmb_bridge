@@ -83,6 +83,11 @@
             <version>1.19</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.sun.jersey</groupId>
+            <artifactId>jersey-core</artifactId>
+            <version>1.14</version>
+        </dependency>
     </dependencies>
 
 </project>

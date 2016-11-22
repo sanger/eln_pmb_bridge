@@ -19,8 +19,6 @@ public class WhenBuildingJson {
 
     @Test
     public void setContext() throws JSONException, IOException {
-        PrintConfig.loadConfig();
-        pmbClient = new PMBClient(PrintConfig.getInstance());
 
         Map<PrinterLabelType, Integer> templateIds = new EnumMap<>(PrinterLabelType.class);
         templateIds.put(PrinterLabelType.Plate, 6);
@@ -32,32 +30,31 @@ public class WhenBuildingJson {
         fieldMap.put("cell_line", "zogh");
         fieldMap.put("barcode", "2000000100");
 
-        PrintRequest.Label label = new PrintRequest.Label(fieldMap);
-        String printerName = "d304bc";
-        request = new PrintRequest(printerName, Collections.singletonList(label));
+        PrintRequest.Label label1 = new PrintRequest.Label(fieldMap);
+        String printerName = "e367bc";
+        request = new PrintRequest(printerName, Collections.singletonList(label1));
 
         result = pmbClient.buildJson(request);
         assertEquals(result.length(), 1);
 
         JSONObject data = result.getJSONObject("data");
-
         JSONObject attr = data.getJSONObject("attributes");
         assertEquals(attr.length(), 3);
         assertEquals(attr.getString("printer_name"), printerName);
-        assertEquals(attr.getInt("label_template_id"), (int) templateIds.get(PrinterLabelType.Plate));
+        assertEquals(attr.getInt("label_template_id"), (int) templateIds.get(PrinterLabelType.Tube));
 
         JSONObject labels = attr.getJSONObject("labels");
         assertEquals(labels.length(), 1);
         JSONArray body = labels.getJSONArray("body");
 
         int i = 0;
-        for (PrintRequest.Label l : request.getLabels()) {
-            JSONObject item = body.getJSONObject(i);
-            assertEquals(item.length(), 1);
-            JSONObject itemLabel = item.getJSONObject("label_1");
-            assertEquals(itemLabel.length(), l.getFields().size());
-            for (Map.Entry<String, String> entry : l.getFields().entrySet()) {
-                assertEquals(itemLabel.get(entry.getKey()), entry.getValue());
+        for (PrintRequest.Label label : request.getLabels()) {
+            JSONObject labelJson = body.getJSONObject(i);
+            assertEquals(labelJson.length(), 1);
+            JSONObject fieldsMap = labelJson.getJSONObject("label_1");
+            assertEquals(fieldsMap.length(), label.getFields().size());
+            for (Map.Entry<String, String> entry : label.getFields().entrySet()) {
+                assertEquals(fieldsMap.get(entry.getKey()), entry.getValue());
             }
             ++i;
         }

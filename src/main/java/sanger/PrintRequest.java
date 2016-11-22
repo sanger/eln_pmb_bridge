@@ -37,6 +37,10 @@ public class PrintRequest {
                 '}';
     }
 
+    public int length() {
+        return this.labels.size();
+    }
+
     public static class Label {
         private Map<String, String> fields;
 
