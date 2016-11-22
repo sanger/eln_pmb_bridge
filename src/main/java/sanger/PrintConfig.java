@@ -14,11 +14,11 @@ public class PrintConfig {
     private static final Logger log = LoggerFactory.getLogger(PrintConfig.class);
 
     private static PrintConfig instance;
-    private String baseLocation;
+    private String pmbURL;
     private Map<PrinterLabelType, Integer> templateIds;
 
-    public PrintConfig(String baseLocation, Map<PrinterLabelType, Integer> templateIds) {
-        this.baseLocation = baseLocation;
+    public PrintConfig(String pmbURL, Map<PrinterLabelType, Integer> templateIds) {
+        this.pmbURL = pmbURL;
         this.templateIds = templateIds;
     }
 
@@ -39,8 +39,8 @@ public class PrintConfig {
         FileManager fileManager = new FileManager();
         Properties properties = fileManager.readPropertiesFile("pmb.properties");
 
-        String location = properties.getProperty("pmb_url", "");
-        if (location.isEmpty()) {
+        String pmbURL = properties.getProperty("pmb_url", "");
+        if (pmbURL.isEmpty()) {
             throw new IOException("No host supplied in pmb.properties");
         }
         Map<PrinterLabelType, Integer> templateIds = new EnumMap<>(PrinterLabelType.class);
@@ -51,7 +51,7 @@ public class PrintConfig {
                 templateIds.put(labelType, templateId);
             }
         }
-        return new PrintConfig(location, templateIds);
+        return new PrintConfig(pmbURL, templateIds);
     }
 
     public static PrintConfig getInstance() {
@@ -62,8 +62,8 @@ public class PrintConfig {
         PrintConfig.instance = instance;
     }
 
-    public String getLocalLocation() {
-        return this.baseLocation;
+    public String getPmbURL() {
+        return this.pmbURL;
     }
 
     public Map<PrinterLabelType, Integer> getTemplateIds() {

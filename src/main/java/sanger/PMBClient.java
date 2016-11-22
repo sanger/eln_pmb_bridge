@@ -24,7 +24,7 @@ public class PMBClient {
 
     public void print(PrintRequest request) throws IOException, JSONException {
         JSONObject jsonObject = buildJson(request);
-        URL url = new URL(config.getLocalLocation()+"/print_jobs");
+        URL url = new URL(config.getPmbURL()+"/print_jobs");
         postJson(url, jsonObject);
 
         for (PrintRequest.Label label : request.getLabels()) {
