@@ -8,11 +8,21 @@ import java.util.*;
  */
 public class FileManager {
 
-    public PrintRequest readFile(String filename) throws IOException {
-        File file = findFile(filename);
-        if (file==null) {
-            throw new FileNotFoundException("No file found with file name: " + filename);
+    public Properties readPropertiesFile(String fileName) throws FileNotFoundException {
+        File file = findFile(fileName);
+        Properties properties = new Properties();
+        if (file!=null) {
+            try (FileInputStream fileInputStream = new FileInputStream(file)) {
+                properties.load(fileInputStream);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
+        return properties;
+    }
+
+    public PrintRequest makeRequestFromFile(String filename) throws IOException {
+        File file = findFile(filename);
 
         PrintRequest request = null;
         Scanner scanner = new Scanner(file);
@@ -32,17 +42,17 @@ public class FileManager {
             System.out.println(request);
         }
         return request;
-
-//        FileReader reader = new FileReader(f);
-//        BufferedReader br = new BufferedReader(reader);
-//        System.out.println(br.readLine());
     }
 
     private File findFile(String filename) {
         if (filename == null) {
             throw new IllegalArgumentException("Filename is null");
         }
-        File f = new File(System.getProperty("user.home") + File.separator + filename);
+        File f = new File(System.getProperty("user.dir") + File.separator + filename);
+        if (f.isFile()) {
+            return f;
+        }
+        f = new File(System.getProperty("user.home") + File.separator + filename);
         if (f.isFile()) {
             return f;
         }

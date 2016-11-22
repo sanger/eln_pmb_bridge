@@ -1,12 +1,18 @@
 package sanger;
 
-import java.util.EnumMap;
-import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.*;
+
 
 /**
- * Created by hc6 on 18/11/2016.
+ * @author hc6
  */
 public class PrintConfig {
+    private static final Logger log = LoggerFactory.getLogger(PrintConfig.class);
+
     private static PrintConfig instance;
     private String baseLocation;
     private Map<PrinterLabelType, Integer> templateIds;
@@ -14,6 +20,38 @@ public class PrintConfig {
     public PrintConfig(String baseLocation, Map<PrinterLabelType, Integer> templateIds) {
         this.baseLocation = baseLocation;
         this.templateIds = templateIds;
+    }
+
+    public static PrintConfig loadConfig() {
+        PrintConfig p;
+        try {
+            p = loadProperties();
+        } catch (Exception e) {
+            p = null;
+            log.error("Failed to load print config", e);
+        }
+        setInstance(p);
+        log.info("Set up print configuration");
+        return p;
+    }
+
+    public static PrintConfig loadProperties() throws IOException {
+        FileManager fileManager = new FileManager();
+        Properties properties = fileManager.readPropertiesFile("pmb.properties");
+
+        String location = properties.getProperty("pmb_url", "");
+        if (location.isEmpty()) {
+            throw new IOException("No host supplied in pmb.properties");
+        }
+        Map<PrinterLabelType, Integer> templateIds = new EnumMap<>(PrinterLabelType.class);
+        for (PrinterLabelType labelType : PrinterLabelType.values()) {
+            String templateIdString = properties.getProperty(labelType.name().toLowerCase(), "").trim();
+            if (!templateIdString.isEmpty()) {
+                Integer templateId = Integer.valueOf(templateIdString.trim());
+                templateIds.put(labelType, templateId);
+            }
+        }
+        return new PrintConfig(location, templateIds);
     }
 
     public static PrintConfig getInstance() {
@@ -32,21 +70,12 @@ public class PrintConfig {
         return this.templateIds;
     }
 
-    public static void loadConfig() {
-//        location and templateIds will come from properties file
-        String location = "http://localhost:3000/v1";
-
-        Map<PrinterLabelType, Integer> templateIds = new EnumMap<>(PrinterLabelType.class);
-        templateIds.put(PrinterLabelType.Plate, 6);
-        templateIds.put(PrinterLabelType.Tube, 0);
-        templateIds.put(PrinterLabelType.Branded, 0);
-
-        PrintConfig printConfig = new PrintConfig(location, templateIds);
-        setInstance(printConfig);
-    }
-
     public Integer getTemplateIdForPrinter(String printer) {
         return getTemplateId(getLabelType(printer));
+    }
+
+    private Integer getTemplateId(PrinterLabelType labelType) {
+        return this.templateIds.get(labelType);
     }
 
     private PrinterLabelType getLabelType(String printerName) {
@@ -57,10 +86,6 @@ public class PrintConfig {
             }
         }
         return null;
-    }
-
-    private Integer getTemplateId(PrinterLabelType labelType) {
-        return this.templateIds.get(labelType);
     }
 
 }

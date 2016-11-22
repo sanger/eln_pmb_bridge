@@ -1,5 +1,6 @@
 package sanger;
-;
+
+import org.apache.log4j.PropertyConfigurator;
 import org.codehaus.jettison.json.JSONException;
 
 import java.io.IOException;
@@ -9,6 +10,7 @@ public class Main {
 
     public static void main(String[] args) throws IOException, JSONException {
         System.setProperty("java.net.preferIPv6Addresses", "true");
+        PropertyConfigurator.configure("log4j.properties");
 
 //        Console c = System.console();
 //        if (c == null) {
@@ -18,27 +20,26 @@ public class Main {
 //        System.out.println("Enter the name of a file containing a cell line and barcode");
 //        String fileName = c.readLine();
 //        FileManager manager = new FileManager();
-//        PrintRequest request = manager.readFile(fileName);
-
-//        String response = pmb.getJson(localUrl);
-//        System.out.println("Response: "+ response);
+//        PrintRequest request = manager.makeRequestFromFile(fileName);
+//
+//        PrintConfig.loadConfig();
+//        PMBClient pmbClient = new PMBClient(PrintConfig.getInstance());
+//        pmbClient.print(request);
 
         PrintConfig.loadConfig();
-
         PMBClient pmbClient = new PMBClient(PrintConfig.getInstance());
+
         String printerName = "d304bc";
 
         Map<String, String> fields = new HashMap<>();
         fields.put("cell_line", "zogh");
         fields.put("barcode", "200000000111");
 
-//        eg [Label{fields={cell_line=zogh, barcode=200000000111}}, Label{fields={cell_line=zogh, barcode=200000000111}}]
         List<PrintRequest.Label> labels = new ArrayList<>();
         PrintRequest.Label label = new PrintRequest.Label(fields);
         labels.add(label);
 
         PrintRequest mockRequest = new PrintRequest(printerName, labels);
         pmbClient.print(mockRequest);
-
     }
 }

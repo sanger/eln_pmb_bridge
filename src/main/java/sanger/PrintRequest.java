@@ -1,5 +1,8 @@
 package sanger;
 
+import org.codehaus.jackson.annotate.JsonCreator;
+import org.codehaus.jackson.annotate.JsonProperty;
+
 import java.util.List;
 import java.util.Map;
 
@@ -10,7 +13,10 @@ public class PrintRequest {
     private String printerName;
     private List<Label> labels;
 
-    public PrintRequest(String printerName, List<Label> labels) {
+    @JsonCreator
+    public PrintRequest(
+            @JsonProperty("printerName") String printerName,
+            @JsonProperty("labels") List<Label> labels) {
         this.printerName = printerName;
         this.labels = labels;
     }
@@ -31,17 +37,21 @@ public class PrintRequest {
                 '}';
     }
 
-
     public static class Label {
         private Map<String, String> fields;
 
-        public Label(Map<String, String> fields) {
+        @JsonCreator
+        public Label(
+                @JsonProperty("fields") Map<String, String> fields) {
             this.fields = fields;
         }
 
-//        eg {cell_line=zogh, barcode=20000000001}
         public Map<String, String> getFields() {
             return this.fields;
+        }
+
+        public String getField(String key) {
+            return this.fields.get(key);
         }
 
         @Override
