@@ -3,8 +3,7 @@ package sanger;
 import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonProperty;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author hc6
@@ -30,11 +29,25 @@ public class PrintRequest {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        PrintRequest that = (PrintRequest) o;
+        return (this.printerName.equals(that.printerName)
+                && this.labels.equals(that.labels));
+    }
+
+    @Override
     public String toString() {
         return "PrintRequest{" +
                 "printerName='" + printerName + '\'' +
                 ", labels=" + labels +
                 '}';
+    }
+
+    public int hashCode() {
+        return Objects.hash(this.printerName, this.labels);
     }
 
     public int length() {
@@ -56,6 +69,15 @@ public class PrintRequest {
 
         public String getField(String key) {
             return this.fields.get(key);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            Label that = (Label) o;
+            return (this.fields.equals(that.fields));
         }
 
         @Override

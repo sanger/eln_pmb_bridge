@@ -33,6 +33,7 @@ public class PrintRequestTest {
         PrintRequest result = objectMapper.readValue(jsonString, PrintRequest.class);
 
         PrintRequest.Label label1 = result.getLabels().get(0);
+        assertEquals(result, request);
         assertEquals(result.length(), 1);
         assertEquals(result.getPrinterName(), printerName);
         assertEquals(label1.getField("cell_line"), cellLine);

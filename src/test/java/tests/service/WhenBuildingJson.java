@@ -1,4 +1,4 @@
-package tests.service.pmbClientTests;
+package tests.service;
 
 import org.codehaus.jettison.json.*;
 import org.testng.annotations.Test;
@@ -13,18 +13,14 @@ import static org.testng.Assert.assertEquals;
  * @author hc6
  */
 public class WhenBuildingJson {
-    protected JSONObject result;
-    protected PMBClient pmbClient;
-    protected PrintRequest request;
 
     @Test
-    public void setContext() throws JSONException, IOException {
+    public void WhenConvertingToJson() throws JSONException, IOException {
 
-        Map<PrinterLabelType, Integer> templateIds = new EnumMap<>(PrinterLabelType.class);
-        templateIds.put(PrinterLabelType.Plate, 6);
-        templateIds.put(PrinterLabelType.Tube, 0);
-        templateIds.put(PrinterLabelType.Branded, 0);
-        pmbClient = new PMBClient(new PrintConfig("", templateIds));
+        Map<String, Integer> templateIds = new HashMap<>();
+        templateIds.put("d304bc", 6);
+        templateIds.put("e367bc", 0);
+        PMBClient pmbClient = new PMBClient(new PrintConfig("", templateIds));
 
         Map<String, String> fieldMap = new HashMap<>();
         fieldMap.put("cell_line", "zogh");
@@ -32,16 +28,16 @@ public class WhenBuildingJson {
 
         PrintRequest.Label label1 = new PrintRequest.Label(fieldMap);
         String printerName = "e367bc";
-        request = new PrintRequest(printerName, Collections.singletonList(label1));
+        PrintRequest request = new PrintRequest(printerName, Collections.singletonList(label1));
 
-        result = pmbClient.buildJson(request);
+        JSONObject result = pmbClient.buildJson(request);
         assertEquals(result.length(), 1);
 
         JSONObject data = result.getJSONObject("data");
         JSONObject attr = data.getJSONObject("attributes");
         assertEquals(attr.length(), 3);
         assertEquals(attr.getString("printer_name"), printerName);
-        assertEquals(attr.getInt("label_template_id"), (int) templateIds.get(PrinterLabelType.Tube));
+        assertEquals(attr.getInt("label_template_id"), (int) templateIds.get("e367bc"));
 
         JSONObject labels = attr.getJSONObject("labels");
         assertEquals(labels.length(), 1);

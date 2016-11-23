@@ -25,23 +25,39 @@ public class FileManager {
         File file = findFile(filename);
 
         PrintRequest request = null;
-        Scanner scanner = new Scanner(file);
-        while (scanner.hasNext()) {
-            String s = scanner.next();
-            String[] values = s.split("[|]");
+        if (file!=null){
+            Scanner scanner = new Scanner(file);
+            while (scanner.hasNext()) {
+                String s = scanner.next();
+                String[] values = s.split("[|]");
 
-            Map<String, String> fieldMap = new HashMap<>();
-            fieldMap.put("cell_line", values[0]);
-            fieldMap.put("barcode", values[1]);
+                Map<String, String> fieldMap = new HashMap<>();
+                fieldMap.put("cell_line", values[0]);
+                fieldMap.put("barcode", values[1]);
 
-            List<PrintRequest.Label> labels = new ArrayList<>();
-            PrintRequest.Label label = new PrintRequest.Label(fieldMap);
-            labels.add(label);
+                List<PrintRequest.Label> labels = new ArrayList<>();
+                PrintRequest.Label label = new PrintRequest.Label(fieldMap);
+                labels.add(label);
 
-            request = new PrintRequest("d340bc", labels);
-            System.out.println(request);
+                request = new PrintRequest("d340bc", labels);
+            }
         }
         return request;
+    }
+
+    public List<String> getPrintersFromFile(String filename) throws FileNotFoundException {
+        File file = findFile(filename);
+        List<String> printers = new ArrayList<>();
+
+        if (file!=null){
+            Scanner scanner = new Scanner(file);
+            while (scanner.hasNext()) {
+                String s = scanner.next();
+                String[] values = s.split("[\n]");
+                Collections.addAll(printers, values);
+            }
+        }
+        return printers;
     }
 
     private File findFile(String filename) {

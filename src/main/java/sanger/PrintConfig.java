@@ -13,13 +13,12 @@ import java.util.*;
 public class PrintConfig {
     private static final Logger log = LoggerFactory.getLogger(PrintConfig.class);
 
-    private static PrintConfig instance;
     private String pmbURL;
-    private Map<PrinterLabelType, Integer> templateIds;
+    private Map<String, Integer> printerTemplateIds;
 
-    public PrintConfig(String pmbURL, Map<PrinterLabelType, Integer> templateIds) {
+    public PrintConfig(String pmbURL, Map<String, Integer> printerTemplateIds) {
         this.pmbURL = pmbURL;
-        this.templateIds = templateIds;
+        this.printerTemplateIds = printerTemplateIds;
     }
 
     public static PrintConfig loadConfig() {
@@ -30,7 +29,6 @@ public class PrintConfig {
             p = null;
             log.error("Failed to load print config", e);
         }
-        setInstance(p);
         log.info("Set up print configuration");
         return p;
     }
@@ -43,49 +41,25 @@ public class PrintConfig {
         if (pmbURL.isEmpty()) {
             throw new IOException("No host supplied in pmb.properties");
         }
-        Map<PrinterLabelType, Integer> templateIds = new EnumMap<>(PrinterLabelType.class);
-        for (PrinterLabelType labelType : PrinterLabelType.values()) {
-            String templateIdString = properties.getProperty(labelType.name().toLowerCase(), "").trim();
+        List<String> printers = fileManager.getPrintersFromFile("printers.properties");
+        Map<String, Integer> printerTemplateIds = new HashMap<>();
+
+        for (String printerName : printers) {
+            String templateIdString = properties.getProperty(printerName.toLowerCase(), "").trim();
             if (!templateIdString.isEmpty()) {
                 Integer templateId = Integer.valueOf(templateIdString.trim());
-                templateIds.put(labelType, templateId);
+                printerTemplateIds.put(printerName, templateId);
             }
         }
-        return new PrintConfig(pmbURL, templateIds);
-    }
-
-    public static PrintConfig getInstance() {
-        return instance;
-    }
-
-    public static void setInstance(PrintConfig instance) {
-        PrintConfig.instance = instance;
+        return new PrintConfig(pmbURL, printerTemplateIds);
     }
 
     public String getPmbURL() {
         return this.pmbURL;
     }
 
-    public Map<PrinterLabelType, Integer> getTemplateIds() {
-        return this.templateIds;
-    }
-
     public Integer getTemplateIdForPrinter(String printer) {
-        return getTemplateId(getLabelType(printer));
-    }
-
-    private Integer getTemplateId(PrinterLabelType labelType) {
-        return this.templateIds.get(labelType);
-    }
-
-    private PrinterLabelType getLabelType(String printerName) {
-        if (printerName!=null) {
-            switch (printerName) {
-                case "d304bc" : return PrinterLabelType.Plate;
-                case "e367bc" : return PrinterLabelType.Tube;
-            }
-        }
-        return null;
+        return this.printerTemplateIds.get(printer);
     }
 
 }

@@ -26,14 +26,14 @@ public class Main {
 //        PMBClient pmbClient = new PMBClient(PrintConfig.getInstance());
 //        pmbClient.print(request);
 
-        PrintConfig.loadConfig();
-        PMBClient pmbClient = new PMBClient(PrintConfig.getInstance());
+        PrintConfig printConfig = PrintConfig.loadConfig();
+        PMBClient pmbClient = new PMBClient(printConfig);
 
         String printerName = "d304bc";
 
         Map<String, String> fields = new HashMap<>();
-        fields.put("cell_line", "zogh");
-        fields.put("barcode", "200000000111");
+        fields.put("cell_line", "nawk");
+        fields.put("barcode", "2000000000010");
 
         List<PrintRequest.Label> labels = new ArrayList<>();
         PrintRequest.Label label = new PrintRequest.Label(fields);
