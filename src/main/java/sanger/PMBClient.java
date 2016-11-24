@@ -4,9 +4,9 @@ import org.codehaus.jettison.json.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.net.*;
 
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_OK;
@@ -22,15 +22,19 @@ public class PMBClient {
         this.config = config;
     }
 
-    public void print(PrintRequest request) throws IOException, JSONException {
+    public void print(PrintRequest request) throws JSONException, IOException {
         JSONObject jsonObject = buildJson(request);
         URL url = new URL(config.getPmbURL()+"/print_jobs");
-        postJson(url, jsonObject);
-
-        for (PrintRequest.Label label : request.getLabels()) {
-            String logString = String.format("User %s printed barcode %s at printer %s",
-                    System.getProperty("user.name"),  label.getField("barcode"),request.getPrinterName());
-            log.info(logString);
+        try {
+            postJson(url, jsonObject);
+            for (PrintRequest.Label label : request.getLabels()) {
+                String logString = String.format("User %s printed barcode %s at printer %s",
+                        System.getProperty("user.name"), label.getField("barcode"),request.getPrinterName());
+                log.info(logString);
+            }
+        } catch (IOException e) {
+            log.error("Failed to post json to {}", url);
+            e.printStackTrace();
         }
     }
 
@@ -74,7 +78,7 @@ public class PMBClient {
             out.flush();
 
             int responseCode = connection.getResponseCode();
-            System.out.println("Response code: " + responseCode);
+            log.info("Response code: {}", responseCode);
 
             if (responseCode == HTTP_NOT_FOUND) {
                 throw new IOException(HTTP_NOT_FOUND + " - NOT FOUND");
@@ -82,7 +86,6 @@ public class PMBClient {
             if (responseCode != HTTP_OK) {
                 throw new IOException();
             }
-            log.info("HttpURLConnection {} successful", connection);
         } finally {
             if (connection != null) {
                 connection.disconnect();
@@ -93,20 +96,7 @@ public class PMBClient {
     private void setHeaders(HttpURLConnection connection) {
         connection.setRequestProperty("Content-Type", "application/json");
         connection.setRequestProperty("Accept", "application/json");
-    }
-
-    public static String getResponseString(InputStream is) throws IOException {
-        if (is==null) {
-            return null;
-        }
-        try (BufferedReader in = new BufferedReader(new InputStreamReader(is))) {
-            StringBuilder sb = new StringBuilder();
-            String line;
-            while ((line = in.readLine()) != null) {
-                sb.append(line);
-            }
-            return sb.toString();
-        }
+        log.info("Setting headers for connection {}", connection);
     }
 
 }

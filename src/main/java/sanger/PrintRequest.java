@@ -46,10 +46,6 @@ public class PrintRequest {
                 '}';
     }
 
-    public int hashCode() {
-        return Objects.hash(this.printerName, this.labels);
-    }
-
     public int length() {
         return this.labels.size();
     }

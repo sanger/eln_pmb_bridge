@@ -25,11 +25,11 @@ public class PrintConfig {
         PrintConfig p;
         try {
             p = loadProperties();
+            log.info("Loaded print configuration properties");
         } catch (Exception e) {
+            log.error("Failed to load print configuration properties");
             p = null;
-            log.error("Failed to load print config", e);
         }
-        log.info("Set up print configuration");
         return p;
     }
 
@@ -39,7 +39,8 @@ public class PrintConfig {
 
         String pmbURL = properties.getProperty("pmb_url", "");
         if (pmbURL.isEmpty()) {
-            throw new IOException("No host supplied in pmb.properties");
+            log.error("No pmb url supplied in pmb.properties");
+            throw new IOException("No pmb url supplied in pmb.properties");
         }
         List<String> printers = fileManager.getPrintersFromFile("printers.properties");
         Map<String, Integer> printerTemplateIds = new HashMap<>();
@@ -49,6 +50,8 @@ public class PrintConfig {
             if (!templateIdString.isEmpty()) {
                 Integer templateId = Integer.valueOf(templateIdString.trim());
                 printerTemplateIds.put(printerName, templateId);
+            } else {
+                log.error("Printer name {} does not have template id in pmb.properties file", printerName);
             }
         }
         return new PrintConfig(pmbURL, printerTemplateIds);
@@ -56,6 +59,10 @@ public class PrintConfig {
 
     public String getPmbURL() {
         return this.pmbURL;
+    }
+
+    public Map<String, Integer> getPrinterTemplateIds() {
+        return this.printerTemplateIds;
     }
 
     public Integer getTemplateIdForPrinter(String printer) {

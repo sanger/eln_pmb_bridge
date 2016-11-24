@@ -6,7 +6,7 @@ import sanger.PrintRequest;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Properties;
+import java.util.*;
 
 import static org.testng.Assert.assertEquals;
 
@@ -31,6 +31,14 @@ public class TestFileManager {
 
         assertEquals(request.getLabels().get(0).getField("cell_line"), "nawk");
         assertEquals(request.getLabels().get(0).getField("barcode"), "200000000101");
+    }
+
+    @Test
+    public void testReadPrintersFromFile() throws IOException {
+        FileManager fileManager = new FileManager();
+        List<String> result = fileManager.getPrintersFromFile("test_printers.properties");
+        List<String> printers = Arrays.asList("d304bc","e367bc");
+        assertEquals(result, printers);
     }
 
 }
