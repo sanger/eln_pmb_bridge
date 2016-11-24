@@ -1,10 +1,7 @@
-package tests.service;
+package uk.ac.sanger.eln_pmb_bridge;
 
 import org.codehaus.jettison.json.*;
 import org.testng.annotations.Test;
-import sanger.parameters.PrintRequest;
-import sanger.service.PMBClient;
-import sanger.service.PrintConfig;
 
 import java.io.IOException;
 import java.util.*;

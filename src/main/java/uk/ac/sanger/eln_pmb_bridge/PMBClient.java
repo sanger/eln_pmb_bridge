@@ -1,9 +1,8 @@
-package sanger.service;
+package uk.ac.sanger.eln_pmb_bridge;
 
 import org.codehaus.jettison.json.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sanger.parameters.PrintRequest;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -24,18 +23,16 @@ public class PMBClient {
     }
 
     public void print(PrintRequest request) throws JSONException, IOException {
+        if (request==null){
+            return;
+        }
         JSONObject jsonObject = buildJson(request);
-        URL url = new URL(config.getPmbURL()+"/print_jobs");
-        try {
-            postJson(url, jsonObject);
-            for (PrintRequest.Label label : request.getLabels()) {
-                String logString = String.format("User %s printed barcode %s at printer %s",
-                        System.getProperty("user.name"), label.getField("barcode"),request.getPrinterName());
-                log.info(logString);
-            }
-        } catch (IOException e) {
-            log.error("Failed to post json to {}", url);
-            e.printStackTrace();
+        URL url = new URL(config.getPmbURL());
+        postJson(url, jsonObject);
+        for (PrintRequest.Label label : request.getLabels()) {
+            String logString = String.format("Printed barcode %s at printer %s",
+                    label.getField("barcode"),request.getPrinterName());
+            log.info(logString);
         }
     }
 
@@ -79,8 +76,7 @@ public class PMBClient {
             out.flush();
 
             int responseCode = connection.getResponseCode();
-            log.info("Response code: {}", responseCode);
-
+            log.debug("Response code: {}", responseCode);
             if (responseCode == HTTP_NOT_FOUND) {
                 throw new IOException(HTTP_NOT_FOUND + " - NOT FOUND");
             }
@@ -96,8 +92,6 @@ public class PMBClient {
 
     private void setHeaders(HttpURLConnection connection) {
         connection.setRequestProperty("Content-Type", "application/json");
-        connection.setRequestProperty("Accept", "application/json");
-        log.info("Setting headers for connection {}", connection);
     }
 
 }

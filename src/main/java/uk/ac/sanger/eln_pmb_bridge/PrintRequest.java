@@ -1,4 +1,4 @@
-package sanger.parameters;
+package uk.ac.sanger.eln_pmb_bridge;
 
 import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonProperty;

@@ -1,9 +1,7 @@
-package tests.parameters;
-
+package uk.ac.sanger.eln_pmb_bridge;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.testng.annotations.Test;
-import sanger.parameters.PrintRequest;
 
 import java.io.IOException;
 import java.util.*;

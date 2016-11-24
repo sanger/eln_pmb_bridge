@@ -1,7 +1,6 @@
-package tests.service;
+package uk.ac.sanger.eln_pmb_bridge;
 
 import org.testng.annotations.Test;
-import sanger.service.PrintConfig;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -23,7 +22,7 @@ public class TestLoadProperties {
         templateIds.put("d304bc", 6);
         templateIds.put("e367bc", 0);
 
-        assertEquals(result.getPmbURL(), "http://localhost:3000/v1");
+        assertEquals(result.getPmbURL(), "http://localhost:3000/v1/print_jobs");
         assertEquals(result.getPrinterTemplateIds(), templateIds);
 
     }

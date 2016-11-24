@@ -1,11 +1,11 @@
-package sanger.service;
+package uk.ac.sanger.eln_pmb_bridge;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sanger.utils.FileManager;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 /**
@@ -22,37 +22,33 @@ public class PrintConfig {
         this.printerTemplateIds = printerTemplateIds;
     }
 
-    public static PrintConfig loadConfig() {
-        PrintConfig p;
-        try {
-            p = loadProperties();
-            log.info("Loaded print configuration properties");
-        } catch (Exception e) {
-            log.error("Failed to load print configuration properties");
-            p = null;
-        }
-        return p;
-    }
-
-    public static PrintConfig loadProperties() throws IOException {
+    public static PrintConfig loadConfig() throws IOException {
         FileManager fileManager = new FileManager();
         Properties properties = fileManager.readPropertiesFile("pmb.properties");
 
-        String pmbURL = properties.getProperty("pmb_url", "");
-        if (pmbURL.isEmpty()) {
-            log.error("No pmb url supplied in pmb.properties");
-            throw new IOException("No pmb url supplied in pmb.properties");
-        }
-        List<String> printers = fileManager.getPrintersFromFile("printers.properties");
-        Map<String, Integer> printerTemplateIds = new HashMap<>();
+        List<String> printers = new ArrayList<>();
+        printers.addAll(properties.keySet()
+                .stream()
+                .filter(entry -> !entry.equals("pmb_url"))
+                .map(entry -> (String) entry)
+                .collect(Collectors.toList()));
 
+        String pmbURL = properties.getProperty("pmb_url", "");
+
+        if (pmbURL.isEmpty() || printers.isEmpty()) {
+            log.error("Config is missing in pmb.properties");
+            throw new IOException("Config is missing in pmb.properties");
+        }
+
+        Map<String, Integer> printerTemplateIds = new HashMap<>();
         for (String printerName : printers) {
             String templateIdString = properties.getProperty(printerName.toLowerCase(), "").trim();
-            if (!templateIdString.isEmpty()) {
-                Integer templateId = Integer.valueOf(templateIdString.trim());
+            Integer templateId = Integer.valueOf(templateIdString.trim());
+            if (templateId!=null) {
                 printerTemplateIds.put(printerName, templateId);
             } else {
                 log.error("Printer name {} does not have template id in pmb.properties file", printerName);
+                throw new IOException("Printer does not have template id in pmb.properties file");
             }
         }
         return new PrintConfig(pmbURL, printerTemplateIds);
