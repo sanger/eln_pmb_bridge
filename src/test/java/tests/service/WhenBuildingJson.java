@@ -2,7 +2,9 @@ package tests.service;
 
 import org.codehaus.jettison.json.*;
 import org.testng.annotations.Test;
-import sanger.*;
+import sanger.parameters.PrintRequest;
+import sanger.service.PMBClient;
+import sanger.service.PrintConfig;
 
 import java.io.IOException;
 import java.util.*;

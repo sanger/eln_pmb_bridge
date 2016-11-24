@@ -1,4 +1,4 @@
-package sanger;
+package sanger.parameters;
 
 import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonProperty;

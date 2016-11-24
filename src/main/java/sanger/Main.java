@@ -1,6 +1,9 @@
 package sanger;
 
 import org.codehaus.jettison.json.JSONException;
+import sanger.parameters.PrintRequest;
+import sanger.service.PMBClient;
+import sanger.service.PrintConfig;
 
 import java.io.IOException;
 import java.util.*;

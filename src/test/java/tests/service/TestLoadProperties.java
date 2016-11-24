@@ -1,7 +1,7 @@
-package tests.config;
+package tests.service;
 
 import org.testng.annotations.Test;
-import sanger.PrintConfig;
+import sanger.service.PrintConfig;
 
 import java.io.IOException;
 import java.util.HashMap;

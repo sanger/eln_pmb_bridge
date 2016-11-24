@@ -3,7 +3,7 @@ package tests.parameters;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.testng.annotations.Test;
-import sanger.PrintRequest;
+import sanger.parameters.PrintRequest;
 
 import java.io.IOException;
 import java.util.*;

@@ -1,8 +1,8 @@
-package tests.file;
+package tests.utils;
 
 import org.testng.annotations.Test;
-import sanger.FileManager;
-import sanger.PrintRequest;
+import sanger.utils.FileManager;
+import sanger.parameters.PrintRequest;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
