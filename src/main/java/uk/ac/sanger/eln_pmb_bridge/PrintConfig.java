@@ -30,6 +30,7 @@ public class PrintConfig {
         printers.addAll(properties.keySet()
                 .stream()
                 .filter(entry -> !entry.equals("pmb_url"))
+                .filter(entry -> !entry.equals("poll_folder"))
                 .map(entry -> (String) entry)
                 .collect(Collectors.toList()));
 

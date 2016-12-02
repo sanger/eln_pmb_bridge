@@ -60,6 +60,10 @@ public class FileManager {
         if (f.isFile()) {
             return f;
         }
+        f = new File(System.getProperty("user.home") + "/Desktop/" + filename);
+        if (f.isFile()) {
+            return f;
+        }
         log.error("No file with name {} was found", filename);
         throw new IllegalArgumentException("No file was found");
     }
