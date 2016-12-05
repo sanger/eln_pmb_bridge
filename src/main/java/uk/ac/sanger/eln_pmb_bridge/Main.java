@@ -1,6 +1,8 @@
 package uk.ac.sanger.eln_pmb_bridge;
 
 import org.codehaus.jettison.json.JSONException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.*;
@@ -8,36 +10,38 @@ import java.util.List;
 import java.util.Properties;
 
 public class Main {
+    private static final Logger log = LoggerFactory.getLogger(PrintConfig.class);
 
     public static void main(String[] args) throws IOException, JSONException {
         System.setProperty("java.net.preferIPv6Addresses", "true");
 
         FileManager manager = new FileManager();
+        manager.setPMBProperties();
 
-        Properties properties = manager.readPropertiesFile("pmb.properties");
-        String pollFolder = properties.getProperty("poll_folder", "");
-        Path path = Paths.get(pollFolder);
-        String filename = "";
+        Path pollPath = manager.getPollFolderPath();
+        String newFile = "";
 
         try {
-            WatchService watcher = path.getFileSystem().newWatchService();
-            path.register(watcher, StandardWatchEventKinds.ENTRY_CREATE);
+            WatchService watcher = pollPath.getFileSystem().newWatchService();
+            pollPath.register(watcher, StandardWatchEventKinds.ENTRY_CREATE);
             WatchKey watchKey = watcher.take();
             List<WatchEvent<?>> watchEvents = watchKey.pollEvents();
             for (WatchEvent event : watchEvents) {
-                filename = event.context().toString();
+                newFile = event.context().toString();
+                log.info(String.format("New file %s in polled folder", event.context().toString()));
                 System.out.println("Created: " + event.context().toString());
             }
         } catch (Exception e) {
-            System.out.println("error" + e.toString());
+            log.error("Watch service error", e);
         }
 
-        PrintRequest request = manager.makeRequestFromFile(filename);
+        PrintRequest request = manager.makeRequestFromFile(newFile);
 
-        PrintConfig printConfig = PrintConfig.loadConfig();
+        Properties properties = manager.getPMBProperties();
+        PrintConfig printConfig = PrintConfig.loadConfig(properties);
         PMBClient pmbClient = new PMBClient(printConfig);
 
         pmbClient.print(request);
-
+        manager.archiveFile(newFile);
     }
 }

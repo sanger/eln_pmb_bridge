@@ -2,7 +2,7 @@ package uk.ac.sanger.eln_pmb_bridge;
 
 import org.testng.annotations.Test;
 import java.io.IOException;
-import java.util.*;
+import java.util.Properties;
 
 import static org.testng.Assert.assertEquals;
 
@@ -14,15 +14,17 @@ public class TestFileManager {
     @Test
     public void testReadPropertiesFromFile() throws IOException {
         FileManager fileManager = new FileManager();
-        Properties resultProperties = fileManager.readPropertiesFile("test_pmb.properties");
+        fileManager.setPMBProperties();
+        Properties resultProperties = fileManager.getPMBProperties();
 
-        assertEquals(resultProperties.getProperty("pmb_url"), "url");
-        assertEquals(resultProperties.getProperty("d304bc"), "1");
+        assertEquals(resultProperties.getProperty("pmb_url"), "http://localhost:3000/v1/print_jobs");
+        assertEquals(resultProperties.getProperty("d304bc"), "6");
     }
 
     @Test
     public void testMakeRequestFromFile() throws IOException {
         FileManager fileManager = new FileManager();
+        fileManager.setPMBProperties();
         PrintRequest request = fileManager.makeRequestFromFile("test_print_request.csv");
 
         assertEquals(request.getLabels().get(0).getField("cell_line"), "nawk");
@@ -30,11 +32,12 @@ public class TestFileManager {
     }
 
     @Test
-    public void testReadPrintersFromFile() throws IOException {
+    public void testArchiveFile() throws IOException {
         FileManager fileManager = new FileManager();
-//        List<String> result = fileManager.getPrintersFromFile("test_printers.properties");
-//        List<String> printers = Arrays.asList("d304bc","e367bc");
-//        assertEquals(result, printers);
+        fileManager.setPMBProperties();
+
+        Properties resultProperties = fileManager.getPMBProperties();
+        assertEquals(resultProperties.getProperty("archive_folder"), "/Users/hc6/Desktop/eln_pmb_folder/archive_folder");
     }
 
 }

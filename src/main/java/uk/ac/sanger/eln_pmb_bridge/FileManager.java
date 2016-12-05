@@ -4,6 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.nio.file.*;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -12,22 +14,26 @@ import java.util.regex.Pattern;
  */
 public class FileManager {
     private static final Logger log = LoggerFactory.getLogger(FileManager.class);
+    private Properties properties;
 
     public PrintRequest makeRequestFromFile(String filename) throws IOException {
         File file = findFile(filename);
-
-        List<PrintRequest.Label> labels = new ArrayList<>();
         Scanner scanner = new Scanner(file);
 
+        List<Map<String, String>> fields = new ArrayList<>();
         while (scanner.hasNextLine()) {
-            String s = scanner.nextLine();
-            String[] values = s.split(Pattern.quote("|"));
+            String line = scanner.nextLine();
+            String[] data = line.split(Pattern.quote("|"));
 
             Map<String, String> fieldMap = new HashMap<>();
-            fieldMap.put("cell_line", values[0]);
-            fieldMap.put("barcode", values[1]);
+            fieldMap.put("cell_line", data[0]);
+            fieldMap.put("barcode", data[1]);
+            fields.add(fieldMap);
+        }
 
-            PrintRequest.Label label = new PrintRequest.Label(fieldMap);
+        List<PrintRequest.Label> labels = new ArrayList<>();
+        for (Map<String, String> field : fields) {
+            PrintRequest.Label label = new PrintRequest.Label(field);
             labels.add(label);
         }
 //          printer name might come from file
@@ -41,31 +47,64 @@ public class FileManager {
         return request;
     }
 
-    public Properties readPropertiesFile(String fileName) throws IOException {
-        File file = findFile(fileName);
-        Properties properties = new Properties();
+    public void archiveFile(String filename) throws IOException {
+        File sourceFile = findFile(filename);
+        String archiveFolder = properties.getProperty("archive_folder", "");
 
-        FileInputStream fileInputStream = new FileInputStream(file);
-        properties.load(fileInputStream);
+        String archiveTime = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
+        String archiveFileName = filename.split("\\.")[0] + "_" + archiveTime + ".txt";
 
-        log.info("Successfully read properties from file");
-        return properties;
+        File archiveFile = new File(archiveFolder + "/" + archiveFileName);
+
+        Files.move(sourceFile.toPath(), archiveFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+
+        log.info(String.format("Archived file %s from %s to %s",
+                filename, sourceFile.toPath(), archiveFile.toPath()));
+    }
+
+    public Properties getPMBProperties() {
+        return this.properties;
+    }
+
+    public void setPMBProperties() throws IOException {
+        File propertiesFile = findPropertiesFile();
+        FileInputStream fileInputStream = new FileInputStream(propertiesFile);
+
+        this.properties = new Properties();
+        this.properties.load(fileInputStream);
+
+        log.info("Successfully set pmb properties");
     }
 
     private File findFile(String filename) {
+        String pollFolder = properties.getProperty("poll_folder", "");
         if (filename == null) {
             throw new IllegalArgumentException("Filename is null");
         }
-        File f = new File(System.getProperty("user.dir") + File.separator + filename);
+        File f = new File(pollFolder + "/" + filename);
         if (f.isFile()) {
             return f;
         }
-        f = new File(System.getProperty("user.home") + "/Desktop/" + filename);
+        f = new File(System.getProperty("user.dir") + File.separator + filename);
         if (f.isFile()) {
             return f;
         }
         log.error("No file with name {} was found", filename);
         throw new IllegalArgumentException("No file was found");
+    }
+
+    public File findPropertiesFile() {
+        File f = new File(System.getProperty("user.dir") + File.separator + "pmb.properties");
+        if (f.isFile()) {
+            return f;
+        }
+        log.error("PMB properties file was not found");
+        throw new IllegalArgumentException("PMB properties file was not found");
+    }
+
+    public Path getPollFolderPath() {
+        String pollFolder = properties.getProperty("poll_folder", "");
+        return Paths.get(pollFolder);
     }
 
 }

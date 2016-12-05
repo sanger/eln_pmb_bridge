@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-
 /**
  * @author hc6
  */
@@ -22,15 +21,13 @@ public class PrintConfig {
         this.printerTemplateIds = printerTemplateIds;
     }
 
-    public static PrintConfig loadConfig() throws IOException {
-        FileManager fileManager = new FileManager();
-        Properties properties = fileManager.readPropertiesFile("pmb.properties");
-
+    public static PrintConfig loadConfig(Properties properties) throws IOException {
         List<String> printers = new ArrayList<>();
         printers.addAll(properties.keySet()
                 .stream()
                 .filter(entry -> !entry.equals("pmb_url"))
                 .filter(entry -> !entry.equals("poll_folder"))
+                .filter(entry -> !entry.equals("archive_folder"))
                 .map(entry -> (String) entry)
                 .collect(Collectors.toList()));
 
