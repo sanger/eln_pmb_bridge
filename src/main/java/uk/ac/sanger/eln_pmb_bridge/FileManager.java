@@ -9,6 +9,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * @author hc6
@@ -33,6 +34,15 @@ public class FileManager {
             printerName = matcher.group(1);
         }
 
+        boolean printerExists = properties.keySet()
+                .stream()
+                .filter(entry -> !entry.equals("pmb_url"))
+                .filter(entry -> !entry.equals("poll_folder"))
+                .filter(entry -> !entry.equals("archive_folder"))
+                .map(entry -> (String) entry)
+                .collect(Collectors.toList())
+                .contains(printerName);
+
         while(scanner.hasNext()){
             String line = scanner.nextLine();
             String[] data = line.split(Pattern.quote("|"));
@@ -52,8 +62,9 @@ public class FileManager {
             labels.add(label);
         }
 
-        if (printerName.isEmpty() || labels.isEmpty()){
-            throw new IOException("Cannot make print request with empty fields");
+        if (!printerExists || labels.isEmpty()){
+            log.debug(String.format("Printer name %s doesn't exist or labels is empty", printerName));
+            throw new IOException("Cannot make print request as printer doesnt exist or labels is empty");
         }
 
         PrintRequest request = new PrintRequest(printerName, labels);
@@ -69,7 +80,6 @@ public class FileManager {
         String archiveFileName = filename.split("\\.")[0] + "_" + archiveTime + ".txt";
 
         File archiveFile = new File(archiveFolder + "/" + archiveFileName);
-
         Files.move(sourceFile.toPath(), archiveFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 
         log.info(String.format("Archived file %s from %s to %s",

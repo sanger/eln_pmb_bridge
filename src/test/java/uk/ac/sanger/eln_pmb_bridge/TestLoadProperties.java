@@ -27,7 +27,7 @@ public class TestLoadProperties {
 
         PrintConfig result = PrintConfig.loadConfig(fm.getPMBProperties());
         Map<String, Integer> templateIds = new HashMap<>();
-        templateIds.put("d304bc", 6);
+        templateIds.put("d304bc", 15);
         templateIds.put("e367bc", 0);
 
         assertEquals(result.getPmbURL(), "http://localhost:3000/v1/print_jobs");
