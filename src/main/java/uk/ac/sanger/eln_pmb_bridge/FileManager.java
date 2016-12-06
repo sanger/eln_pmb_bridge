@@ -7,6 +7,7 @@ import java.io.*;
 import java.nio.file.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -21,7 +22,17 @@ public class FileManager {
         Scanner scanner = new Scanner(file);
 
         List<Map<String, String>> fields = new ArrayList<>();
+
+        String firstLine = scanner.nextLine();
         scanner.nextLine();
+        scanner.nextLine();
+
+        Matcher matcher = Pattern.compile("PRN=\"([^\"]+)\"").matcher(firstLine);
+        String printerName = "";
+        if (matcher.find()) {
+            printerName = matcher.group(1);
+        }
+
         while(scanner.hasNext()){
             String line = scanner.nextLine();
             String[] data = line.split(Pattern.quote("|"));
@@ -40,8 +51,7 @@ public class FileManager {
             PrintRequest.Label label = new PrintRequest.Label(field);
             labels.add(label);
         }
-//          printer name might come from file
-        String printerName = "d304bc";
+
         if (printerName.isEmpty() || labels.isEmpty()){
             throw new IOException("Cannot make print request with empty fields");
         }

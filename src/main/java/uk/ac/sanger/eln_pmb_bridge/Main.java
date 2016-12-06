@@ -29,7 +29,6 @@ public class Main {
             for (WatchEvent event : watchEvents) {
                 newFile = event.context().toString();
                 log.info(String.format("New file %s in polled folder", event.context().toString()));
-                System.out.println("Created: " + event.context().toString());
             }
         } catch (Exception e) {
             log.error("Watch service error", e);
