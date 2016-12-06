@@ -21,13 +21,17 @@ public class FileManager {
         Scanner scanner = new Scanner(file);
 
         List<Map<String, String>> fields = new ArrayList<>();
-        while (scanner.hasNextLine()) {
+        scanner.nextLine();
+        while(scanner.hasNext()){
             String line = scanner.nextLine();
             String[] data = line.split(Pattern.quote("|"));
 
             Map<String, String> fieldMap = new HashMap<>();
-            fieldMap.put("cell_line", data[0]);
-            fieldMap.put("barcode", data[1]);
+            fieldMap.put("cell_line", data[0].trim());
+            fieldMap.put("barcode", data[1].trim());
+            fieldMap.put("barcode_text", data[1].trim());
+            fieldMap.put("passage_number", data[2].trim());
+            fieldMap.put("date", data[3].trim());
             fields.add(fieldMap);
         }
 
