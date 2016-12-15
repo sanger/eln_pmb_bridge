@@ -8,6 +8,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
+ * Class holding the pmb url and template id's for printing labels via PrintMyBarcode
  * @author hc6
  */
 public class PrintConfig {
@@ -21,6 +22,10 @@ public class PrintConfig {
         this.printerTemplateIds = printerTemplateIds;
     }
 
+    /**
+     * Gets a map of printer name to template ids and pmb url from the properties file
+     * @param properties the properties configured from pmb.properties
+     */
     public static PrintConfig loadConfig(Properties properties) throws IOException {
         List<String> printers = new ArrayList<>();
         printers.addAll(properties.keySet()

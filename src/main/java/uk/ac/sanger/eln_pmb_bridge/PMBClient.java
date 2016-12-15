@@ -12,6 +12,7 @@ import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 import static java.net.HttpURLConnection.HTTP_OK;
 
 /**
+ * Client for sending print job requests to PrintMyBarcode
  * @author hc6
  */
 public class PMBClient {
@@ -21,7 +22,11 @@ public class PMBClient {
     public PMBClient(PrintConfig config) {
         this.config = config;
     }
-
+    /**
+     * Builds a json object from the request
+     * Sets the request headers and post a json request to pmb
+     * @param request the request to print
+     */
     public void print(PrintRequest request) throws JSONException, IOException {
         if (request==null){
             return;

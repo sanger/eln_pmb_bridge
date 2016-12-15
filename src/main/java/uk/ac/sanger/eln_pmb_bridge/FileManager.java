@@ -12,6 +12,10 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
+ * Helper class to
+ *   - read and set pmb.properties file
+ *   - make a print request from a file
+ *   - archive a file
  * @author hc6
  */
 public class FileManager {
@@ -28,6 +32,10 @@ public class FileManager {
         scanner.nextLine();
         scanner.nextLine();
 
+        /**
+         * Get the requested printer name
+         * Checks the printer exists against printers configured in pmb.properties
+         */
         Matcher matcher = Pattern.compile("PRN=\"([^\"]+)\"").matcher(firstLine);
         String printerName = "";
         if (matcher.find()) {
@@ -43,6 +51,9 @@ public class FileManager {
                 .collect(Collectors.toList())
                 .contains(printerName);
 
+        /**
+         * Gathers the rest of the data from the file and creates a label for each row in the file
+         */
         while(scanner.hasNext()){
             String line = scanner.nextLine();
             String[] data = line.split(Pattern.quote("|"));
@@ -72,6 +83,12 @@ public class FileManager {
         return request;
     }
 
+    /**
+     * Archives a file after sending a print job request
+     *   - gets the archive folder path from properties
+     *   - finds the file from the given filename, adds a timestamp and moves it to archive folder
+     * @param filename the filename to find
+     */
     public void archiveFile(String filename) throws IOException {
         File sourceFile = findFile(filename);
         String archiveFolder = properties.getProperty("archive_folder", "");
@@ -100,6 +117,13 @@ public class FileManager {
         log.info("Successfully set pmb properties");
     }
 
+    /**
+     * Tries to find a file with the given filename in various folders:
+     *   - the current working directory
+     *   - poll folder path
+     * @param filename the filename to find
+     * @return the first matching file found, or throw exception if no such file is found
+     */
     private File findFile(String filename) {
         String pollFolder = properties.getProperty("poll_folder", "");
         if (filename == null) {
