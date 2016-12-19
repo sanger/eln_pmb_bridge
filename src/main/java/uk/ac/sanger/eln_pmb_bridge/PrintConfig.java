@@ -23,7 +23,7 @@ public class PrintConfig {
     }
 
     /**
-     * Gets a map of printer name to template ids and pmb url from the properties file
+     * Maps printer name to template id and retrieves pmb url from the pmb.properties file
      * @param properties the properties configured from pmb.properties
      */
     public static PrintConfig loadConfig(Properties properties) throws IOException {
@@ -39,8 +39,8 @@ public class PrintConfig {
         String pmbURL = properties.getProperty("pmb_url", "");
 
         if (pmbURL.isEmpty() || printers.isEmpty()) {
-            log.error("Config is missing in pmb.properties");
-            throw new IOException("Config is missing in pmb.properties");
+            log.error("PMB url is missing or list of printers is empty in pmb.properties");
+            throw new IOException("PMB url is missing or list of printers is empty in pmb.properties");
         }
 
         Map<String, Integer> printerTemplateIds = new HashMap<>();
@@ -50,8 +50,8 @@ public class PrintConfig {
             if (templateId!=null) {
                 printerTemplateIds.put(printerName, templateId);
             } else {
-                log.error("Printer name {} does not have template id in pmb.properties file", printerName);
-                throw new IOException("Printer does not have template id in pmb.properties file");
+                log.error(String.format("Printer name %s does not have template id in pmb.properties file", printerName));
+                throw new IOException(String.format("Printer name %s does not have template id in pmb.properties file", printerName));
             }
         }
         return new PrintConfig(pmbURL, printerTemplateIds);

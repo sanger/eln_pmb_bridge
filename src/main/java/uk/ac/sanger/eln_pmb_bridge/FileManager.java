@@ -13,8 +13,9 @@ import java.util.stream.Collectors;
 
 /**
  * Helper class to
- *   - read and set pmb.properties file
+ *   - read and set property files
  *   - make a print request from a file
+ *   - check r/w/e permissions of a file
  *   - archive a file
  * @author hc6
  */
@@ -26,15 +27,12 @@ public class FileManager {
         File file = findFile(filename);
         Scanner scanner = new Scanner(file);
 
-        List<Map<String, String>> fields = new ArrayList<>();
-
         String firstLine = scanner.nextLine();
         scanner.nextLine();
         scanner.nextLine();
 
         /**
-         * Get the requested printer name
-         * Checks the printer exists against printers configured in pmb.properties
+         * Retrieve requested printer name from the file and check printer name exists
          */
         Matcher matcher = Pattern.compile("PRN=\"([^\"]+)\"").matcher(firstLine);
         String printerName = "";
@@ -42,14 +40,9 @@ public class FileManager {
             printerName = matcher.group(1);
         }
 
-        boolean printerExists = properties.keySet()
-                .stream()
-                .filter(entry -> !entry.equals("pmb_url"))
-                .filter(entry -> !entry.equals("poll_folder"))
-                .filter(entry -> !entry.equals("archive_folder"))
-                .map(entry -> (String) entry)
-                .collect(Collectors.toList())
-                .contains(printerName);
+        List<String> printers = getPrinters();
+        boolean printerExists = printers.contains(printerName);
+        List<Map<String, String>> fields = new ArrayList<>();
 
         /**
          * Gathers the rest of the data from the file and creates a label for each row in the file
@@ -75,11 +68,11 @@ public class FileManager {
 
         if (!printerExists || labels.isEmpty()){
             log.debug(String.format("Printer name %s doesn't exist or labels is empty", printerName));
-            throw new IOException("Cannot make print request as printer doesnt exist or labels is empty");
+            throw new IOException("Cannot make print request as printer doesn't exist or labels is empty");
         }
 
         PrintRequest request = new PrintRequest(printerName, labels);
-        log.info("Made print request from file {}", filename);
+        log.info(String.format("Made print request from file \"%s\"", filename));
         return request;
     }
 
@@ -87,40 +80,56 @@ public class FileManager {
      * Archives a file after sending a print job request
      *   - gets the archive folder path from properties
      *   - finds the file from the given filename, adds a timestamp and moves it to archive folder
-     * @param filename the filename to find
+     * @param filename the filename to archive
      */
     public void archiveFile(String filename) throws IOException {
         File sourceFile = findFile(filename);
         String archiveFolder = properties.getProperty("archive_folder", "");
-
         String archiveTime = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
         String archiveFileName = filename.split("\\.")[0] + "_" + archiveTime + ".txt";
-
         File archiveFile = new File(archiveFolder + "/" + archiveFileName);
-        Files.move(sourceFile.toPath(), archiveFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 
-        log.info(String.format("Archived file %s from %s to %s",
-                filename, sourceFile.toPath(), archiveFile.toPath()));
+        boolean canArchive = checkFileWritable(sourceFile);
+        if (!canArchive) {
+            throw new IOException(String.format("File \"%s\" does not have the correct permissions to archive.", filename));
+        }
+        Files.move(sourceFile.toPath(), archiveFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        log.info(String.format("Archived file \"%s\" from %s to %s", filename, sourceFile.toPath(), archiveFile.toPath()));
+    }
+
+    public void setPMBProperties() throws IOException {
+        File propertiesFile = findPropertiesFile("pmb.properties");
+        FileInputStream fileInputStream = new FileInputStream(propertiesFile);
+
+        this.properties = new Properties();
+        this.properties.load(fileInputStream);
+
+        log.info("Successfully set pmb.properties");
     }
 
     public Properties getPMBProperties() {
         return this.properties;
     }
 
-    public void setPMBProperties() throws IOException {
-        File propertiesFile = findPropertiesFile();
+    public Properties getMailProperties() throws IOException {
+        File propertiesFile = findPropertiesFile("mail.properties");
         FileInputStream fileInputStream = new FileInputStream(propertiesFile);
 
-        this.properties = new Properties();
-        this.properties.load(fileInputStream);
+        Properties mailProperties = new Properties();
+        mailProperties.load(fileInputStream);
+        return mailProperties;
+    }
 
-        log.info("Successfully set pmb properties");
+    public Path getPollFolderPath() {
+        String pollFolder = properties.getProperty("poll_folder", "");
+        return Paths.get(pollFolder);
     }
 
     /**
      * Tries to find a file with the given filename in various folders:
      *   - the current working directory
      *   - poll folder path
+     *   - test folder path
      * @param filename the filename to find
      * @return the first matching file found, or throw exception if no such file is found
      */
@@ -137,22 +146,52 @@ public class FileManager {
         if (f.isFile()) {
             return f;
         }
-        log.error("No file with name {} was found", filename);
-        throw new IllegalArgumentException("No file was found");
-    }
-
-    public File findPropertiesFile() {
-        File f = new File(System.getProperty("user.dir") + File.separator + "pmb.properties");
+        f = new File(System.getProperty("user.dir") + File.separator + "data" + File.separator + filename);
         if (f.isFile()) {
             return f;
         }
-        log.error("PMB properties file was not found");
-        throw new IllegalArgumentException("PMB properties file was not found");
+        log.error(String.format("No file with name \"%s\" was found", filename));
+        throw new IllegalArgumentException(String.format("No file with name \"%s\" was found", filename));
     }
 
-    public Path getPollFolderPath() {
-        String pollFolder = properties.getProperty("poll_folder", "");
-        return Paths.get(pollFolder);
+    public File findPropertiesFile(String filename) {
+        File f = new File(System.getProperty("user.dir") + File.separator + filename);
+        if (f.isFile()) {
+            return f;
+        }
+        log.error(String.format("%s file was not found", filename));
+        throw new IllegalArgumentException(String.format("%s file was not found", filename));
     }
 
+    /**
+     * Checks if a file has the correct permissions allowing it to be archived
+     */
+    private boolean checkFileWritable(File sourceFile) {
+        if (sourceFile.exists()) {
+            if (!sourceFile.isFile()) {
+                log.debug("Cannot archive file", String.format("File %s is not a regular file.",
+                        sourceFile.getAbsolutePath()));
+                return false;
+            }
+            if (!sourceFile.canWrite()) {
+                log.debug("Cannot archive file", String.format("File %s does not have the correct permissions to archive.",
+                        sourceFile.getAbsolutePath()));
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Returns a list of printers configured in pmb.properties
+     */
+    public List<String> getPrinters() {
+        return properties.keySet()
+                .stream()
+                .filter(entry -> !entry.equals("pmb_url"))
+                .filter(entry -> !entry.equals("poll_folder"))
+                .filter(entry -> !entry.equals("archive_folder"))
+                .map(entry -> (String) entry)
+                .collect(Collectors.toList());
+    }
 }

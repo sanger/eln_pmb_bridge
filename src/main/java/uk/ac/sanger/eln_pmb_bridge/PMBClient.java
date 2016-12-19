@@ -24,7 +24,8 @@ public class PMBClient {
     }
     /**
      * Builds a json object from the request
-     * Sets the request headers and post a json request to pmb
+     * Sets the request headers
+     * Posts a json request to pmb
      * @param request the request to print
      */
     public void print(PrintRequest request) throws JSONException, IOException {
@@ -35,9 +36,8 @@ public class PMBClient {
         URL url = new URL(config.getPmbURL());
         postJson(url, jsonObject);
         for (PrintRequest.Label label : request.getLabels()) {
-            String logString = String.format("Printed barcode %s at printer %s",
-                    label.getField("barcode"),request.getPrinterName());
-            log.info(logString);
+            log.info(String.format("Printed barcode %s at printer %s",
+                    label.getField("barcode"), request.getPrinterName()));
         }
     }
 

@@ -15,7 +15,7 @@ import static org.testng.Assert.assertEquals;
 public class TestLoadProperties {
 
     @Test
-    public void testLoadProperties() throws IOException {
+    public void testLoadPMBProperties() throws IOException {
 
         FileManager fm = new FileManager();
         fm.setPMBProperties();
@@ -32,5 +32,23 @@ public class TestLoadProperties {
 
         assertEquals(result.getPmbURL(), "http://localhost:3000/v1/print_jobs");
         assertEquals(result.getPrinterTemplateIds(), templateIds);
+    }
+
+
+    @Test
+    public void testLoadMailProperties() throws IOException {
+
+        FileManager fm = new FileManager();
+        Properties properties = fm.getMailProperties();
+
+        String host = properties.getProperty("mail.smtp.host", "");
+        assertEquals(host, "mail.sanger.ac.uk");
+
+        String port = properties.getProperty("mail.smtp.port", "");
+        assertEquals(port, "25");
+
+        String to = properties.getProperty("to", "");
+        assertEquals(to, "hc6@sanger.ac.uk");
+
     }
 }
