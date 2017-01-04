@@ -1,11 +1,13 @@
 package uk.ac.sanger.eln_pmb_bridge;
 
-import org.powermock.api.mockito.PowerMockito;
 import org.testng.annotations.Test;
 
 import javax.mail.Session;
 import javax.mail.internet.MimeMessage;
 import java.util.Properties;
+
+import static org.mockito.Mockito.spy;
+import static org.powermock.api.mockito.PowerMockito.doNothing;
 
 import static org.mockito.Matchers.any;
 import static org.testng.Assert.assertEquals;
@@ -23,10 +25,10 @@ public class TestEmailService {
         mailProperties.setProperty("port", "");
         mailProperties.setProperty("to", "hc6@sanger.ac.uk");
 
-        EmailService emailService = PowerMockito.spy(new EmailService(mailProperties));
-        PowerMockito.doNothing().when(emailService, "sendEmail", any());
+        EmailService emailService = spy(new EmailService(mailProperties));
+        doNothing().when(emailService, "sendEmail", any());
 
-        emailService.sendEmail("Email text");
+        emailService.sendEmail("Email Subject", "Email text");
 
         Session session = Session.getInstance(mailProperties);
         MimeMessage message = new MimeMessage(session);

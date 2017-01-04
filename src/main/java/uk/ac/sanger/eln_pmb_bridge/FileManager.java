@@ -97,6 +97,21 @@ public class FileManager {
         log.info(String.format("Archived file \"%s\" from %s to %s", filename, sourceFile.toPath(), archiveFile.toPath()));
     }
 
+    public void errorFile(String filename) throws FileNotFoundException {
+        File sourceFile = findFile(filename);
+        String errorFolder = properties.getProperty("error_folder", "");
+        String errorTime = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
+        String errorFileName = filename.split("\\.")[0] + "_" + errorTime + ".txt";
+        File errorFile = new File(errorFolder + "/" + errorFileName);
+
+        try {
+            Files.move(sourceFile.toPath(), errorFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            log.info(String.format("Moved error file \"%s\" from %s to %s", filename, sourceFile.toPath(), errorFile.toPath()));
+        } catch (Exception e) {
+            log.debug(String.format("File \"%s\" does not have the correct permissions to more to error folder.", filename));
+        }
+    }
+
     public void setPMBProperties() throws IOException {
         File propertiesFile = findPropertiesFile("pmb.properties");
         FileInputStream fileInputStream = new FileInputStream(propertiesFile);

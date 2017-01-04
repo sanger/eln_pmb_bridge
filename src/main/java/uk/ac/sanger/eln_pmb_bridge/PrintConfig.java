@@ -33,6 +33,7 @@ public class PrintConfig {
                 .filter(entry -> !entry.equals("pmb_url"))
                 .filter(entry -> !entry.equals("poll_folder"))
                 .filter(entry -> !entry.equals("archive_folder"))
+                .filter(entry -> !entry.equals("error_folder"))
                 .map(entry -> (String) entry)
                 .collect(Collectors.toList()));
 

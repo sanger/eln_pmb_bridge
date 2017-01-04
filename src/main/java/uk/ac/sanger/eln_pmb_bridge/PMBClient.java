@@ -6,10 +6,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.net.*;
-
-import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
-import static java.net.HttpURLConnection.HTTP_OK;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 /**
  * Client for sending print job requests to PrintMyBarcode
@@ -69,11 +67,11 @@ public class PMBClient {
         return requestJson;
     }
 
-    protected void postJson(URL targetURL, Object jsonObject) throws IOException, JSONException {
+    protected void postJson(URL targetURL, Object jsonObject) throws IOException {
         HttpURLConnection connection = (HttpURLConnection) targetURL.openConnection();
         try {
-            connection.setRequestMethod("POST");
             connection.setDoOutput(true);
+            connection.setRequestMethod("POST");
             setHeaders(connection);
 
             OutputStreamWriter out = new OutputStreamWriter(connection.getOutputStream());
@@ -81,13 +79,7 @@ public class PMBClient {
             out.flush();
 
             int responseCode = connection.getResponseCode();
-            log.debug("Response code: {}", responseCode);
-            if (responseCode == HTTP_NOT_FOUND) {
-                throw new IOException(HTTP_NOT_FOUND + " - NOT FOUND");
-            }
-            if (responseCode != HTTP_OK) {
-                throw new IOException();
-            }
+            log.debug("HTTP Response code: {}", responseCode);
         } finally {
             if (connection != null) {
                 connection.disconnect();

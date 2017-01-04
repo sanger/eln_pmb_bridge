@@ -1,6 +1,5 @@
 package uk.ac.sanger.eln_pmb_bridge;
 
-import com.sun.xml.internal.messaging.saaj.packaging.mime.MessagingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,13 +19,13 @@ public class EmailService {
         this.mailProperties = mailProperties;
     }
 
-    public void sendEmail(String text) throws MessagingException, javax.mail.MessagingException {
+    public void sendEmail(String subject, String text) throws MessagingException {
         Session session = Session.getInstance(mailProperties);
         MimeMessage message = new MimeMessage(session);
         String toAddress = mailProperties.getProperty("to", "").trim();
 
         message.addRecipients(Message.RecipientType.TO, toAddress);
-        message.setSubject("ELN PMB Bridge - error");
+        message.setSubject(subject);
         message.setContent(text, "text/html; charset=utf-8");
 
         Transport.send(message);

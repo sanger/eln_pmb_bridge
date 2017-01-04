@@ -30,7 +30,7 @@ public class TestFileManager {
     }
 
     @Test
-    public void testMakeRequestFromFile() throws IOException {
+    public void testMakeRequestFromFile() throws Exception {
         FileManager fileManager = new FileManager();
         fileManager.setPMBProperties();
         PrintRequest request = fileManager.makeRequestFromFile("test_print_request.txt");
