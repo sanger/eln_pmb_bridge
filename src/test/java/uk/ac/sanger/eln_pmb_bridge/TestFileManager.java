@@ -2,7 +2,6 @@ package uk.ac.sanger.eln_pmb_bridge;
 
 import org.testng.annotations.Test;
 
-import java.io.IOException;
 import java.util.Properties;
 
 import static org.testng.Assert.assertEquals;
@@ -14,7 +13,7 @@ import static org.testng.Assert.assertTrue;
 public class TestFileManager {
 
     @Test
-    public void testReadPropertiesFromFile() throws IOException {
+    public void testReadPropertiesFromFile() throws Exception {
         FileManager fileManager = new FileManager();
         fileManager.setPMBProperties();
         Properties resultProperties = fileManager.getPMBProperties();

@@ -25,6 +25,9 @@ public class FileManager {
 
     public PrintRequest makeRequestFromFile(String filename) throws IOException {
         File file = findFile(filename);
+        if (file == null) {
+            return null;
+        }
         Scanner scanner = new Scanner(file);
 
         String firstLine = scanner.nextLine();
@@ -67,13 +70,14 @@ public class FileManager {
         }
 
         if (!printerExists || labels.isEmpty()){
-            log.debug(String.format("Printer name %s doesn't exist or labels is empty", printerName));
-            throw new IOException("Cannot make print request as printer doesn't exist or labels is empty");
+            String message = "";
+            String errorMessage = (!printerExists ? message.concat(String.format("printer name %s doesn't exist.", printerName))
+                    : message.concat("label list is empty"));
+            String msg = String.format("Cannot make print request because: %s", errorMessage);
+            log.error(msg);
         }
 
-        PrintRequest request = new PrintRequest(printerName, labels);
-        log.info(String.format("Made print request from file \"%s\"", filename));
-        return request;
+        return new PrintRequest(printerName, labels);
     }
 
     /**
@@ -82,7 +86,7 @@ public class FileManager {
      *   - finds the file from the given filename, adds a timestamp and moves it to archive folder
      * @param filename the filename to archive
      */
-    public void archiveFile(String filename) throws IOException {
+    public void archiveFile(String filename) throws Exception {
         File sourceFile = findFile(filename);
         String archiveFolder = properties.getProperty("archive_folder", "");
         String archiveTime = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
@@ -91,28 +95,36 @@ public class FileManager {
 
         boolean canArchive = checkFileWritable(sourceFile);
         if (!canArchive) {
-            throw new IOException(String.format("File \"%s\" does not have the correct permissions to archive.", filename));
+            String msg = String.format("File \"%s\" does not have the correct permissions to archive.", filename);
+            log.debug(msg);
         }
-        Files.move(sourceFile.toPath(), archiveFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-        log.info(String.format("Archived file \"%s\" from %s to %s", filename, sourceFile.toPath(), archiveFile.toPath()));
+        if (sourceFile != null) {
+            Files.move(sourceFile.toPath(), archiveFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            log.info(String.format("Archived file \"%s\" from %s to %s", filename, sourceFile.toPath(), archiveFile.toPath()));
+        }
     }
 
-    public void errorFile(String filename) throws FileNotFoundException {
+//    REFRACTOR MOVING FILES
+    public void moveFileToErrorFolder(String filename) throws Exception {
         File sourceFile = findFile(filename);
         String errorFolder = properties.getProperty("error_folder", "");
         String errorTime = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
         String errorFileName = filename.split("\\.")[0] + "_" + errorTime + ".txt";
         File errorFile = new File(errorFolder + "/" + errorFileName);
 
-        try {
+        boolean canArchive = checkFileWritable(sourceFile);
+        if (!canArchive) {
+            String msg = String.format("File \"%s\" does not have the correct permissions to archive.", filename);
+            log.debug(msg);
+        }
+
+        if (sourceFile != null) {
             Files.move(sourceFile.toPath(), errorFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
             log.info(String.format("Moved error file \"%s\" from %s to %s", filename, sourceFile.toPath(), errorFile.toPath()));
-        } catch (Exception e) {
-            log.debug(String.format("File \"%s\" does not have the correct permissions to more to error folder.", filename));
         }
     }
 
-    public void setPMBProperties() throws IOException {
+    public void setPMBProperties() throws Exception {
         File propertiesFile = findPropertiesFile("pmb.properties");
         FileInputStream fileInputStream = new FileInputStream(propertiesFile);
 
@@ -150,9 +162,6 @@ public class FileManager {
      */
     private File findFile(String filename) {
         String pollFolder = properties.getProperty("poll_folder", "");
-        if (filename == null) {
-            throw new IllegalArgumentException("Filename is null");
-        }
         File f = new File(pollFolder + "/" + filename);
         if (f.isFile()) {
             return f;
@@ -166,16 +175,17 @@ public class FileManager {
             return f;
         }
         log.error(String.format("No file with name \"%s\" was found", filename));
-        throw new IllegalArgumentException(String.format("No file with name \"%s\" was found", filename));
+        return null;
     }
 
-    public File findPropertiesFile(String filename) {
+    public File findPropertiesFile(String filename) throws FileNotFoundException {
         File f = new File(System.getProperty("user.dir") + File.separator + filename);
         if (f.isFile()) {
             return f;
         }
-        log.error(String.format("%s file was not found", filename));
-        throw new IllegalArgumentException(String.format("%s file was not found", filename));
+        String msg = String.format("Missing properties file %s.", filename);
+        log.error(msg);
+        throw new FileNotFoundException(msg);
     }
 
     /**
@@ -183,14 +193,8 @@ public class FileManager {
      */
     private boolean checkFileWritable(File sourceFile) {
         if (sourceFile.exists()) {
-            if (!sourceFile.isFile()) {
-                log.debug("Cannot archive file", String.format("File %s is not a regular file.",
-                        sourceFile.getAbsolutePath()));
-                return false;
-            }
-            if (!sourceFile.canWrite()) {
-                log.debug("Cannot archive file", String.format("File %s does not have the correct permissions to archive.",
-                        sourceFile.getAbsolutePath()));
+            if (!sourceFile.isFile() || !sourceFile.canWrite()) {
+                log.debug("Failed to archive file " + sourceFile.getAbsolutePath());
                 return false;
             }
         }

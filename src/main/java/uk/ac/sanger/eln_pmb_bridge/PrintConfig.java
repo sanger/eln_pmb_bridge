@@ -3,7 +3,6 @@ package uk.ac.sanger.eln_pmb_bridge;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -26,7 +25,7 @@ public class PrintConfig {
      * Maps printer name to template id and retrieves pmb url from the pmb.properties file
      * @param properties the properties configured from pmb.properties
      */
-    public static PrintConfig loadConfig(Properties properties) throws IOException {
+    public static PrintConfig loadConfig(Properties properties) throws InvalidPropertiesFormatException {
         List<String> printers = new ArrayList<>();
         printers.addAll(properties.keySet()
                 .stream()
@@ -40,8 +39,12 @@ public class PrintConfig {
         String pmbURL = properties.getProperty("pmb_url", "");
 
         if (pmbURL.isEmpty() || printers.isEmpty()) {
-            log.error("PMB url is missing or list of printers is empty in pmb.properties");
-            throw new IOException("PMB url is missing or list of printers is empty in pmb.properties");
+            String message = "";
+            String errorMessage = (pmbURL.isEmpty() ? message.concat("PMB URL is missing")
+                    : message.concat("list of printers is empty in pmb.properties"));
+            String msg = String.format("Cannot load print config because: %s.", errorMessage);
+            log.error(msg);
+            throw new InvalidPropertiesFormatException(msg);
         }
 
         Map<String, Integer> printerTemplateIds = new HashMap<>();
@@ -50,9 +53,6 @@ public class PrintConfig {
             Integer templateId = Integer.valueOf(templateIdString.trim());
             if (templateId!=null) {
                 printerTemplateIds.put(printerName, templateId);
-            } else {
-                log.error(String.format("Printer name %s does not have template id in pmb.properties file", printerName));
-                throw new IOException(String.format("Printer name %s does not have template id in pmb.properties file", printerName));
             }
         }
         return new PrintConfig(pmbURL, printerTemplateIds);

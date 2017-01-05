@@ -4,10 +4,13 @@ import org.codehaus.jettison.json.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.xml.ws.http.HTTPException;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+
+import static java.net.HttpURLConnection.HTTP_CREATED;
 
 /**
  * Client for sending print job requests to PrintMyBarcode
@@ -26,12 +29,12 @@ public class PMBClient {
      * Posts a json request to pmb
      * @param request the request to print
      */
-    public void print(PrintRequest request) throws JSONException, IOException {
+    public void print(PrintRequest request) throws IOException {
         if (request==null){
             return;
         }
-        JSONObject jsonObject = buildJson(request);
         URL url = new URL(config.getPmbURL());
+        JSONObject jsonObject = buildJson(request);
         postJson(url, jsonObject);
         for (PrintRequest.Label label : request.getLabels()) {
             log.info(String.format("Printed barcode %s at printer %s",
@@ -39,52 +42,55 @@ public class PMBClient {
         }
     }
 
-    public JSONObject buildJson(PrintRequest request) throws JSONException {
-        String printer = request.getPrinterName();
-        Integer templateId = config.getTemplateIdForPrinter(printer);
-
-        JSONArray body = new JSONArray();
-        for (PrintRequest.Label label : request.getLabels()){
-            JSONObject labelJson = new JSONObject();
-            labelJson.put("label_1", new JSONObject(label.getFields()));
-            body.put(labelJson);
-        }
-
-        JSONObject labels = new JSONObject();
-        labels.put("body", body);
-
-        JSONObject attributes = new JSONObject();
-        attributes.put("printer_name", printer);
-        attributes.put("label_template_id", templateId);
-        attributes.put("labels", labels);
-
-        JSONObject data = new JSONObject();
-        data.put("attributes", attributes);
-
+    public JSONObject buildJson(PrintRequest request) {
         JSONObject requestJson = new JSONObject();
-        requestJson.put("data", data);
+        try {
+            String printer = request.getPrinterName();
+            Integer templateId = config.getTemplateIdForPrinter(printer);
 
+            JSONArray body = new JSONArray();
+            for (PrintRequest.Label label : request.getLabels()){
+                JSONObject labelJson = new JSONObject();
+                labelJson.put("label_1", new JSONObject(label.getFields()));
+                body.put(labelJson);
+            }
+
+            JSONObject labels = new JSONObject();
+            labels.put("body", body);
+
+            JSONObject attributes = new JSONObject();
+            attributes.put("printer_name", printer);
+            attributes.put("label_template_id", templateId);
+            attributes.put("labels", labels);
+
+            JSONObject data = new JSONObject();
+            data.put("attributes", attributes);
+
+            requestJson.put("data", data);
+
+        } catch (JSONException e) {
+            log.debug("Failed to build JSON object");
+        }
         return requestJson;
     }
 
     protected void postJson(URL targetURL, Object jsonObject) throws IOException {
         HttpURLConnection connection = (HttpURLConnection) targetURL.openConnection();
-        try {
-            connection.setDoOutput(true);
-            connection.setRequestMethod("POST");
-            setHeaders(connection);
 
-            OutputStreamWriter out = new OutputStreamWriter(connection.getOutputStream());
-            out.write(jsonObject.toString());
-            out.flush();
+        connection.setDoOutput(true);
+        connection.setRequestMethod("POST");
+        setHeaders(connection);
 
-            int responseCode = connection.getResponseCode();
-            log.debug("HTTP Response code: {}", responseCode);
-        } finally {
-            if (connection != null) {
-                connection.disconnect();
-            }
+        OutputStreamWriter out = new OutputStreamWriter(connection.getOutputStream());
+        out.write(jsonObject.toString());
+        out.flush();
+
+        connection.disconnect();
+        int responseCode = connection.getResponseCode();
+        if (responseCode!=HTTP_CREATED){
+            throw new HTTPException(responseCode);
         }
+        log.debug("HTTP Response code: " + responseCode);
     }
 
     private void setHeaders(HttpURLConnection connection) {

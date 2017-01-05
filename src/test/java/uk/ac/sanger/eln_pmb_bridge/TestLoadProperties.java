@@ -15,7 +15,7 @@ import static org.testng.Assert.assertEquals;
 public class TestLoadProperties {
 
     @Test
-    public void testLoadPMBProperties() throws IOException {
+    public void testLoadPMBProperties() throws Exception {
 
         FileManager fm = new FileManager();
         fm.setPMBProperties();
