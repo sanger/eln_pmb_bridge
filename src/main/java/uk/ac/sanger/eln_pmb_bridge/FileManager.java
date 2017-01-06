@@ -167,7 +167,7 @@ public class FileManager {
     }
 
     public File findPropertiesFile(String filename) throws FileNotFoundException {
-        File f = new File(System.getProperty("user.dir") + File.separator + filename);
+        File f = new File(System.getProperty("user.home")+File.separator+"eln_pmb_bridge"+File.separator+filename);
         if (f.isFile()) {
             return f;
         }

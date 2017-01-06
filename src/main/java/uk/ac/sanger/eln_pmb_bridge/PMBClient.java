@@ -31,7 +31,7 @@ public class PMBClient {
      */
     public void print(PrintRequest request) throws Exception {
         if (request==null){
-            throw new Exception("Print request error - check log");
+            throw new Exception("Print request error - please check the log for more information");
         }
         URL url = new URL(config.getPmbURL());
         JSONObject jsonObject = buildJson(request);

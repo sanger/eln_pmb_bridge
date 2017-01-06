@@ -42,7 +42,7 @@ public class PrintConfig {
             String message = "";
             String errorMessage = (pmbURL.isEmpty() ? message.concat("PMB URL is missing")
                     : message.concat("list of printers is empty in pmb.properties"));
-            String msg = String.format("Cannot load print config because: %s.", errorMessage);
+            String msg = String.format("Cannot load print config because: %s", errorMessage);
             log.error(msg);
             throw new InvalidPropertiesFormatException(msg);
         }
