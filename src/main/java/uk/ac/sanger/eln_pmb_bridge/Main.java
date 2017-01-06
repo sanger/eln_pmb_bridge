@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.mail.MessagingException;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.text.SimpleDateFormat;
@@ -11,54 +12,56 @@ import java.util.*;
 
 public class Main {
     private static final Logger log = LoggerFactory.getLogger(PrintConfig.class);
-    private static final String CURRENT_VERSION = "1.0";
-    private static final FileManager manager = new FileManager();
+    private static final PropertiesFileReader properties = new PropertiesFileReader();
 
     public static void main(String[] args) throws Exception {
         /**
          * When a host has both IPv4 and IPv6 addresses, change preference to use IPv6 addresses over IPv4
          */
         System.setProperty("java.net.preferIPv6Addresses", "true");
-        log.info("CURRENT_VERSION: " + CURRENT_VERSION);
 
         try {
-            manager.setPMBProperties();
+            properties.loadProperties();
             sendStartUpMessage();
             startService();
         } catch (Exception e) {
+            log.error("Fatal error", e);
             sendEmail("ELN PMB Bridge - error", "A fatal error occurred: " + e.getMessage());
         }
     }
 
     private static void startService() throws Exception {
-        Path pollPath = manager.getPollFolderPath();
-        WatchKey watchKey;
-        String newFileName;
+        PrintRequestHelper printRequestHelper = new PrintRequestHelper();
+        Path pollPath = properties.getPollFolderPath();
+        PrintConfig printConfig = getPrintConfig();
         /**
-         * WatchService monitors the poll folder specified in pmb.properties
-         * A watchable object is registered with a particular type of event
+         * WatchService monitors the polling folder specified in eln_pmb.properties
+         * A watchable object is registered with an entry_create event
          * When that event is detected, a key is added to the watch service que
          * The take method returns the watch key from the service when it becomes available
-         * The event is processed and the newly created file name returned
+         * The event is processed and the newly created filename returned
          */
         WatchService service = pollPath.getFileSystem().newWatchService();
         pollPath.register(service, StandardWatchEventKinds.ENTRY_CREATE);
 
-        while ((watchKey = service.take()) !=null) {
+        while (true) {
+            WatchKey watchKey = service.take();
             List<WatchEvent<?>> watchEvents = watchKey.pollEvents();
 
             for (WatchEvent event : watchEvents) {
-                newFileName = event.context().toString();
+                String newFileName = event.context().toString();
+
                 try {
-                    PrintRequest request = manager.makeRequestFromFile(newFileName);
-                    Properties properties = manager.getPMBProperties();
-                    PrintConfig printConfig = PrintConfig.loadConfig(properties);
+                    File file = properties.findFile(newFileName);
+                    List<String> printers = properties.getPrinters();
+                    PrintRequest request = printRequestHelper.makeRequestFromFile(file, printers);
                     PMBClient pmbClient = new PMBClient(printConfig);
                     pmbClient.print(request);
-                    manager.moveFileToFolder(newFileName, manager.getArchiveFolder());
+                    properties.moveFileToFolder(newFileName, properties.getArchiveFolder());
                 } catch (Exception e) {
+                    log.error("Recoverable error occurred", e);
                     sendErrorMessage(e);
-                    manager.moveFileToFolder(newFileName, manager.getErrorFolder());
+                    properties.moveFileToFolder(newFileName, properties.getErrorFolder());
                 }
             }
             watchKey.reset();
@@ -67,8 +70,7 @@ public class Main {
 
     private static void sendStartUpMessage() throws IOException, MessagingException {
         String currentTime = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
-        String message = String.format("Starting up ELN PMB Bridge service at %s, version number: %s",
-                currentTime, CURRENT_VERSION);
+        String message = String.format("Starting up ELN PMB Bridge service at %s", currentTime);
         sendEmail("Starting up ELN PMB Service", message);
     }
 
@@ -78,13 +80,18 @@ public class Main {
         sendEmail("ELN PMB Bridge - error", message);
     }
 
-    private static void sendEmail(String subject, String startUpMessage) {
+    private static void sendEmail(String subject, String message) {
         try {
-            EmailService emailManager = new EmailService(manager.getMailProperties());
-            emailManager.sendEmail(subject, startUpMessage);
+            EmailService emailManager = new EmailService(properties.getMailProperties());
+            emailManager.sendEmail(subject, message);
         } catch (Exception e){
             log.error(String.format("Failed to send email with subject %s", subject));
         }
     }
 
+    public static PrintConfig getPrintConfig() throws InvalidPropertiesFormatException {
+        Properties elnPmbProperties = properties.getElnPmbProperties();
+        Properties printerProperties = properties.getPrinterProperties();
+        return PrintConfig.loadConfig(elnPmbProperties, printerProperties);
+    }
 }

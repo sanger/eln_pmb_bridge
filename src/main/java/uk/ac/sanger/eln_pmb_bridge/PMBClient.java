@@ -24,14 +24,14 @@ public class PMBClient {
         this.config = config;
     }
     /**
-     * Builds a json object from the request
+     * Builds a JSON object from the request
      * Sets the request headers
      * Posts a json request to pmb
      * @param request the request to print
      */
     public void print(PrintRequest request) throws Exception {
         if (request==null){
-            throw new Exception("Print request error - please check the log for more information");
+            throw new IllegalArgumentException("Null request in PMBClient.print");
         }
         URL url = new URL(config.getPmbURL());
         JSONObject jsonObject = buildJson(request);
@@ -42,7 +42,7 @@ public class PMBClient {
         }
     }
 
-    public JSONObject buildJson(PrintRequest request) {
+    public JSONObject buildJson(PrintRequest request) throws JSONException {
         JSONObject requestJson = new JSONObject();
         try {
             String printer = request.getPrinterName();
@@ -70,6 +70,7 @@ public class PMBClient {
 
         } catch (JSONException e) {
             log.debug("Failed to build JSON object");
+            throw new JSONException(e);
         }
         return requestJson;
     }

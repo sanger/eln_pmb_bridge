@@ -2,6 +2,8 @@ package uk.ac.sanger.eln_pmb_bridge;
 
 import org.testng.annotations.Test;
 
+import java.io.File;
+import java.util.Collections;
 import java.util.Properties;
 
 import static org.testng.Assert.assertEquals;
@@ -10,29 +12,29 @@ import static org.testng.Assert.assertTrue;
 /**
  * @author hc6
  */
-public class TestFileManager {
+public class TestManager {
 
     @Test
     public void testReadPropertiesFromFile() throws Exception {
-        FileManager fileManager = new FileManager();
-        fileManager.setPMBProperties();
-        Properties resultProperties = fileManager.getPMBProperties();
+        PropertiesFileReader fileReader = new PropertiesFileReader();
+        fileReader.loadProperties();
+        Properties resultProperties = fileReader.getElnPmbProperties();
 
         assertEquals(resultProperties.getProperty("pmb_url"), "http://dev.psd.sanger.ac.uk:7462/v1/print_jobs");
         assertTrue(resultProperties.containsKey("poll_folder"));
         assertTrue(resultProperties.containsKey("archive_folder"));
-
-        for (String printer : fileManager.getPrinters()){
-            assertTrue(resultProperties.containsKey(printer));
-        }
-
     }
 
     @Test
     public void testMakeRequestFromFile() throws Exception {
-        FileManager fileManager = new FileManager();
-        fileManager.setPMBProperties();
-        PrintRequest request = fileManager.makeRequestFromFile("test_print_request.txt");
+        PrintRequestHelper printRequestHelper = new PrintRequestHelper();
+        PropertiesFileReader fileReader = new PropertiesFileReader();
+
+        fileReader.loadProperties();
+        File newFile = new File(System.getProperty("user.dir")
+                + File.separator + "data" + File.separator + "test_print_request.txt");
+
+        PrintRequest request = printRequestHelper.makeRequestFromFile(newFile, Collections.singletonList("d304bc"));
 
         assertEquals(request.getLabels().get(0).getField("cell_line"), "nawk");
         assertEquals(request.getLabels().get(0).getField("barcode"), "200000000111");

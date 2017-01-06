@@ -8,11 +8,11 @@ import javax.mail.internet.MimeMessage;
 import java.util.Properties;
 
 /**
- * Service for sending emails to beagledev if there is an error with the WatchService
+ * Service for sending emails
  * @author hc6
  */
 public class EmailService {
-    private static final Logger log = LoggerFactory.getLogger(FileManager.class);
+    private static final Logger log = LoggerFactory.getLogger(EmailService.class);
     private Properties mailProperties;
 
     public EmailService(Properties mailProperties) {

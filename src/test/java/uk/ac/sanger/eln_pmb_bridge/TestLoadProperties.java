@@ -17,15 +17,15 @@ public class TestLoadProperties {
     @Test
     public void testLoadPMBProperties() throws Exception {
 
-        FileManager fm = new FileManager();
-        fm.setPMBProperties();
-        Properties properties = fm.getPMBProperties();
+        PropertiesFileReader fr = new PropertiesFileReader();
+        fr.loadProperties();
+        Properties properties = fr.getElnPmbProperties();
 
         String pollFolder = properties.getProperty("poll_folder", "");
-        Path pollPath =  fm.getPollFolderPath();
+        Path pollPath =  fr.getPollFolderPath();
         assertEquals(pollPath, Paths.get(pollFolder));
 
-        PrintConfig result = PrintConfig.loadConfig(fm.getPMBProperties());
+        PrintConfig result = PrintConfig.loadConfig(fr.getElnPmbProperties(), fr.getPrinterProperties());
         Map<String, Integer> templateIds = new HashMap<>();
         templateIds.put("d304bc", 15);
         templateIds.put("e367bc", 0);
@@ -38,8 +38,8 @@ public class TestLoadProperties {
     @Test
     public void testLoadMailProperties() throws IOException {
 
-        FileManager fm = new FileManager();
-        Properties properties = fm.getMailProperties();
+        PropertiesFileReader fr = new PropertiesFileReader();
+        Properties properties = fr.getMailProperties();
 
         String host = properties.getProperty("mail.smtp.host", "");
         assertEquals(host, "mail.sanger.ac.uk");
