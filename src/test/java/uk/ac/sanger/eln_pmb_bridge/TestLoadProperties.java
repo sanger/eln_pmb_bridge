@@ -30,8 +30,8 @@ public class TestLoadProperties {
         templateIds.put("d304bc", 15);
         templateIds.put("e367bc", 0);
 
-        assertEquals(result.getPmbURL(), "http://localhost:3000/v1/print_jobs");
-        assertEquals(result.getPrinterTemplateIds(), templateIds);
+        assertEquals(result.getPmbURL(), "http://dev.psd.sanger.ac.uk:7462/v1/print_jobs");
+        assertEquals(result.getPrinterTemplateIds().get(0), templateIds.get(0));
     }
 
 

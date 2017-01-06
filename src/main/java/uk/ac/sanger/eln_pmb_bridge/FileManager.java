@@ -23,7 +23,7 @@ public class FileManager {
     private static final Logger log = LoggerFactory.getLogger(FileManager.class);
     private Properties properties;
 
-    public PrintRequest makeRequestFromFile(String filename) throws IOException {
+    public PrintRequest makeRequestFromFile(String filename) throws FileNotFoundException {
         File file = findFile(filename);
         if (file == null) {
             return null;
@@ -75,52 +75,32 @@ public class FileManager {
                     : message.concat("label list is empty"));
             String msg = String.format("Cannot make print request because: %s", errorMessage);
             log.error(msg);
+            return null;
         }
 
         return new PrintRequest(printerName, labels);
     }
 
     /**
-     * Archives a file after sending a print job request
-     *   - gets the archive folder path from properties
-     *   - finds the file from the given filename, adds a timestamp and moves it to archive folder
-     * @param filename the filename to archive
+     * Moves a file either to the archive folder or error folder if the print job request is successful
+     *   - finds the file from the given filename, adds a timestamp and moves it to specified folder
+     * @param fileToMove the filename to move
+     * @param folderToMoveTo the folder to move the file to
      */
-    public void archiveFile(String filename) throws Exception {
-        File sourceFile = findFile(filename);
-        String archiveFolder = properties.getProperty("archive_folder", "");
-        String archiveTime = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
-        String archiveFileName = filename.split("\\.")[0] + "_" + archiveTime + ".txt";
-        File archiveFile = new File(archiveFolder + "/" + archiveFileName);
+    public void moveFileToFolder(String fileToMove, String folderToMoveTo) throws IOException {
+        File sourceFile = findFile(fileToMove);
+        String time = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
+        String newFileName = fileToMove.split("\\.")[0] + "_" + time + ".txt";
+        File newFile = new File(folderToMoveTo + "/" + newFileName);
 
         boolean canArchive = checkFileWritable(sourceFile);
         if (!canArchive) {
-            String msg = String.format("File \"%s\" does not have the correct permissions to archive.", filename);
+            String msg = String.format("File \"%s\" does not have the correct permissions to archive.", fileToMove);
             log.debug(msg);
         }
         if (sourceFile != null) {
-            Files.move(sourceFile.toPath(), archiveFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-            log.info(String.format("Archived file \"%s\" from %s to %s", filename, sourceFile.toPath(), archiveFile.toPath()));
-        }
-    }
-
-//    REFRACTOR MOVING FILES
-    public void moveFileToErrorFolder(String filename) throws Exception {
-        File sourceFile = findFile(filename);
-        String errorFolder = properties.getProperty("error_folder", "");
-        String errorTime = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
-        String errorFileName = filename.split("\\.")[0] + "_" + errorTime + ".txt";
-        File errorFile = new File(errorFolder + "/" + errorFileName);
-
-        boolean canArchive = checkFileWritable(sourceFile);
-        if (!canArchive) {
-            String msg = String.format("File \"%s\" does not have the correct permissions to archive.", filename);
-            log.debug(msg);
-        }
-
-        if (sourceFile != null) {
-            Files.move(sourceFile.toPath(), errorFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-            log.info(String.format("Moved error file \"%s\" from %s to %s", filename, sourceFile.toPath(), errorFile.toPath()));
+            Files.move(sourceFile.toPath(), newFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            log.info(String.format("Moved file \"%s\" from %s to %s", sourceFile, sourceFile.toPath(), newFile.toPath()));
         }
     }
 
@@ -150,6 +130,14 @@ public class FileManager {
     public Path getPollFolderPath() {
         String pollFolder = properties.getProperty("poll_folder", "");
         return Paths.get(pollFolder);
+    }
+
+    public String getArchiveFolder() {
+        return properties.getProperty("archive_folder");
+    }
+
+    public String getErrorFolder() {
+        return properties.getProperty("error_folder");
     }
 
     /**

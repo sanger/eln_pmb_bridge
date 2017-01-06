@@ -18,7 +18,7 @@ public class TestFileManager {
         fileManager.setPMBProperties();
         Properties resultProperties = fileManager.getPMBProperties();
 
-        assertEquals(resultProperties.getProperty("pmb_url"), "http://localhost:3000/v1/print_jobs");
+        assertEquals(resultProperties.getProperty("pmb_url"), "http://dev.psd.sanger.ac.uk:7462/v1/print_jobs");
         assertTrue(resultProperties.containsKey("poll_folder"));
         assertTrue(resultProperties.containsKey("archive_folder"));
 

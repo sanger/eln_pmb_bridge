@@ -55,10 +55,10 @@ public class Main {
                     PrintConfig printConfig = PrintConfig.loadConfig(properties);
                     PMBClient pmbClient = new PMBClient(printConfig);
                     pmbClient.print(request);
-                    manager.archiveFile(newFileName);
+                    manager.moveFileToFolder(newFileName, manager.getArchiveFolder());
                 } catch (Exception e) {
                     sendErrorMessage(e);
-                    manager.moveFileToErrorFolder(newFileName);
+                    manager.moveFileToFolder(newFileName, manager.getErrorFolder());
                 }
             }
             watchKey.reset();

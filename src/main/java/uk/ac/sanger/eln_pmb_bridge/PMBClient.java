@@ -29,9 +29,9 @@ public class PMBClient {
      * Posts a json request to pmb
      * @param request the request to print
      */
-    public void print(PrintRequest request) throws IOException {
+    public void print(PrintRequest request) throws Exception {
         if (request==null){
-            return;
+            throw new Exception("Print request error - check log");
         }
         URL url = new URL(config.getPmbURL());
         JSONObject jsonObject = buildJson(request);
