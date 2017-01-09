@@ -16,50 +16,14 @@ public class PrintRequestHelper {
     private static final Logger log = LoggerFactory.getLogger(PrintRequestHelper.class);
 
     public PrintRequest makeRequestFromFile(File file, List<String> printers) throws FileNotFoundException {
-        Scanner scanner = new Scanner(file);
-        String firstLine = scanner.nextLine();
-        scanner.nextLine();
-        scanner.nextLine();
+        Scanner fileData = new Scanner(file);
+        String firstLine = fileData.nextLine();
+        fileData.nextLine();
 
-        /**
-         * Gets the printer name from the polled file and check printer name exists
-         */
-        Matcher matcher = Pattern.compile("PRN=\"([^\"]+)\"").matcher(firstLine);
-        String printerName;
-        if (matcher.find()) {
-            printerName = matcher.group(1);
-        } else {
-            throw new IllegalArgumentException("No printer name is given in print request");
-        }
+        List<PrintRequest.Label> labels = createLabels(fileData);
 
+        String printerName = getPrinterName(firstLine);
         boolean printerExists = printers.contains(printerName);
-        List<Map<String, String>> fields = new ArrayList<>();
-
-        /**
-         * Gathers the rest of the data from the file and creates a label for each row in the file
-         * TODO: Automate reading of column headers to populate fieldMap
-         */
-        while(scanner.hasNext()){
-            String line = scanner.nextLine().trim();
-            if (line.isEmpty()) {
-                continue;
-            }
-            String[] data = line.split(Pattern.quote("|"));
-
-            Map<String, String> fieldMap = new HashMap<>();
-            fieldMap.put("cell_line", data[0].trim());
-            fieldMap.put("barcode", data[1].trim());
-            fieldMap.put("barcode_text", data[1].trim());
-            fieldMap.put("passage_number", data[2].trim());
-            fieldMap.put("date", data[3].trim());
-            fields.add(fieldMap);
-        }
-
-        List<PrintRequest.Label> labels = new ArrayList<>();
-        for (Map<String, String> field : fields) {
-            PrintRequest.Label label = new PrintRequest.Label(field);
-            labels.add(label);
-        }
 
         if (!printerExists || labels.isEmpty()){
             String message = "";
@@ -69,8 +33,62 @@ public class PrintRequestHelper {
             log.error(msg);
             throw new IllegalArgumentException(msg);
         }
-
         return new PrintRequest(printerName, labels);
+    }
+
+    /**
+     * Creates a label for each row in the file, mapping the data against the columns headers
+     */
+    private List<PrintRequest.Label> createLabels(Scanner fileData) {
+        String columnHeadingLine = fileData.nextLine();
+        String[] columnHeadings = columnHeadingLine.split(Pattern.quote("|"));
+
+        List<String> columns = new ArrayList<>();
+        for (String ch : columnHeadings) {
+            ch = ch.trim().toLowerCase().replaceAll("\\s+", "_");
+            columns.add(ch);
+        }
+
+        List<Map<String, String>> fields = new ArrayList<>();
+
+        while(fileData.hasNext()){
+            String line = fileData.nextLine().trim();
+            if (line.isEmpty()) {
+                continue;
+            }
+            String[] data = line.split(Pattern.quote("|"));
+
+            Map<String, String> fieldMap = new HashMap<>();
+            for (int i = 0; i < data.length; i++) {
+                if (columns.get(i).equals("barcode")) {
+                    fieldMap.put(columns.get(i), data[i].trim());
+                    fieldMap.put(columns.get(i).concat("_text"), data[i].trim());
+                }
+                fieldMap.put(columns.get(i), data[i].trim());
+            }
+            fields.add(fieldMap);
+        }
+
+        List<PrintRequest.Label> labels = new ArrayList<>();
+        for (Map<String, String> field : fields) {
+            PrintRequest.Label label = new PrintRequest.Label(field);
+            labels.add(label);
+        }
+        return labels;
+    }
+
+    /**
+     * Gets the printer name from the file
+     */
+    private String getPrinterName(String firstLine) {
+        Matcher matcher = Pattern.compile("PRN=\"([^\"]+)\"").matcher(firstLine);
+        String printerName;
+        if (matcher.find()) {
+            printerName = matcher.group(1);
+        } else {
+            throw new IllegalArgumentException("No printer name is given in print request");
+        }
+        return printerName;
     }
 
 }
