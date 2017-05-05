@@ -29,7 +29,7 @@ public class EmailService {
         message.setContent(text, "text/html; charset=utf-8");
 
         Transport.send(message);
-        log.info(String.format("Successfully sent error email to \"%s\"", toAddress));
+        log.info(String.format("Successfully sent email (subject: \"%s\") to \"%s\"", subject, toAddress));
     }
 
 }

@@ -26,7 +26,7 @@ public class Main {
             startService();
         } catch (Exception e) {
             log.error("Fatal error", e);
-            sendEmail("ELN PMB Bridge - error", "A fatal error occurred: " + e.getMessage());
+            sendErrorMessage("ELN PMB Bridge - fatal error", e);
         }
     }
 
@@ -60,7 +60,7 @@ public class Main {
                     properties.moveFileToFolder(newFileName, properties.getArchiveFolder());
                 } catch (Exception e) {
                     log.error("Recoverable error occurred", e);
-                    sendErrorMessage(e);
+                    sendErrorMessage("ELN PMB Bridge - recoverable error", e);
                     properties.moveFileToFolder(newFileName, properties.getErrorFolder());
                 }
             }
@@ -74,10 +74,10 @@ public class Main {
         sendEmail("Starting up ELN PMB Service", message);
     }
 
-    private static void sendErrorMessage(Exception e) throws IOException, MessagingException {
+    private static void sendErrorMessage(String subject, Exception e) throws IOException, MessagingException {
         String message = String.format("Error when trying to print labels via PrintMyBarcode from an polled ELN file. " +
                 "Moving file to error folder. %s", e);
-        sendEmail("ELN PMB Bridge - error", message);
+        sendEmail(subject, message);
     }
 
     private static void sendEmail(String subject, String message) {
