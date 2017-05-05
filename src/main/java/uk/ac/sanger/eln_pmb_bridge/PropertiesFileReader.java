@@ -83,7 +83,7 @@ public class PropertiesFileReader {
     }
 
     public File findPropertiesFile(String filename) throws FileNotFoundException {
-        File f = new File(System.getProperty("user.home")+File.separator+"eln_pmb_bridge"+File.separator+filename);
+        File f = new File("./properties_folder/"+filename);
         if (f.isFile()) {
             return f;
         }
