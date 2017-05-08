@@ -115,6 +115,7 @@ public class PropertiesFileReader {
     /**
      * Moves a file either to the archive folder or error folder if the print job request is successful
      *   - finds the file from the given filename
+     *   - replaces any whitespace with and underscore
      *   - adds a timestamp and moves it to specified folder
      * @param fileToMove the filename to move
      * @param folderToMoveTo the folder to move the file to
@@ -126,7 +127,7 @@ public class PropertiesFileReader {
         if (dotIndex <= 0) {
             dotIndex = fileToMove.length();
         }
-        String newFileName = fileToMove.substring(0, dotIndex) + "_" + time + ".txt";
+        String newFileName = fileToMove.replaceAll(" ", "_").substring(0, dotIndex) + "_" + time + ".txt";
         File newFile = new File(folderToMoveTo + "/" + newFileName);
 
         if (sourceFile != null) {
