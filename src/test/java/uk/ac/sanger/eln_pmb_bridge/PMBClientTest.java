@@ -11,10 +11,25 @@ import static org.testng.Assert.assertEquals;
 /**
  * @author hc6
  */
-public class WhenBuildingJson {
+public class PMBClientTest {
 
     @Test
-    public void WhenConvertingToJson() throws JSONException, IOException {
+    public void TestGetPrintConfigSuccessful(){
+
+    }
+
+    @Test
+    public void TestGetPrintConfigNotSuccessful(){
+
+    }
+
+    @Test
+    public void whenGivenRequestIsNull(){
+
+    }
+
+    @Test
+    public void whenBuildingJson() throws JSONException, IOException {
 
         Map<String, Integer> templateIds = new HashMap<>();
         templateIds.put("d304bc", 6);
@@ -53,6 +68,11 @@ public class WhenBuildingJson {
             }
             ++i;
         }
+    }
+
+    @Test
+    public void whenPostingJson(){
+
     }
 
 }

@@ -4,29 +4,41 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.util.Collections;
-import java.util.Properties;
 
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
 
 /**
  * @author hc6
  */
-public class TestManager {
+public class PrintRequestHelperTest {
 
     @Test
-    public void testReadPropertiesFromFile() throws Exception {
-        PropertiesFileReader fileReader = new PropertiesFileReader();
-        fileReader.loadProperties();
-        Properties resultProperties = fileReader.getElnPmbProperties();
+    public void TestFileNameDoesNotExist(){
 
-        assertEquals(resultProperties.getProperty("pmb_url"), "http://dev.psd.sanger.ac.uk:7462/v1/print_jobs");
-        assertTrue(resultProperties.containsKey("poll_folder"));
-        assertTrue(resultProperties.containsKey("archive_folder"));
     }
 
     @Test
-    public void testMakeRequestFromFile() throws Exception {
+    public void TestFileNameIsBadFormat(){
+
+    }
+
+    @Test
+    public void TestPrinterListIsEmpty(){
+
+    }
+
+    @Test
+    public void TestPrinterNameDoesNotExistInGivenListOfPrinters(){
+
+    }
+
+    @Test
+    public void TestCreatingLabels(){
+
+    }
+
+    @Test
+    public void TestMakeRequestFromFile() throws Exception {
         PrintRequestHelper printRequestHelper = new PrintRequestHelper();
         PropertiesFileReader fileReader = new PropertiesFileReader();
 

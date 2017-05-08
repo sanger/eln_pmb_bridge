@@ -5,18 +5,17 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.Properties;
 
 import static org.testng.Assert.assertEquals;
 
 /**
  * @author hc6
  */
-public class TestLoadProperties {
+public class PropertiesFileReaderTest {
 
     @Test
-    public void testLoadPMBProperties() throws Exception {
-
+    public void TestLoadELNPMBFolderProperties() throws Exception {
         PropertiesFileReader fr = new PropertiesFileReader();
         fr.loadProperties();
         Properties properties = fr.getElnPmbProperties();
@@ -24,19 +23,15 @@ public class TestLoadProperties {
         String pollFolder = properties.getProperty("poll_folder", "");
         Path pollPath =  fr.getPollFolderPath();
         assertEquals(pollPath, Paths.get(pollFolder));
-
-        PrintConfig result = PrintConfig.loadConfig(fr.getElnPmbProperties(), fr.getPrinterProperties());
-        Map<String, Integer> templateIds = new HashMap<>();
-        templateIds.put("d304bc", 15);
-        templateIds.put("e367bc", 0);
-
-        assertEquals(result.getPmbURL(), "http://dev.psd.sanger.ac.uk:7462/v1/print_jobs");
-        assertEquals(result.getPrinterTemplateIds().get(0), templateIds.get(0));
     }
 
+    @Test
+    public void TestLoadPrintProperties() {
+
+    }
 
     @Test
-    public void testLoadMailProperties() throws IOException {
+    public void TestLoadMailProperties() throws IOException {
 
         PropertiesFileReader fr = new PropertiesFileReader();
         Properties properties = fr.getMailProperties();
@@ -49,6 +44,26 @@ public class TestLoadProperties {
 
         String to = properties.getProperty("to", "");
         assertEquals(to, "hc6@sanger.ac.uk");
+
+    }
+
+    @Test
+    public void TestFindFileSuccessful(){
+
+    }
+
+    @Test
+    public void TestFindFileNotSuccessful(){
+
+    }
+
+    @Test
+    public void TestMoveFileToFolderSuccessful(){
+
+    }
+
+    @Test
+    public void TestMoveFileToFolderNotSuccessful(){
 
     }
 }
