@@ -3,9 +3,7 @@ package uk.ac.sanger.eln_pmb_bridge;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.mail.MessagingException;
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -68,13 +66,13 @@ public class Main {
         }
     }
 
-    private static void sendStartUpMessage() throws IOException, MessagingException {
+    private static void sendStartUpMessage() {
         String currentTime = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
         String message = String.format("Starting up ELN PMB Bridge service at %s", currentTime);
         sendEmail("Starting up ELN PMB Service", message);
     }
 
-    private static void sendErrorMessage(String subject, Exception e) throws IOException, MessagingException {
+    private static void sendErrorMessage(String subject, Exception e) {
         String message = String.format("Error when trying to print labels via PrintMyBarcode from an polled ELN file. " +
                 "Moving file to error folder. %s", e);
         sendEmail(subject, message);

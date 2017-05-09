@@ -16,6 +16,10 @@ public class PrintRequestHelper {
     private static final Logger log = LoggerFactory.getLogger(PrintRequestHelper.class);
 
     public PrintRequest makeRequestFromFile(File file, List<String> printers) throws FileNotFoundException {
+        if (printers.isEmpty()) {
+            String msg = "Cannot make print request because printer list is empty.";
+            throw new IllegalArgumentException(msg);
+        }
         Scanner fileData = new Scanner(file);
         String firstLine = fileData.nextLine();
         fileData.nextLine();
@@ -39,7 +43,7 @@ public class PrintRequestHelper {
     /**
      * Creates a label for each row in the file, mapping the data against the columns headers
      */
-    private List<PrintRequest.Label> createLabels(Scanner fileData) {
+    protected List<PrintRequest.Label> createLabels(Scanner fileData) {
         String columnHeadingLine = fileData.nextLine();
         String[] columnHeadings = columnHeadingLine.split(Pattern.quote("|"));
 
@@ -80,7 +84,7 @@ public class PrintRequestHelper {
     /**
      * Gets the printer name from the file
      */
-    private String getPrinterName(String firstLine) {
+    protected String getPrinterName(String firstLine) {
         Matcher matcher = Pattern.compile("PRN=\"([^\"]+)\"").matcher(firstLine);
         String printerName;
         if (matcher.find()) {

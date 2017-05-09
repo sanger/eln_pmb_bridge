@@ -100,11 +100,13 @@ public class PropertiesFileReader {
      */
     public File findFile(String filename) throws FileNotFoundException {
         String pollFolder = elnPmbProperties.getProperty("poll_folder", "");
+//        Poll folders with path from properties folder for staging
         File f = new File(pollFolder + "/" + filename);
         if (f.isFile()) {
             return f;
         }
-        f = new File(System.getProperty("user.dir") + File.separator + filename);
+//        Poll folders in data directory for testing
+        f = new File("/Users/hc6/eln_pmb_bridge/data_test/" + filename);
         if (f.isFile()) {
             return f;
         }

@@ -14,16 +14,6 @@ import static org.testng.Assert.assertEquals;
 public class PrintRequestTest {
 
     @Test
-    public void WhenPrinterNameDoesNotExist(){
-
-    }
-
-    @Test
-    public void whenLabelsDoNotExist(){
-
-    }
-
-    @Test
     public void TestPrintLabwareRequest() throws IOException {
 
         final String printerName = "d304bc";
