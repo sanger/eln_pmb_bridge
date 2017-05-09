@@ -51,11 +51,11 @@ public class PropertiesFileReader {
      * Mail properties can be updated while service is running
      */
     public Properties getMailProperties() throws IOException {
-        File propertiesFile = findPropertiesFile("mail.properties");
-        FileInputStream fileInputStream = new FileInputStream(propertiesFile);
+        File mailPropertiesFile = findPropertiesFile("mail.properties");
+        FileInputStream mailFileInputStream = new FileInputStream(mailPropertiesFile);
 
         Properties mailProperties = new Properties();
-        mailProperties.load(fileInputStream);
+        mailProperties.load(mailFileInputStream);
         return mailProperties;
     }
 
@@ -100,13 +100,18 @@ public class PropertiesFileReader {
      */
     public File findFile(String filename) throws FileNotFoundException {
         String pollFolder = elnPmbProperties.getProperty("poll_folder", "");
-//        Poll folders with path from properties folder for staging
+//        Poll files via poll_folder path from eln_pmb.properties for staging
         File f = new File(pollFolder + "/" + filename);
         if (f.isFile()) {
             return f;
         }
-//        Poll folders in data directory for testing
+//        Find a file in the data_test directory for testing
         f = new File("/Users/hc6/eln_pmb_bridge/data_test/" + filename);
+        if (f.isFile()) {
+            return f;
+        }
+//        Find a file in the archive_folder for testing moveFileToFolder successful
+        f = new File("/Users/hc6/eln_pmb_bridge/archive_folder/" + filename);
         if (f.isFile()) {
             return f;
         }
