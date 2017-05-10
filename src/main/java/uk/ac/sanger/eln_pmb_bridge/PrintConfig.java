@@ -4,10 +4,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
- * Class holding the pmb url and template id's for printing labels via PMB
+ * Class holding PrintMyBarcode url and template id's for printing labels
  * @author hc6
  */
 public class PrintConfig {
@@ -22,18 +21,18 @@ public class PrintConfig {
     }
 
     /**
-     * Gets pmb's url from eln_pmb.properties
-     * Gets a list of printers from printer.properties
-     * and maps each printer name to respective thin/fat template id in eln_pmb.properties
-     * @param elnPmbProperties the properties configured from eln_pmb.properties
+     * Gets PrintMyBarcode url from eln_pmb.properties
+     * Gets the list of printers from printer.properties
+     * Maps each printer name to respective thin/fat template id in eln_pmb.properties
+     * Returns new PrintConfig object
      */
-    public static PrintConfig loadConfig(Properties elnPmbProperties, Properties printerProperties)
+    public static PrintConfig loadConfig(PropertiesFileReader properties)
             throws InvalidPropertiesFormatException {
-        List<String> printers = new ArrayList<>();
-        printers.addAll(printerProperties.keySet()
-                .stream()
-                .map(entry -> (String) entry)
-                .collect(Collectors.toList()));
+
+        Properties elnPmbProperties = properties.getElnPmbProperties();
+        Properties printerProperties = properties.getPrinterProperties();
+
+        List<String> printers = properties.getPrinters();
 
         String pmbURL = elnPmbProperties.getProperty("pmb_url", "");
         String thin_template_id = elnPmbProperties.getProperty("thin_template_id", "");

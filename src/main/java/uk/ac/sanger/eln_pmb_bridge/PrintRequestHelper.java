@@ -9,13 +9,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Helper class to make a PrintRequest
+ * Helper class to build a PrintRequest from the polled file
  * @author hc6
  */
 public class PrintRequestHelper {
     private static final Logger log = LoggerFactory.getLogger(PrintRequestHelper.class);
+    private List<String> printers;
 
-    public PrintRequest makeRequestFromFile(File file, List<String> printers) throws FileNotFoundException {
+    public PrintRequest makeRequestFromFile(File file) throws FileNotFoundException {
         if (printers.isEmpty()) {
             String msg = "Cannot make print request because printer list is empty.";
             throw new IllegalArgumentException(msg);
@@ -82,7 +83,7 @@ public class PrintRequestHelper {
     }
 
     /**
-     * Gets the printer name from the file
+     * Gets the printer name from the first row in the polled file
      */
     protected String getPrinterName(String firstLine) {
         Matcher matcher = Pattern.compile("PRN=\"([^\"]+)\"").matcher(firstLine);
@@ -95,4 +96,10 @@ public class PrintRequestHelper {
         return printerName;
     }
 
+/**
+ * List of printers are loaded on the fly with every polled file
+ */
+    protected void loadPrinters(List<String> printers) {
+        this.printers = printers;
+    }
 }

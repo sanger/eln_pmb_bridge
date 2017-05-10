@@ -8,6 +8,11 @@ import java.nio.file.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+/**
+ * ELN PMB Bridge is an application that polls files from (current: web-cgap-idbstest-01)
+ * Builds a print request from the file
+ * Sends a print job request to PrintMyBarcode to print requested labels
+ */
 public class Main {
     private static final Logger log = LoggerFactory.getLogger(PrintConfig.class);
     private static final PropertiesFileReader properties = new PropertiesFileReader();
@@ -20,23 +25,23 @@ public class Main {
 
         try {
             properties.loadProperties();
-            sendStartUpMessage();
+            sendStartUpEmail();
             startService();
         } catch (Exception e) {
             log.error("Fatal error", e);
-            sendErrorMessage("ELN PMB Bridge - fatal error", e);
+            sendErrorEmail("ELN PMB Bridge - fatal error", e);
         }
     }
 
     private static void startService() throws Exception {
         PrintRequestHelper printRequestHelper = new PrintRequestHelper();
         Path pollPath = properties.getPollFolderPath();
-        PrintConfig printConfig = getPrintConfig();
+        PrintConfig printConfig = PrintConfig.loadConfig(properties);
         /**
-         * WatchService monitors the polling folder specified in eln_pmb.properties
-         * A watchable object is registered with an entry_create event
-         * When that event is detected, a key is added to the watch service que
-         * The take method returns the watch key from the service when it becomes available
+         * A new WatchService monitors the polling folder specified in eln_pmb.properties
+         * The polling directory is registered to watch for entry create events
+         * When any create event is detected, a key is added to the watch service que
+         * The take method returns the watch key from the que
          * The event is processed and the newly created filename returned
          */
         WatchService service = pollPath.getFileSystem().newWatchService();
@@ -51,14 +56,14 @@ public class Main {
 
                 try {
                     File file = properties.findFile(newFileName);
-                    List<String> printers = properties.getPrinters();
-                    PrintRequest request = printRequestHelper.makeRequestFromFile(file, printers);
+                    printRequestHelper.loadPrinters(properties.getPrinters());
+                    PrintRequest request = printRequestHelper.makeRequestFromFile(file);
                     PMBClient pmbClient = new PMBClient(printConfig);
                     pmbClient.print(request);
                     properties.moveFileToFolder(newFileName, properties.getArchiveFolder());
                 } catch (Exception e) {
-                    log.error("Recoverable error occurred", e);
-                    sendErrorMessage("ELN PMB Bridge - recoverable error", e);
+                    log.error("Recoverable error", e);
+                    sendErrorEmail("ELN PMB Bridge - recoverable error", e);
                     properties.moveFileToFolder(newFileName, properties.getErrorFolder());
                 }
             }
@@ -66,13 +71,13 @@ public class Main {
         }
     }
 
-    private static void sendStartUpMessage() {
+    private static void sendStartUpEmail() {
         String currentTime = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
-        String message = String.format("Starting up ELN PMB Bridge service at %s", currentTime);
-        sendEmail("Starting up ELN PMB Service", message);
+        String message = String.format("Starting up ELN PMB Bridge Service at %s", currentTime);
+        sendEmail("Starting up ELN PMB Bridge Service", message);
     }
 
-    private static void sendErrorMessage(String subject, Exception e) {
+    private static void sendErrorEmail(String subject, Exception e) {
         String message = String.format("Error when trying to print labels via PrintMyBarcode from an polled ELN file. " +
                 "Moving file to error folder. %s", e);
         sendEmail(subject, message);
@@ -87,9 +92,4 @@ public class Main {
         }
     }
 
-    public static PrintConfig getPrintConfig() throws InvalidPropertiesFormatException {
-        Properties elnPmbProperties = properties.getElnPmbProperties();
-        Properties printerProperties = properties.getPrinterProperties();
-        return PrintConfig.loadConfig(elnPmbProperties, printerProperties);
-    }
 }

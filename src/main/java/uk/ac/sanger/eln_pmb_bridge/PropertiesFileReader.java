@@ -12,12 +12,10 @@ import java.util.stream.Collectors;
 
 /**
  * Helper class to
- *   - load all property files when the service is started
+ *   - load property files when the service is started
  *   - get properties
- *   - find files and
- *   - make a print request from a file
- *   - check r/w/e permissions of a file
- *   - archive a file
+ *   - find files
+ *   - move files
  * @author hc6
  */
 public class PropertiesFileReader {
@@ -25,13 +23,13 @@ public class PropertiesFileReader {
     private Properties elnPmbProperties;
     private Properties printerProperties;
 
-    public void loadProperties() throws Exception {
-        File elnPmbPropertiesFile = findPropertiesFile("eln_pmb.properties");
+    protected void loadProperties() throws Exception {
+        File elnPmbPropertiesFile = findFile("eln_pmb.properties");
         FileInputStream elnPmbFileInputStream = new FileInputStream(elnPmbPropertiesFile);
         this.elnPmbProperties = new Properties();
         this.elnPmbProperties.load(elnPmbFileInputStream);
 
-        File printerPropertiesFile = findPropertiesFile("printer.properties");
+        File printerPropertiesFile = findFile("printer.properties");
         FileInputStream printerFileInputStream = new FileInputStream(printerPropertiesFile);
         this.printerProperties = new Properties();
         this.printerProperties.load(printerFileInputStream);
@@ -39,19 +37,19 @@ public class PropertiesFileReader {
         log.info("Successfully set eln_pmb.properties");
     }
 
-    public Properties getElnPmbProperties() {
+    protected Properties getElnPmbProperties() {
         return this.elnPmbProperties;
     }
 
-    public Properties getPrinterProperties(){
+    protected Properties getPrinterProperties(){
         return this.printerProperties;
     }
 
     /**
      * Mail properties can be updated while service is running
      */
-    public Properties getMailProperties() throws IOException {
-        File mailPropertiesFile = findPropertiesFile("mail.properties");
+    protected Properties getMailProperties() throws IOException {
+        File mailPropertiesFile = findFile("mail.properties");
         FileInputStream mailFileInputStream = new FileInputStream(mailPropertiesFile);
 
         Properties mailProperties = new Properties();
@@ -59,58 +57,52 @@ public class PropertiesFileReader {
         return mailProperties;
     }
 
-    public Path getPollFolderPath() {
+    protected Path getPollFolderPath() {
         String pollFolder = elnPmbProperties.getProperty("poll_folder", "");
         return Paths.get(pollFolder);
     }
 
-    public String getArchiveFolder() {
+    protected String getArchiveFolder() {
         return elnPmbProperties.getProperty("archive_folder");
     }
 
-    public String getErrorFolder() {
+    protected String getErrorFolder() {
         return elnPmbProperties.getProperty("error_folder");
     }
 
     /**
      * Returns a list of printers configured in printer.properties
      */
-    public List<String> getPrinters() {
+    protected List<String> getPrinters() {
         return printerProperties.keySet()
                 .stream()
                 .map(entry -> (String) entry)
                 .collect(Collectors.toList());
     }
 
-    public File findPropertiesFile(String filename) throws FileNotFoundException {
+    /**
+     * Tries to find a file with the given filename in various folders
+     * @param filename the filename to find
+     * @return the first matching file found, or throw exception if no such file is found
+     */
+    protected File findFile(String filename) throws FileNotFoundException {
+//        Search in property folder for property files
         File f = new File("./properties_folder/"+filename);
         if (f.isFile()) {
             return f;
         }
-        String msg = String.format("Missing properties file %s.", filename);
-        throw new FileNotFoundException(msg);
-    }
-
-    /**
-     * Tries to find a file with the given filename in various folders:
-     *   - the current working directory
-     *   - poll folder path
-     * @param filename the filename to find
-     * @return the first matching file found, or throw exception if no such file is found
-     */
-    public File findFile(String filename) throws FileNotFoundException {
+//        Search in poll folder from eln_pmb.properties for polling
         String pollFolder = elnPmbProperties.getProperty("poll_folder", "");
-//        Poll files via poll_folder path from eln_pmb.properties for staging
-        File f = new File(pollFolder + "/" + filename);
+        f = new File(pollFolder + "/" + filename);
         if (f.isFile()) {
             return f;
         }
-//        Find a file in the data_test directory for testing
+//        Search in data_test folder for  testing
         f = new File("/Users/hc6/eln_pmb_bridge/data_test/" + filename);
         if (f.isFile()) {
             return f;
         }
-//        Find a file in the archive_folder for testing moveFileToFolder successful
+//       Search in the the archive folder for testing moving a file
         f = new File("/Users/hc6/eln_pmb_bridge/archive_folder/" + filename);
         if (f.isFile()) {
             return f;
@@ -127,8 +119,14 @@ public class PropertiesFileReader {
      * @param fileToMove the filename to move
      * @param folderToMoveTo the folder to move the file to
      */
-    public void moveFileToFolder(String fileToMove, String folderToMoveTo) throws IOException {
-        File sourceFile = findFile(fileToMove);
+    protected void moveFileToFolder(String fileToMove, String folderToMoveTo) throws IOException {
+        File sourceFile;
+        try {
+            sourceFile = findFile(fileToMove);
+        } catch (FileNotFoundException e) {
+            log.debug(String.format("Failed to move file \"%s\"", fileToMove));
+            throw new FileNotFoundException(String.format("Failed to move file \"%s\" to \"%s\"", fileToMove, folderToMoveTo));
+        }
         String time = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
         int dotIndex = fileToMove.lastIndexOf('.');
         if (dotIndex <= 0) {

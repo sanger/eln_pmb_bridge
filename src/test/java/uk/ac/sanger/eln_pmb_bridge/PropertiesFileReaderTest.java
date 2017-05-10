@@ -59,15 +59,15 @@ public class PropertiesFileReaderTest {
     @Test
     public void TestFindPropertiesFileSuccessful() throws FileNotFoundException {
         File file = new File("./properties_folder/eln_pmb.properties");
-        assertEquals(file, properties.findPropertiesFile("eln_pmb.properties"));
+        assertEquals(file, properties.findFile("eln_pmb.properties"));
     }
 
     @Test
     public void TestFindPropertiesFileNotSuccessful(){
         try {
-            properties.findPropertiesFile("doesnt_exist.properties");
+            properties.findFile("doesnt_exist.properties");
         } catch (FileNotFoundException e) {
-            assertEquals(e.getMessage(), "Missing properties file doesnt_exist.properties.");
+            assertEquals(e.getMessage(), "File doesnt_exist.properties does not exist");
         }
     }
 
@@ -76,6 +76,7 @@ public class PropertiesFileReaderTest {
         File file = new File("/Users/hc6/eln_pmb_bridge/poll_folder/test.txt");
         file.createNewFile();
         assertEquals(file, properties.findFile("test.txt"));
+        file.deleteOnExit();
     }
 
     @Test
@@ -98,7 +99,6 @@ public class PropertiesFileReaderTest {
         String newName = "move_test_"+time+".txt";
         File newFile = new File("/Users/hc6/eln_pmb_bridge/archive_folder/"+newName);
         assertEquals(newFile, properties.findFile(newName));
-
     }
 
     @Test

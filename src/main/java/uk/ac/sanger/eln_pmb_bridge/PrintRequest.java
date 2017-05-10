@@ -6,7 +6,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
 import java.util.*;
 
 /**
- * A request to print labels
+ * A request object to print labels via PrintMyBarcode
  * @author hc6
  */
 public class PrintRequest {

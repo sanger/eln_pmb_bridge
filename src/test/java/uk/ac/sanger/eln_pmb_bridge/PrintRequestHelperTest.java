@@ -27,9 +27,10 @@ public class PrintRequestHelperTest {
     @Test
     public void TestFileNameDoesNotExist() throws Exception {
         File emptyFile = new File("");
+        printRequestHelper.loadPrinters(printerList);
 
         try {
-            printRequestHelper.makeRequestFromFile(emptyFile, printerList);
+            printRequestHelper.makeRequestFromFile(emptyFile);
         } catch (FileNotFoundException e){
             assertEquals(e.getMessage().trim(), "(No such file or directory)");
         }
@@ -38,9 +39,10 @@ public class PrintRequestHelperTest {
     @Test
     public void TestPrinterListIsEmpty() throws Exception {
         File file = properties.findFile("correct_request.txt");
+        printRequestHelper.loadPrinters(Collections.emptyList());
 
         try {
-            printRequestHelper.makeRequestFromFile(file, Collections.emptyList());
+            printRequestHelper.makeRequestFromFile(file);
         } catch (IllegalArgumentException e) {
             assertEquals(e.getMessage(), "Cannot make print request because printer list is empty.");
         }
@@ -63,9 +65,10 @@ public class PrintRequestHelperTest {
     @Test
     public void TestPrinterNameDoesNotExistInGivenListOfPrinters() throws FileNotFoundException {
         File file = properties.findFile("unknown_printer.txt");
+        printRequestHelper.loadPrinters(printerList);
 
         try {
-            printRequestHelper.makeRequestFromFile(file, printerList);
+            printRequestHelper.makeRequestFromFile(file);
         } catch (IllegalArgumentException e) {
             assertEquals(e.getMessage(), "Cannot make print request because printer name xxx doesn't exist.");
         }
@@ -74,9 +77,10 @@ public class PrintRequestHelperTest {
     @Test
     public void TestLabelListIsEmpty() throws FileNotFoundException {
         File file = properties.findFile("no_requests.txt");
+        printRequestHelper.loadPrinters(printerList);
 
         try {
-            printRequestHelper.makeRequestFromFile(file, printerList);
+            printRequestHelper.makeRequestFromFile(file);
         } catch (IllegalArgumentException e) {
             assertEquals(e.getMessage(), "Cannot make print request because label list is empty");
         }
@@ -122,8 +126,10 @@ public class PrintRequestHelperTest {
     @Test
     public void TestMakeRequestFromFile() throws Exception {
         File file = properties.findFile("correct_request.txt");
+        printRequestHelper.loadPrinters(printerList);
 
-        PrintRequest request = printRequestHelper.makeRequestFromFile(file, printerList);
+
+        PrintRequest request = printRequestHelper.makeRequestFromFile(file);
 
         assertEquals(request.getLabels().get(0).getField("cell_line"), "nawk");
         assertEquals(request.getLabels().get(0).getField("barcode"), "200000000111");

@@ -21,7 +21,7 @@ public class PrintConfigTest {
         PropertiesFileReader fr = new PropertiesFileReader();
         fr.loadProperties();
 
-        PrintConfig result = PrintConfig.loadConfig(fr.getElnPmbProperties(), fr.getPrinterProperties());
+        PrintConfig result = PrintConfig.loadConfig(fr);
         Map<String, Integer> templateIds = new HashMap<>();
         templateIds.put("d304bc", 15);
         templateIds.put("e367bc", 0);

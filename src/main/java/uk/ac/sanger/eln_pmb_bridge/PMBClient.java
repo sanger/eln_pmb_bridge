@@ -23,12 +23,7 @@ public class PMBClient {
     public PMBClient(PrintConfig config) {
         this.config = config;
     }
-    /**
-     * Builds a JSON object from the request
-     * Sets the request headers
-     * Posts a json request to pmb
-     * @param request the request to print
-     */
+
     public void print(PrintRequest request) throws Exception {
         if (request==null){
             throw new IllegalArgumentException("Null request in PMBClient.print");
@@ -42,6 +37,9 @@ public class PMBClient {
         }
     }
 
+    /**
+     * Builds a JSON object from the new print job request
+     */
     public JSONObject buildJson(PrintRequest request) throws JSONException {
         JSONObject requestJson = new JSONObject();
         try {
@@ -75,12 +73,18 @@ public class PMBClient {
         return requestJson;
     }
 
+    /**
+     * Opens a connection and sets the request headers
+     * Posts JSON object to PrintMyBarcode
+     * @param targetURL the url to send the request to
+     * @param jsonObject JSON to post
+     */
     protected void postJson(URL targetURL, Object jsonObject) throws IOException {
         HttpURLConnection connection = (HttpURLConnection) targetURL.openConnection();
 
         connection.setDoOutput(true);
         connection.setRequestMethod("POST");
-        setHeaders(connection);
+        connection.setRequestProperty("Content-Type", "application/json");
 
         OutputStreamWriter out = new OutputStreamWriter(connection.getOutputStream());
         out.write(jsonObject.toString());
@@ -92,10 +96,6 @@ public class PMBClient {
             throw new HTTPException(responseCode);
         }
         log.debug("HTTP Response code: " + responseCode);
-    }
-
-    private void setHeaders(HttpURLConnection connection) {
-        connection.setRequestProperty("Content-Type", "application/json");
     }
 
 }
