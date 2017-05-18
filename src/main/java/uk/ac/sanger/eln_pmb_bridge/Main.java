@@ -16,7 +16,7 @@ import java.util.List;
  */
 public class Main {
     private static final Logger log = LoggerFactory.getLogger(PrintConfig.class);
-    private static final PropertiesFileReader properties = new PropertiesFileReader();
+    private static final PropertiesFileReader properties = new PropertiesFileReader("properties_folder");
 
     public static void main(String[] args) throws Exception {
         /**

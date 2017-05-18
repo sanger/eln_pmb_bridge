@@ -20,15 +20,19 @@ public class PropertiesFileReader {
     private static final Logger log = LoggerFactory.getLogger(PrintRequestHelper.class);
     private Properties elnPmbProperties;
     private Properties printerProperties;
+    private String propertiesFolder;
 
+    public PropertiesFileReader(String propertiesFolder) {
+        this.propertiesFolder = propertiesFolder;
+    }
 
     protected void setProperties() throws IOException {
-        Path elnPmbPropertiesFile = Paths.get("./properties_folder/eln_pmb.properties");
+        Path elnPmbPropertiesFile = Paths.get("./"+propertiesFolder+"/eln_pmb.properties");
         InputStream elnPmbFileInputStream = Files.newInputStream(elnPmbPropertiesFile);
         this.elnPmbProperties = new Properties();
         this.elnPmbProperties.load(elnPmbFileInputStream);
 
-        Path printerPropertiesFile = Paths.get("./properties_folder/printer.properties");
+        Path printerPropertiesFile = Paths.get("./"+propertiesFolder+"/printer.properties");
         InputStream printerFileInputStream = Files.newInputStream(printerPropertiesFile);
         this.printerProperties = new Properties();
         this.printerProperties.load(printerFileInputStream);
@@ -48,7 +52,7 @@ public class PropertiesFileReader {
      * Mail properties can be updated while service is running
      */
     protected Properties getMailProperties() throws IOException {
-        Path mailPropertiesFile = Paths.get("./properties_folder/mail.properties");
+        Path mailPropertiesFile = Paths.get("./"+propertiesFolder+"/mail.properties");
         InputStream mailFileInputStream = Files.newInputStream(mailPropertiesFile);
         Properties mailProperties = new Properties();
         mailProperties.load(mailFileInputStream);

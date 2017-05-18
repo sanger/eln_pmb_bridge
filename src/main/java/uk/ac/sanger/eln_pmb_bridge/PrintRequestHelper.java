@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -16,13 +17,18 @@ import java.util.stream.Collectors;
  */
 public class PrintRequestHelper {
     private static final Logger log = LoggerFactory.getLogger(PrintRequestHelper.class);
-    private List<String> printers;
+    protected Properties printerProperties;
 
     public PrintRequestHelper(Properties printerProperties) {
-        this.printers = getPrinterList(printerProperties);
+        this.printerProperties = printerProperties;
     }
 
     public PrintRequest makeRequestFromFile(Path file) throws IOException {
+        if (!Files.exists(file)){
+            throw new NullPointerException(file +" does not exist");
+        }
+        List<String> printers = getPrinterList(printerProperties);
+
         if (printers.isEmpty()) {
             String msg = "Cannot make print request because printer list is empty.";
             throw new IllegalArgumentException(msg);
@@ -32,17 +38,16 @@ public class PrintRequestHelper {
         fileData.nextLine();
 
         List<PrintRequest.Label> labels = createLabels(fileData);
-
         String printerName = getPrinterName(firstLine);
         boolean printerExists = printers.contains(printerName);
 
         if (!printerExists || labels.isEmpty()){
             String message = "";
             if (!printerExists){
-                message += "\n\tPrinter name "+printerName+" does not exist.\n";
+                message += "Printer name "+printerName+" does not exist.";
             }
             if (labels.isEmpty()){
-                message += "\tLabel list is empty.\n";
+                message += "Label list is empty.";
             }
             String msg = String.format("Cannot make print request because: %s", message);
             log.error(msg);
@@ -109,7 +114,7 @@ public class PrintRequestHelper {
     /**
      * Returns a list of printers configured in printer.properties
      */
-    private List<String> getPrinterList(Properties printerProperties) {
+    protected List<String> getPrinterList(Properties printerProperties) {
         return printerProperties.keySet()
                 .stream()
                 .map(entry -> (String) entry)

@@ -10,17 +10,17 @@ import static org.testng.Assert.assertEquals;
  * @author hc6
  */
 public class EmailServiceTest {
-    private static final PropertiesFileReader properties = new PropertiesFileReader();
+    private static final PropertiesFileReader properties = new PropertiesFileReader("test_properties_folder");
     protected EmailService emailService;
 
     @Test
     public void TestGetMailPropertiesSuccessful() throws Exception {
-        properties.loadProperties();
+        properties.setProperties();
         Properties mailProperties = properties.getMailProperties();
         emailService = new EmailService(mailProperties);
 
         String toAddress = mailProperties.getProperty("to", "").trim();
-        assertEquals(toAddress, "hc6@sanger.ac.uk");
+        assertEquals(toAddress, "user@here.com");
     }
 
     @Test
