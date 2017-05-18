@@ -3,10 +3,12 @@ package uk.ac.sanger.eln_pmb_bridge;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Helper class to build a PrintRequest from the polled file
@@ -16,7 +18,11 @@ public class PrintRequestHelper {
     private static final Logger log = LoggerFactory.getLogger(PrintRequestHelper.class);
     private List<String> printers;
 
-    public PrintRequest makeRequestFromFile(File file) throws FileNotFoundException {
+    public PrintRequestHelper(Properties printerProperties) {
+        this.printers = getPrinterList(printerProperties);
+    }
+
+    public PrintRequest makeRequestFromFile(Path file) throws IOException {
         if (printers.isEmpty()) {
             String msg = "Cannot make print request because printer list is empty.";
             throw new IllegalArgumentException(msg);
@@ -32,9 +38,13 @@ public class PrintRequestHelper {
 
         if (!printerExists || labels.isEmpty()){
             String message = "";
-            String errorMessage = (!printerExists ? message.concat(String.format("printer name %s doesn't exist.", printerName))
-                    : message.concat("label list is empty"));
-            String msg = String.format("Cannot make print request because %s", errorMessage);
+            if (!printerExists){
+                message += "\n\tPrinter name "+printerName+" does not exist.\n";
+            }
+            if (labels.isEmpty()){
+                message += "\tLabel list is empty.\n";
+            }
+            String msg = String.format("Cannot make print request because: %s", message);
             log.error(msg);
             throw new IllegalArgumentException(msg);
         }
@@ -66,8 +76,8 @@ public class PrintRequestHelper {
             Map<String, String> fieldMap = new HashMap<>();
             for (int i = 0; i < data.length; i++) {
                 if (columns.get(i).equals("barcode")) {
-                    fieldMap.put(columns.get(i), data[i].trim());
-                    fieldMap.put(columns.get(i).concat("_text"), data[i].trim());
+                    fieldMap.put("barcode", data[i].trim());
+                    fieldMap.put("barcode_text", data[i].trim());
                 }
                 fieldMap.put(columns.get(i), data[i].trim());
             }
@@ -96,10 +106,14 @@ public class PrintRequestHelper {
         return printerName;
     }
 
-/**
- * List of printers are loaded on the fly with every polled file
- */
-    protected void loadPrinters(List<String> printers) {
-        this.printers = printers;
+    /**
+     * Returns a list of printers configured in printer.properties
+     */
+    private List<String> getPrinterList(Properties printerProperties) {
+        return printerProperties.keySet()
+                .stream()
+                .map(entry -> (String) entry)
+                .collect(Collectors.toList());
     }
+
 }

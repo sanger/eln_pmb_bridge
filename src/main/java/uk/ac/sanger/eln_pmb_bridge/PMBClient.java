@@ -42,34 +42,30 @@ public class PMBClient {
      */
     public JSONObject buildJson(PrintRequest request) throws JSONException {
         JSONObject requestJson = new JSONObject();
-        try {
-            String printer = request.getPrinterName();
-            Integer templateId = config.getTemplateIdForPrinter(printer);
 
-            JSONArray body = new JSONArray();
-            for (PrintRequest.Label label : request.getLabels()){
-                JSONObject labelJson = new JSONObject();
-                labelJson.put("label_1", new JSONObject(label.getFields()));
-                body.put(labelJson);
-            }
+        String printer = request.getPrinterName();
+        Integer templateId = config.getTemplateIdForPrinter(printer);
 
-            JSONObject labels = new JSONObject();
-            labels.put("body", body);
-
-            JSONObject attributes = new JSONObject();
-            attributes.put("printer_name", printer);
-            attributes.put("label_template_id", templateId);
-            attributes.put("labels", labels);
-
-            JSONObject data = new JSONObject();
-            data.put("attributes", attributes);
-
-            requestJson.put("data", data);
-
-        } catch (JSONException e) {
-            log.debug("Failed to build JSON object");
-            throw new JSONException(e);
+        JSONArray body = new JSONArray();
+        for (PrintRequest.Label label : request.getLabels()){
+            JSONObject labelJson = new JSONObject();
+            labelJson.put("label_1", new JSONObject(label.getFields()));
+            body.put(labelJson);
         }
+
+        JSONObject labels = new JSONObject();
+        labels.put("body", body);
+
+        JSONObject attributes = new JSONObject();
+        attributes.put("printer_name", printer);
+        attributes.put("label_template_id", templateId);
+        attributes.put("labels", labels);
+
+        JSONObject data = new JSONObject();
+        data.put("attributes", attributes);
+
+        requestJson.put("data", data);
+
         return requestJson;
     }
 
@@ -80,22 +76,30 @@ public class PMBClient {
      * @param jsonObject JSON to post
      */
     protected void postJson(URL targetURL, Object jsonObject) throws IOException {
-        HttpURLConnection connection = (HttpURLConnection) targetURL.openConnection();
+        HttpURLConnection connection = null;
+        int responseCode = 0;
+        try {
+            connection = (HttpURLConnection) targetURL.openConnection();
+            connection.setDoOutput(true);
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-Type", "application/json");
 
-        connection.setDoOutput(true);
-        connection.setRequestMethod("POST");
-        connection.setRequestProperty("Content-Type", "application/json");
-
-        OutputStreamWriter out = new OutputStreamWriter(connection.getOutputStream());
-        out.write(jsonObject.toString());
-        out.flush();
-
-        connection.disconnect();
-        int responseCode = connection.getResponseCode();
-        if (responseCode!=HTTP_CREATED){
-            throw new HTTPException(responseCode);
+            OutputStreamWriter out = new OutputStreamWriter(connection.getOutputStream());
+            out.write(jsonObject.toString());
+            out.flush();
+        } finally {
+            if (connection != null) {
+                responseCode = connection.getResponseCode();
+                connection.disconnect();
+            }
         }
-        log.debug("HTTP Response code: " + responseCode);
+
+        if (responseCode!=HTTP_CREATED) {
+            log.error("HTTP Response code: " + responseCode);
+            throw new HTTPException(responseCode);
+        } else {
+            log.info("HTTP Response code: " + responseCode);
+        }
     }
 
 }

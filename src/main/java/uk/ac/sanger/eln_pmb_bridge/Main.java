@@ -3,15 +3,16 @@ package uk.ac.sanger.eln_pmb_bridge;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
+import java.io.IOException;
 import java.nio.file.*;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Date;
+import java.util.List;
 
 /**
  * ELN PMB Bridge is an application that polls files from (current: web-cgap-idbstest-01)
  * Builds a print request from the file
- * Sends a print job request to PrintMyBarcode to print requested labels
+ * Sends a print job request to PrintMyBarcode to print created labels
  */
 public class Main {
     private static final Logger log = LoggerFactory.getLogger(PrintConfig.class);
@@ -24,7 +25,7 @@ public class Main {
         System.setProperty("java.net.preferIPv6Addresses", "true");
 
         try {
-            properties.loadProperties();
+            properties.setProperties();
             sendStartUpEmail();
             startService();
         } catch (Exception e) {
@@ -34,8 +35,7 @@ public class Main {
     }
 
     private static void startService() throws Exception {
-        PrintRequestHelper printRequestHelper = new PrintRequestHelper();
-        Path pollPath = properties.getPollFolderPath();
+        PrintRequestHelper printRequestHelper = new PrintRequestHelper(properties.getPrinterProperties());
         PrintConfig printConfig = PrintConfig.loadConfig(properties);
         /**
          * A new WatchService monitors the polling folder specified in eln_pmb.properties
@@ -44,6 +44,7 @@ public class Main {
          * The take method returns the watch key from the que
          * The event is processed and the newly created filename returned
          */
+        Path pollPath = Paths.get(properties.getPollFolder());
         WatchService service = pollPath.getFileSystem().newWatchService();
         pollPath.register(service, StandardWatchEventKinds.ENTRY_CREATE);
 
@@ -53,18 +54,16 @@ public class Main {
 
             for (WatchEvent event : watchEvents) {
                 String newFileName = event.context().toString();
-
+                Path pollFile = Paths.get(properties.getPollFolder()+newFileName);
                 try {
-                    File file = properties.findFile(newFileName);
-                    printRequestHelper.loadPrinters(properties.getPrinters());
-                    PrintRequest request = printRequestHelper.makeRequestFromFile(file);
+                    PrintRequest request = printRequestHelper.makeRequestFromFile(pollFile);
                     PMBClient pmbClient = new PMBClient(printConfig);
                     pmbClient.print(request);
-                    properties.moveFileToFolder(newFileName, properties.getArchiveFolder());
+                    moveFileToFolder(pollFile, properties.getArchiveFolder());
                 } catch (Exception e) {
                     log.error("Recoverable error", e);
+                    moveFileToFolder(pollFile, properties.getErrorFolder());
                     sendErrorEmail("ELN PMB Bridge - recoverable error", e);
-                    properties.moveFileToFolder(newFileName, properties.getErrorFolder());
                 }
             }
             watchKey.reset();
@@ -90,6 +89,19 @@ public class Main {
         } catch (Exception e){
             log.error(String.format("Failed to send email with subject %s", subject));
         }
+    }
+
+    private static void moveFileToFolder(Path fileToMove, String folderToMoveTo) throws IOException {
+        String time = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
+        String fileName = fileToMove.getFileName().toString();
+
+        int dotIndex = fileName.lastIndexOf('.');
+        if (dotIndex <= 0) {
+            dotIndex = fileName.length();
+        }
+        String newFileName = fileName.replace(" ", "_").substring(0, dotIndex) + "_" + time + ".txt";
+        Files.move(fileToMove, Paths.get(folderToMoveTo+newFileName));
+        log.info(String.format("Moved file \"%s\" to %s", fileToMove, folderToMoveTo+newFileName));
     }
 
 }

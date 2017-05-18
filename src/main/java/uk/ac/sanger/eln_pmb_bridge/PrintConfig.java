@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Class holding PrintMyBarcode url and template id's for printing labels
@@ -32,7 +33,11 @@ public class PrintConfig {
         Properties elnPmbProperties = properties.getElnPmbProperties();
         Properties printerProperties = properties.getPrinterProperties();
 
-        List<String> printers = properties.getPrinters();
+        List<String> printers = properties.getPrinterProperties()
+                .keySet()
+                .stream()
+                .map(entry -> (String) entry)
+                .collect(Collectors.toList());
 
         String pmbURL = elnPmbProperties.getProperty("pmb_url", "");
         String thin_template_id = elnPmbProperties.getProperty("thin_template_id", "");
@@ -41,11 +46,13 @@ public class PrintConfig {
         if (pmbURL.isEmpty() || printers.isEmpty() || thin_template_id.isEmpty() || fat_template_id.isEmpty()) {
             String message = "";
             if (pmbURL.isEmpty()) {
-                message = message.concat("PMB URL is missing");
-            } else if (pmbURL.isEmpty()) {
-                message = message.concat("list of printers is empty in printer.properties");
-            } else if (thin_template_id.isEmpty() || fat_template_id.isEmpty()) {
-                message = message.concat("template id's are missing from eln_pmb.properties");
+                message += "\n\tPMB URL is missing.\n";
+            }
+            if (pmbURL.isEmpty()) {
+                message += "\tList of printers is empty in printer.properties.\n";
+            }
+            if (thin_template_id.isEmpty() || fat_template_id.isEmpty()) {
+                message += "\tTemplate id's are missing from eln_pmb.properties.\n";
             }
             String msg = String.format("Cannot load print config because: %s", message);
             log.error(msg);
@@ -54,20 +61,16 @@ public class PrintConfig {
 
         Map<String, Integer> printerTemplateIds = new HashMap<>();
         for (String printerName : printers) {
-            String printerSize = printerProperties.getProperty(printerName.toLowerCase(), "").trim();
-            String templateIdString = "";
-            switch (printerSize) {
-                case "thin":
-                    templateIdString = elnPmbProperties.getProperty("thin_template_id");
-                    break;
-                case "fat":
-                    templateIdString = elnPmbProperties.getProperty("fat_template_id");
-                    break;
+            String printerSize = printerProperties.getProperty(printerName.toLowerCase()).trim();
+            if (printerSize.isEmpty()){
+                throw new NullPointerException("Missing printer size for "+printerName+" from printer.properties");
             }
-            Integer templateId = Integer.valueOf(templateIdString.trim());
-            if (templateId!=null) {
-                printerTemplateIds.put(printerName, templateId);
+            String printerSizeTemplateId = elnPmbProperties.getProperty(printerSize+"_template_id");
+            if (printerSizeTemplateId==null){
+                throw new NullPointerException(printerSize+"_template_id does not exist in eln_pmb.properties");
             }
+            Integer templateId = Integer.valueOf(printerSizeTemplateId);
+            printerTemplateIds.put(printerName, templateId);
         }
         return new PrintConfig(pmbURL, printerTemplateIds);
     }
