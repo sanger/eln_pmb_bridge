@@ -1,4 +1,0 @@
-%BTW% /AF="Template" /D="%Trigger File Name%" /R=3 /P /PRN="d304bc" /C=1
-%END%
-Cell Line| Barcode | Passage Number | Date
-xxxx | 200000000111 | 3 | 2016-10-17
