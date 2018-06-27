@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.file.*;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -23,8 +24,8 @@ public class Main {
          * When a host has both IPv4 and IPv6 addresses, change preference to use IPv6 addresses over IPv4
          */
         System.setProperty("java.net.preferIPv6Addresses", "true");
-
         try {
+            createFolders();
             properties.setProperties();
             sendStartUpEmail();
             startService();
@@ -102,6 +103,20 @@ public class Main {
         String newFileName = fileName.replace(" ", "_").substring(0, dotIndex) + "_" + time + ".txt";
         Files.move(fileToMove, Paths.get(folderToMoveTo+newFileName));
         log.info(String.format("Moved file \"%s\" to %s", fileToMove, folderToMoveTo+newFileName));
+    }
+
+    private static void createFolders() {
+        List<String> directories = Arrays.asList("poll_folder", "archive_folder", "error_folder");
+        for (String directory : directories) {
+            Path directoryPath = Paths.get(directory);
+            if (!Files.exists(directoryPath)) {
+                try {
+                    Files.createDirectory(directoryPath);
+                } catch (IOException e) {
+                    System.out.println("Error creating " + directoryPath + "\n" + e);
+                }
+            }
+        }
     }
 
 }
