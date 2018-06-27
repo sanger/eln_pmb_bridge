@@ -106,7 +106,7 @@ public class Main {
     }
 
     private static void createFolders() {
-        List<String> directories = Arrays.asList("poll_folder", "archive_folder", "error_folder");
+        List<String> directories = Arrays.asList("poll_folder", "archive_folder", "error_folder", "properties_folder");
         for (String directory : directories) {
             Path directoryPath = Paths.get(directory);
             if (!Files.exists(directoryPath)) {
