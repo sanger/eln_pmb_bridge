@@ -61,7 +61,7 @@ public class PrintRequestHelper {
      */
     protected List<PrintRequest.Label> createLabels(Scanner fileData) {
         String columnHeadingLine = fileData.nextLine();
-        String[] columnHeadings = columnHeadingLine.split(Pattern.quote("|"));
+        String[] columnHeadings = columnHeadingLine.split("\\||,");
 
         List<String> columns = new ArrayList<>();
         for (String ch : columnHeadings) {

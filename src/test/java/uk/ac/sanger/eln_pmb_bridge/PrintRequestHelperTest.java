@@ -108,7 +108,7 @@ public class PrintRequestHelperTest {
         Scanner expectedData = new Scanner(path);
         expectedData.nextLine();
         expectedData.nextLine();
-        String[] expectedColumns = expectedData.nextLine().split("\\|");
+        String[] expectedColumns = expectedData.nextLine().split("\\||,");
 
         int numOfRequestedLabels = 0;
         while(expectedData.hasNext()) {
