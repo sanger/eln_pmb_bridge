@@ -2,10 +2,6 @@
 target
 *.iml
 .DS_Store
-eln_pmb.properties
-mail.properties
-printer.properties
-properties_folder
 poll_folder
 error_folder
 archive_folder
