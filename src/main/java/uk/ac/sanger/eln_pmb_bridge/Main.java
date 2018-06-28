@@ -52,13 +52,13 @@ public class Main {
         while (true) {
             WatchKey watchKey = service.take();
             List<WatchEvent<?>> watchEvents = watchKey.pollEvents();
+            PMBClient pmbClient = new PMBClient(printConfig);
 
             for (WatchEvent event : watchEvents) {
                 String newFileName = event.context().toString();
                 Path pollFile = Paths.get(properties.getPollFolder()+newFileName);
                 try {
                     PrintRequest request = printRequestHelper.makeRequestFromFile(pollFile);
-                    PMBClient pmbClient = new PMBClient(printConfig);
                     pmbClient.print(request);
                     moveFileToFolder(pollFile, properties.getArchiveFolder());
                 } catch (Exception e) {

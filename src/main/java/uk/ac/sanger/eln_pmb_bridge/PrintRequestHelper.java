@@ -76,7 +76,7 @@ public class PrintRequestHelper {
             if (line.isEmpty()) {
                 continue;
             }
-            String[] data = line.split(Pattern.quote("|"));
+            String[] data = line.split("\\||,");
 
             Map<String, String> fieldMap = new HashMap<>();
             for (int i = 0; i < data.length; i++) {
