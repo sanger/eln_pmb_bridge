@@ -41,18 +41,19 @@ public class PrintRequestHelper {
         String printerName = getPrinterName(firstLine);
         boolean printerExists = printers.contains(printerName);
 
-        if (!printerExists || labels.isEmpty()){
-            String message = "";
-            if (!printerExists){
-                message += "Printer name "+printerName+" does not exist.";
-            }
-            if (labels.isEmpty()){
-                message += "Label list is empty.";
-            }
+        String message = "";
+        if (!printerExists){
+            message += "\n\tPrinter name "+printerName+" does not exist.";
+        }
+        if (labels.isEmpty()){
+            message += "\n\tLabel list is empty.\n";
+        }
+        if (!message.isEmpty()) {
             String msg = String.format("Cannot make print request because: %s", message);
             log.error(msg);
             throw new IllegalArgumentException(msg);
         }
+
         return new PrintRequest(printerName, labels);
     }
 
@@ -104,7 +105,7 @@ public class PrintRequestHelper {
         Matcher matcher = Pattern.compile("PRN=\"([^\"]+)\"").matcher(firstLine);
         String printerName;
         if (matcher.find()) {
-            printerName = matcher.group(1);
+            printerName = matcher.group(1).toLowerCase().trim();
         } else {
             throw new IllegalArgumentException("No printer name is given in print request");
         }

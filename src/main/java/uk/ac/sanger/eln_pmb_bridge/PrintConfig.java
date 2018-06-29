@@ -43,19 +43,19 @@ public class PrintConfig {
         String thin_template_id = elnPmbProperties.getProperty("thin_template_id", "");
         String fat_template_id = elnPmbProperties.getProperty("fat_template_id", "");
 
-        if (pmbURL.isEmpty() || printers.isEmpty() || thin_template_id.isEmpty() || fat_template_id.isEmpty()) {
-            String message = "";
-            if (pmbURL.isEmpty()) {
-                message += "\n\tPMB URL is missing.\n";
-            }
-            if (pmbURL.isEmpty()) {
-                message += "\tList of printers is empty in printer.properties.\n";
-            }
-            if (thin_template_id.isEmpty() || fat_template_id.isEmpty()) {
-                message += "\tTemplate id's are missing from eln_pmb.properties.\n";
-            }
+        String message = "";
+        if (pmbURL.isEmpty()) {
+            message += "\n\tPMB URL is missing.";
+        }
+        if (printers.isEmpty()) {
+            message += "\n\tList of printers is empty in printer.properties.";
+        }
+        if (thin_template_id.isEmpty() || fat_template_id.isEmpty()) {
+            message += "\n\tTemplate id's are missing from eln_pmb.properties.";
+        }
+
+        if (!message.isEmpty()) {
             String msg = String.format("Cannot load print config because: %s", message);
-            log.error(msg);
             throw new InvalidPropertiesFormatException(msg);
         }
 
