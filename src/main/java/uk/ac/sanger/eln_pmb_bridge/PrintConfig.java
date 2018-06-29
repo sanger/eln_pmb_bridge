@@ -45,13 +45,13 @@ public class PrintConfig {
 
         String message = "";
         if (pmbURL.isEmpty()) {
-            message += "\n\tPMB URL is missing.";
+            message += "\n\t"+ErrorType.MISSING_PMB_URL.getMessage();
         }
         if (printers.isEmpty()) {
-            message += "\n\tList of printers is empty in printer.properties.";
+            message += "\n\t"+ErrorType.NO_PRINTERS.getMessage();
         }
         if (thin_template_id.isEmpty() || fat_template_id.isEmpty()) {
-            message += "\n\tTemplate id's are missing from eln_pmb.properties.";
+            message += "\n\t"+ErrorType.NO_TEMPLATE_IDS.getMessage();
         }
 
         if (!message.isEmpty()) {

@@ -30,7 +30,7 @@ public class Main {
             sendStartUpEmail();
             startService();
         } catch (Exception e) {
-            log.error("Fatal error", e);
+            log.error(ErrorType.FATAL.getMessage(), e);
             sendErrorEmail("ELN PMB Bridge - fatal error", e);
         }
     }
@@ -62,7 +62,7 @@ public class Main {
                     pmbClient.print(request);
                     moveFileToFolder(pollFile, properties.getArchiveFolder());
                 } catch (Exception e) {
-                    log.error("Recoverable error", e);
+                    log.error(ErrorType.RECOVERABLE.getMessage(), e);
                     moveFileToFolder(pollFile, properties.getErrorFolder());
                     sendErrorEmail("ELN PMB Bridge - recoverable error", e);
                 }

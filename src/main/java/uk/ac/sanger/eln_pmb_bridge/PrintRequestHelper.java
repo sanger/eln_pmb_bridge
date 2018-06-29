@@ -30,7 +30,7 @@ public class PrintRequestHelper {
         List<String> printers = getPrinterList(printerProperties);
 
         if (printers.isEmpty()) {
-            String msg = "Cannot make print request because printer list is empty.";
+            String msg = "Cannot make print request because: "+ ErrorType.NO_PRINTERS;
             throw new IllegalArgumentException(msg);
         }
         Scanner fileData = new Scanner(file);
@@ -43,10 +43,10 @@ public class PrintRequestHelper {
 
         String message = "";
         if (!printerExists){
-            message += "\n\tPrinter name "+printerName+" does not exist.";
+            message += "\n\t"+printerName+":"+ErrorType.UNKNOWN_PRINTER_NAME.getMessage();
         }
         if (labels.isEmpty()){
-            message += "\n\tLabel list is empty.\n";
+            message += "\n\t"+ErrorType.NO_LABELS.getMessage();
         }
         if (!message.isEmpty()) {
             String msg = String.format("Cannot make print request because: %s", message);
@@ -107,7 +107,7 @@ public class PrintRequestHelper {
         if (matcher.find()) {
             printerName = matcher.group(1).toLowerCase().trim();
         } else {
-            throw new IllegalArgumentException("No printer name is given in print request");
+            throw new IllegalArgumentException(ErrorType.NO_PRINTER_NAME.getMessage());
         }
         return printerName;
     }
