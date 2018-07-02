@@ -9,7 +9,6 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /**
  * Helper class to build a PrintRequest from the polled file
@@ -17,29 +16,29 @@ import java.util.stream.Collectors;
  */
 public class PrintRequestHelper {
     private static final Logger log = LoggerFactory.getLogger(PrintRequestHelper.class);
-    protected Properties printerProperties;
+    protected List<String> printerList;
 
-    public PrintRequestHelper(Properties printerProperties) {
-        this.printerProperties = printerProperties;
+    public PrintRequestHelper() {
+        this.printerList = PrinterProperties.getPrinterList();
+
+        if (printerList.isEmpty()) {
+            String msg = "Cannot make print request because: "+ ErrorType.NO_PRINTERS;
+            throw new NullPointerException(msg);
+        }
     }
 
     public PrintRequest makeRequestFromFile(Path file) throws IOException {
         if (!Files.exists(file)){
             throw new NullPointerException(file +" does not exist");
         }
-        List<String> printers = getPrinterList(printerProperties);
 
-        if (printers.isEmpty()) {
-            String msg = "Cannot make print request because: "+ ErrorType.NO_PRINTERS;
-            throw new IllegalArgumentException(msg);
-        }
         Scanner fileData = new Scanner(file);
         String firstLine = fileData.nextLine();
         fileData.nextLine();
 
         List<PrintRequest.Label> labels = createLabels(fileData);
         String printerName = getPrinterName(firstLine);
-        boolean printerExists = printers.contains(printerName);
+        boolean printerExists = printerList.contains(printerName);
 
         String message = "";
         if (!printerExists){
@@ -110,16 +109,6 @@ public class PrintRequestHelper {
             throw new IllegalArgumentException(ErrorType.NO_PRINTER_NAME.getMessage());
         }
         return printerName;
-    }
-
-    /**
-     * Returns a list of printers configured in printer.properties
-     */
-    protected List<String> getPrinterList(Properties printerProperties) {
-        return printerProperties.keySet()
-                .stream()
-                .map(entry -> (String) entry)
-                .collect(Collectors.toList());
     }
 
 }

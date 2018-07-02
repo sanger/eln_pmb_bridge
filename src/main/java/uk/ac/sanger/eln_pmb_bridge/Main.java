@@ -17,7 +17,6 @@ import java.util.List;
  */
 public class Main {
     private static final Logger log = LoggerFactory.getLogger(PrintConfig.class);
-    private static final PropertiesFileReader properties = new PropertiesFileReader("properties_folder");
 
     public static void main(String[] args) throws Exception {
         /**
@@ -26,18 +25,27 @@ public class Main {
         System.setProperty("java.net.preferIPv6Addresses", "true");
         try {
             createFolders();
-            properties.setProperties();
+            setProperties();
             sendStartUpEmail();
             startService();
         } catch (Exception e) {
             log.error(ErrorType.FATAL.getMessage(), e);
-            sendErrorEmail("ELN PMB Bridge - fatal error", e);
+            sendErrorEmail(ErrorType.ELN_PMB_SUBJECT.getMessage() + ErrorType.FATAL.getMessage(), e);
         }
     }
 
+    //        ELNPMBProperties have to be set before the PrinterProperties
+    private static void setProperties() throws IOException {
+        ELNPMBProperties.setProperties();
+        PrinterProperties.setProperties();
+        MailProperties.setProperties();
+
+        log.info("Successfully set eln_pmb.properties, printer.properties and mail.properties.");
+    }
+
     private static void startService() throws Exception {
-        PrintRequestHelper printRequestHelper = new PrintRequestHelper(properties.getPrinterProperties());
-        PrintConfig printConfig = PrintConfig.loadConfig(properties);
+        PrintRequestHelper printRequestHelper = new PrintRequestHelper();
+        PrintConfig printConfig = PrintConfig.loadConfig();
         /**
          * A new WatchService monitors the polling folder specified in eln_pmb.properties
          * The polling directory is registered to watch for entry create events
@@ -45,7 +53,7 @@ public class Main {
          * The take method returns the watch key from the que
          * The event is processed and the newly created filename returned
          */
-        Path pollPath = Paths.get(properties.getPollFolder());
+        Path pollPath = Paths.get(ELNPMBProperties.getPollFolder());
         WatchService service = pollPath.getFileSystem().newWatchService();
         pollPath.register(service, StandardWatchEventKinds.ENTRY_CREATE);
 
@@ -56,15 +64,15 @@ public class Main {
 
             for (WatchEvent event : watchEvents) {
                 String newFileName = event.context().toString();
-                Path pollFile = Paths.get(properties.getPollFolder()+newFileName);
+                Path pollFile = Paths.get(ELNPMBProperties.getPollFolder()+newFileName);
                 try {
                     PrintRequest request = printRequestHelper.makeRequestFromFile(pollFile);
                     pmbClient.print(request);
-                    moveFileToFolder(pollFile, properties.getArchiveFolder());
+                    moveFileToFolder(pollFile, ELNPMBProperties.getArchiveFolder());
                 } catch (Exception e) {
                     log.error(ErrorType.RECOVERABLE.getMessage(), e);
-                    moveFileToFolder(pollFile, properties.getErrorFolder());
-                    sendErrorEmail("ELN PMB Bridge - recoverable error", e);
+                    moveFileToFolder(pollFile, ELNPMBProperties.getErrorFolder());
+                    sendErrorEmail(ErrorType.ELN_PMB_SUBJECT.getMessage() + ErrorType.RECOVERABLE.getMessage(), e);
                 }
             }
             watchKey.reset();
@@ -78,31 +86,35 @@ public class Main {
     }
 
     private static void sendErrorEmail(String subject, Exception e) {
-        String message = String.format("Error when trying to print labels via PrintMyBarcode from an polled ELN file. " +
-                "Moving file to error folder. %s", e);
+        String message = ErrorType.MOVE_TO_ERROR_FOLDER.getMessage() + String.format("Exception: %s", e);
         sendEmail(subject, message);
     }
 
     private static void sendEmail(String subject, String message) {
         try {
-            EmailService emailManager = new EmailService(properties.getMailProperties());
+            EmailService emailManager = new EmailService();
             emailManager.sendEmail(subject, message);
         } catch (Exception e){
-            log.error(String.format("Failed to send email with subject %s", subject));
+            log.error(ErrorType.FAILED_EMAIL + String.format("Subject:  %s", subject));
         }
     }
 
     private static void moveFileToFolder(Path fileToMove, String folderToMoveTo) throws IOException {
-        String time = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
         String fileName = fileToMove.getFileName().toString();
+        String newFileName = renameFile(fileName);
 
+        Files.move(fileToMove, Paths.get(folderToMoveTo+newFileName));
+        log.info(String.format("Moved file \"%s\" to %s", fileToMove, folderToMoveTo+newFileName));
+    }
+
+    private static String renameFile(String fileName) {
         int dotIndex = fileName.lastIndexOf('.');
         if (dotIndex <= 0) {
             dotIndex = fileName.length();
         }
-        String newFileName = fileName.replace(" ", "_").substring(0, dotIndex) + "_" + time + ".txt";
-        Files.move(fileToMove, Paths.get(folderToMoveTo+newFileName));
-        log.info(String.format("Moved file \"%s\" to %s", fileToMove, folderToMoveTo+newFileName));
+        String time = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
+
+        return fileName.replace(" ", "_").substring(0, dotIndex) + "_" + time + ".txt";
     }
 
     private static void createFolders() {
@@ -113,7 +125,8 @@ public class Main {
                 try {
                     Files.createDirectory(directoryPath);
                 } catch (IOException e) {
-                    System.out.println("Error creating " + directoryPath + "\n" + e);
+                    String msg = ErrorType.FAILED_FOLDER_CREATION.getMessage() + directoryPath
+                            + String.format("Exception: %s", e);
                 }
             }
         }

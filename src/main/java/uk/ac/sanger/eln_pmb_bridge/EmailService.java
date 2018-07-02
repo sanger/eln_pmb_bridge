@@ -13,16 +13,16 @@ import java.util.Properties;
  */
 public class EmailService {
     private static final Logger log = LoggerFactory.getLogger(EmailService.class);
-    private Properties mailProperties;
+    private static Properties mailProperties;
 
-    public EmailService(Properties mailProperties) {
-        this.mailProperties = mailProperties;
+    public EmailService() {
+        mailProperties = MailProperties.getProperties();
     }
 
     public void sendEmail(String subject, String text) throws MessagingException {
         Session session = Session.getInstance(mailProperties);
         MimeMessage message = new MimeMessage(session);
-        String toAddress = mailProperties.getProperty("to", "").trim();
+        String toAddress = MailProperties.getMailTo();
 
         message.addRecipients(Message.RecipientType.TO, toAddress);
         message.setSubject(subject);
