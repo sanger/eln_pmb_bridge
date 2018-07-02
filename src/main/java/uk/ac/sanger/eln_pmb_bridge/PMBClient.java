@@ -16,7 +16,7 @@ import static java.net.HttpURLConnection.HTTP_CREATED;
  * Client for sending print job requests to PrintMyBarcode
  * @author hc6
  */
-public class PMBClient {
+public class PMBClient implements PrintService {
     private static final Logger log = LoggerFactory.getLogger(PMBClient.class);
     private final PrintConfig config;
 
@@ -24,6 +24,7 @@ public class PMBClient {
         this.config = config;
     }
 
+    @Override
     public void print(PrintRequest request) throws Exception {
         if (request==null){
             throw new IllegalArgumentException("Null request in PMBClient.print");
@@ -40,7 +41,7 @@ public class PMBClient {
     /**
      * Builds a JSON object from the new print job request
      */
-    public JSONObject buildJson(PrintRequest request) throws JSONException {
+    private JSONObject buildJson(PrintRequest request) throws JSONException {
         JSONObject requestJson = new JSONObject();
 
         String printer = request.getPrinterName();
@@ -75,7 +76,7 @@ public class PMBClient {
      * @param targetURL the url to send the request to
      * @param jsonObject JSON to post
      */
-    protected void postJson(URL targetURL, Object jsonObject) throws IOException {
+    private void postJson(URL targetURL, Object jsonObject) throws IOException {
         HttpURLConnection connection = null;
         int responseCode = 0;
         try {
@@ -101,5 +102,4 @@ public class PMBClient {
             log.info("HTTP Response code: " + responseCode);
         }
     }
-
 }
