@@ -69,4 +69,8 @@ public class PrinterProperties extends PropertiesFileReader {
     public static List<String> getPrinterList() {
         return printerList;
     }
+
+    public static Integer getTemplateIdForPrinter(String printer) {
+        return printerTemplateIdList.get(printer);
+    }
 }

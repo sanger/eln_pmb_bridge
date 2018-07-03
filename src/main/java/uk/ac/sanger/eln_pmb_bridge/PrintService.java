@@ -1,7 +1,7 @@
 package uk.ac.sanger.eln_pmb_bridge;
 
 /**
- * Created by hc6 on 02/07/2018.
+ * A printer service interface, implemented currently by PMBClient.
  */
 public interface PrintService {
 

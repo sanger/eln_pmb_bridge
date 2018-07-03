@@ -10,6 +10,7 @@ public enum ErrorType {
     RECOVERABLE("This is a recoverable error. "),
     MISSING_PMB_URL("Print My Barcode's url is missing from the properties folder. "),
     MISSING_DIR_PATHS("Directory paths are missing from the eln_pmb.properties"),
+    MISSING_PROP_FILE("Property file path is missing. "),
     UNKNOWN_PRINTER_NAME("The printer name does not exist. "),
     NO_PRINTERS("The list of printers is empty in the properties folder. "),
     NO_TEMPLATE_ID("There is at least one template id missing in eln_pmb.properties. "),

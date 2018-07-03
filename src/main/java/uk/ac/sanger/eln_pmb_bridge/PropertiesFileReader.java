@@ -10,10 +10,8 @@ import java.nio.file.*;
 import java.util.*;
 
 /**
- * Properties helper class to
- *   - find properties files
- *   - set properties files
- *   - get properties
+ * An abstract Properties class, with instances such as MailProperties and PrinterProperties
+ * each calling loadFile, to read their respective property files.
  * @author hc6
  */
 public abstract class PropertiesFileReader {
@@ -21,7 +19,7 @@ public abstract class PropertiesFileReader {
 
     public static Properties loadFile(String propertyFilePath) throws IOException {
         if (propertyFilePath == null) {
-            throw new NullPointerException("Property file path missing.");
+            throw new NullPointerException(ErrorType.MISSING_PROP_FILE.getMessage());
         }
         Path propertyFile = Paths.get("./properties_folder"+propertyFilePath);
         Properties properties = new Properties();
