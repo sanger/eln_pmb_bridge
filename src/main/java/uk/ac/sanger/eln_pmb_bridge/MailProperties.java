@@ -14,7 +14,7 @@ public class MailProperties extends PropertiesFileReader {
     private static Properties properties;
 
     public static void setProperties() throws IOException {
-        properties = loadFile("/mail.properties");
+        properties = loadFile("./properties_folder/mail.properties");
     }
 
     public static Properties getProperties() {

@@ -21,7 +21,7 @@ public abstract class PropertiesFileReader {
         if (propertyFilePath == null) {
             throw new NullPointerException(ErrorType.MISSING_PROP_FILE.getMessage());
         }
-        Path propertyFile = Paths.get("./properties_folder"+propertyFilePath);
+        Path propertyFile = Paths.get(propertyFilePath);
         Properties properties = new Properties();
         try {
             InputStream propertyFileInputStream = Files.newInputStream(propertyFile);
