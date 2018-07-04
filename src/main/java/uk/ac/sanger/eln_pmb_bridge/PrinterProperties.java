@@ -16,8 +16,8 @@ public class PrinterProperties extends PropertiesFileReader {
     private static List<String> printerList;
     private static Map<String, Integer> printerTemplateIdList;
 
-    public static void setProperties() throws IOException {
-        properties = loadFile("./properties_folder/printer.properties");
+    public static void setProperties(String filePath) throws IOException {
+        properties = loadFile(filePath);
         setPrinters();
         setPrinterTemplateList();
     }

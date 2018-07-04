@@ -13,8 +13,8 @@ public class MailProperties extends PropertiesFileReader {
     private static final Logger log = LoggerFactory.getLogger(PrintRequestHelper.class);
     private static Properties properties;
 
-    public static void setProperties() throws IOException {
-        properties = loadFile("./properties_folder/mail.properties");
+    public static void setProperties(String filePath) throws IOException {
+        properties = loadFile(filePath);
     }
 
     public static Properties getProperties() {

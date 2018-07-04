@@ -19,7 +19,8 @@ public enum ErrorType {
     NO_PRINTER_SIZE("The is no printer size for this printer in printer.properties. "),
     FAILED_EMAIL("Failed to send email. "),
     FAILED_FOLDER_CREATION("Failed to create new folder. "),
-    MOVE_TO_ERROR_FOLDER("Moving file to error folder. ");
+    MOVE_TO_ERROR_FOLDER("Moving file to error folder. "),
+    EMPTY_PROP_FILE("The property file is empty. ");
 
 
     private final String message;

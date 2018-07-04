@@ -15,8 +15,8 @@ public class ELNPMBProperties extends PropertiesFileReader {
     private static Properties properties;
     private static String PMBURL;
 
-    public static void setProperties() throws IOException {
-        properties = loadFile("./properties_folder/eln_pmb.properties");
+    public static void setProperties(String filePath) throws IOException {
+        properties = loadFile(filePath);
         checkProps();
     }
 

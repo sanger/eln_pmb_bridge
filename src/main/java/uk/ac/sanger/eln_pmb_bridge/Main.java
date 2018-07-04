@@ -35,9 +35,9 @@ public class Main {
      *  ELNPMBProperties have to be set before the PrinterProperties
      */
     private static void setProperties() throws IOException {
-        ELNPMBProperties.setProperties();
-        PrinterProperties.setProperties();
-        MailProperties.setProperties();
+        ELNPMBProperties.setProperties("./properties_folder/eln_pmb.properties");
+        PrinterProperties.setProperties("./properties_folder/printer.properties");
+        MailProperties.setProperties("./properties_folder/mail.properties");
 
         log.info("Successfully set eln_pmb.properties, printer.properties and mail.properties.");
     }
