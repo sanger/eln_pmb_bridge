@@ -4,10 +4,10 @@ package uk.ac.sanger.eln_pmb_bridge;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.file.*;
-import java.util.*;
+import java.util.InvalidPropertiesFormatException;
+import java.util.Properties;
 
 /**
  * An abstract Properties class, with instances such as MailProperties and PrinterProperties
@@ -19,14 +19,17 @@ public abstract class PropertiesFileReader {
 
     public static Properties loadFile(String propertyFilePath) throws IOException {
         if (propertyFilePath == null) {
-            throw new NullPointerException(ErrorType.MISSING_PROP_FILE.getMessage());
+            throw new FileNotFoundException(ErrorType.MISSING_PROP_FILE.getMessage());
         }
-        Path propertyFile = Paths.get("./properties_folder"+propertyFilePath);
+        Path propertyFile = Paths.get(propertyFilePath);
         Properties properties = new Properties();
         try {
             InputStream propertyFileInputStream = Files.newInputStream(propertyFile);
+            if (propertyFileInputStream.available() == 0){
+                throw new InvalidPropertiesFormatException(ErrorType.EMPTY_PROP_FILE.getMessage());
+            }
             properties.load(propertyFileInputStream);
-        }  catch (Exception e) {
+        }  catch (IOException e) {
             log.debug("throw", e);
             throw new IOException("TODO", e);
         }
