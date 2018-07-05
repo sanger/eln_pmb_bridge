@@ -30,8 +30,8 @@ public abstract class PropertiesFileReader {
             }
             properties.load(propertyFileInputStream);
         }  catch (IOException e) {
-            log.debug("throw", e);
-            throw new IOException("TODO", e);
+            log.debug(e.getMessage(), e);
+            throw new IOException(e.getMessage(), e);
         }
         return properties;
     }

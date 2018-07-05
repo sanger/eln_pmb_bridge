@@ -20,7 +20,8 @@ public enum ErrorType {
     FAILED_EMAIL("Failed to send email. "),
     FAILED_FOLDER_CREATION("Failed to create new folder. "),
     MOVE_TO_ERROR_FOLDER("Moving file to error folder. "),
-    EMPTY_PROP_FILE("The property file is empty. ");
+    EMPTY_PROP_FILE("The property file is empty. "),
+    ERROR_PROP_FILE("There has been an error when trying to load a property file. ");
 
 
     private final String message;

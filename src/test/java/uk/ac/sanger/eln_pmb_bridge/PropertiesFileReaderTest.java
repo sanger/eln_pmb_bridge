@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
 
+import static org.testng.Assert.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
 /**
@@ -13,9 +14,23 @@ import static org.testng.AssertJUnit.assertTrue;
  */
 public class PropertiesFileReaderTest {
 
-    @Test(expectedExceptions = FileNotFoundException.class)
+    @Test
     public void TestLoadFileNoFilePath() throws IOException {
-        MailProperties.loadFile(null);
+        try {
+            MailProperties.loadFile(null);
+        } catch (FileNotFoundException e) {
+            assertEquals(e.getMessage().trim(), "Property file path is missing.");
+        }
+    }
+
+    @Test
+    public void TestLoadFileEmptyPropertiesFile() throws IOException {
+        try {
+            MailProperties.loadFile("./test_properties_folder/empty.properties");
+        } catch (IOException e) {
+            assertEquals(e.getMessage().trim(), "There has been an error when trying to load a property file.");
+        }
+
     }
 
     @Test
@@ -40,12 +55,6 @@ public class PropertiesFileReaderTest {
         List<String> ELNPMBKeys = Arrays.asList("pmb_url", "poll_folder", "archive_folder", "error_folder", "thin_template_id", "fat_template_id");
         assertTrue(props.getClass().equals(Properties.class));
         assertTrue(props.keySet().containsAll(ELNPMBKeys));
-    }
-
-
-    @Test(expectedExceptions = IOException.class)
-    public void TestLoadFileEmptyPropertiesFile() throws IOException {
-        MailProperties.loadFile("./test_properties_folder/empty.properties");
     }
 
 }
