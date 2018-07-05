@@ -30,12 +30,10 @@ ELN PMB test is currently deployed at web-cgap-idbstest-01:sccp/eln_pmb_bridge
 
 - Build the jar using the jar-with-dependencies in pom.xml:
 
-
     Maven > Lifecycle > clean
     Maven > Lifecycle > package
 
 - Secure copy the jar from local to the server:
-
 
     scp target/eln_pmb_bridge-1.0-jar-with-dependencies.jar web-cgap-idbstest-01:/sccp/eln_pmb_bridge/
 
