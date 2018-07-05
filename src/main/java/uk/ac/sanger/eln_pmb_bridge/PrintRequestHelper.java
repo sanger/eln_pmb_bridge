@@ -29,6 +29,7 @@ public class PrintRequestHelper {
 
     public PrintRequest makeRequestFromFile(Path file) throws IOException {
         if (!Files.exists(file)){
+            log.debug(String.format("Failed to find file %s in polling folder", file));
             throw new NullPointerException(file +" does not exist");
         }
 
@@ -52,7 +53,7 @@ public class PrintRequestHelper {
             log.error(msg);
             throw new IllegalArgumentException(msg);
         }
-
+        log.info("Successfully made request from file.");
         return new PrintRequest(printerName, labels);
     }
 

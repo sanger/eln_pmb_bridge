@@ -20,6 +20,7 @@ public class PrinterProperties extends PropertiesFileReader {
         properties = loadFile(filePath);
         setPrinters();
         setPrinterTemplateList();
+        log.info("Successfully set printer.properties.");
     }
 
     private static void setPrinters() {

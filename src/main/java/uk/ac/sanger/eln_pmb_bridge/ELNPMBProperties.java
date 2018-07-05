@@ -18,6 +18,7 @@ public class ELNPMBProperties extends PropertiesFileReader {
     public static void setProperties(String filePath) throws IOException {
         properties = loadFile(filePath);
         checkProps();
+        log.info("Successfully set eln_pmb.properties.");
     }
 
     private static void checkProps() throws InvalidPropertiesFormatException {

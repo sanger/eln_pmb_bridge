@@ -30,10 +30,10 @@ public class FileWatcher {
         Path pollPath = Paths.get(ELNPMBProperties.getPollFolder());
         WatchService service = pollPath.getFileSystem().newWatchService();
         pollPath.register(service, StandardWatchEventKinds.ENTRY_CREATE);
-        sendStartUpEmail();
+        EmailService.sendStartUpEmail();
+        log.info("Successfully started service.");
 
         PMBClient pmbClient = new PMBClient();
-
 
         while (true) {
             WatchKey watchKey = service.take();
@@ -42,6 +42,8 @@ public class FileWatcher {
 
             for (WatchEvent event : watchEvents) {
                 String newFileName = event.context().toString();
+                log.info(String.format("New file %s in polling folder.", newFileName));
+
                 Path pollFile = Paths.get(ELNPMBProperties.getPollFolder()+newFileName);
                 try {
                     PrintRequest request = printRequestHelper.makeRequestFromFile(pollFile);
@@ -58,22 +60,17 @@ public class FileWatcher {
         }
     }
 
-    private static void sendStartUpEmail() throws Exception {
-        EmailService.sendStartUpEmail();
-    }
-
     private static void moveFileToFolder(Path fileToMove, String folderToMoveTo) throws IOException {
         String fileName = fileToMove.getFileName().toString();
         String newFileName = renameFile(fileName);
 
         try {
             Files.move(fileToMove, Paths.get(folderToMoveTo+newFileName));
+            log.info(String.format("Successfully moved file \"%s\" to %s", fileToMove, folderToMoveTo+newFileName));
         } catch (IOException e) {
             String msg = String.format("Failed to move file \"%s\" to %s", fileToMove, folderToMoveTo+newFileName);
             throw new IOException(msg, e);
         }
-
-        log.info(String.format("Successfully moved file \"%s\" to %s", fileToMove, folderToMoveTo+newFileName));
     }
 
     private static String renameFile(String fileName) {

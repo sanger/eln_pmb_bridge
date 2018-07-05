@@ -38,8 +38,6 @@ public class Main {
         ELNPMBProperties.setProperties("./properties_folder/eln_pmb.properties");
         PrinterProperties.setProperties("./properties_folder/printer.properties");
         MailProperties.setProperties("./properties_folder/mail.properties");
-
-        log.info("Successfully set eln_pmb.properties, printer.properties and mail.properties.");
     }
 
     /**

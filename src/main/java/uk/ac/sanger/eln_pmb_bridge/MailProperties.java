@@ -15,6 +15,7 @@ public class MailProperties extends PropertiesFileReader {
 
     public static void setProperties(String filePath) throws IOException {
         properties = loadFile(filePath);
+        log.info("Successfully set mail.properties.");
     }
 
     public static Properties getProperties() {

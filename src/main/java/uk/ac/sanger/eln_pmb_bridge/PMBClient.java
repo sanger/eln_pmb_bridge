@@ -27,10 +27,8 @@ public class PMBClient implements PrintService {
         URL url = new URL(ELNPMBProperties.getPMBURL());
         JSONObject jsonObject = buildJson(request);
         postJson(url, jsonObject);
-        for (PrintRequest.Label label : request.getLabels()) {
-            log.info(String.format("Printed barcode %s at printer %s",
-                    label.getField("barcode"), request.getPrinterName()));
-        }
+
+        logPrintSuccessful(request);
     }
 
     /**
@@ -95,6 +93,13 @@ public class PMBClient implements PrintService {
             throw new HTTPException(responseCode);
         } else {
             log.info("HTTP Response code: " + responseCode);
+        }
+    }
+
+    private void logPrintSuccessful(PrintRequest request) {
+        String printer = request.getPrinterName();
+        for (PrintRequest.Label label : request.getLabels()) {
+            log.info(String.format("Printed barcode %s at printer %s", label.getField("barcode"), printer));
         }
     }
 }
