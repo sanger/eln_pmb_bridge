@@ -42,7 +42,6 @@ public class PMBClientTest {
             PMBClient client = new PMBClient();
             client.print(null);
         } catch (IllegalArgumentException e) {
-            System.out.println(e.getMessage());
             assertEquals(e.getMessage(), "Null request in PMBClient.print");
         }
     }
