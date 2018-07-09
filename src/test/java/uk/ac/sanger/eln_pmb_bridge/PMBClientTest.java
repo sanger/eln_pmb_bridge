@@ -1,11 +1,14 @@
 package uk.ac.sanger.eln_pmb_bridge;
 
 import org.codehaus.jettison.json.*;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.*;
 
+import static org.mockito.Mockito.*;
 import static org.testng.Assert.assertEquals;
 
 /**
@@ -13,35 +16,50 @@ import static org.testng.Assert.assertEquals;
  */
 public class PMBClientTest {
 
-    @Test
-    public void TestGetPrintConfigSuccessful(){
-
+    @BeforeClass
+    public void setUp() throws IOException {
+        ELNPMBProperties.setProperties("./test_properties_folder/eln_pmb.properties");
+        PrinterProperties.setProperties("./test_properties_folder/printer.properties");
     }
 
     @Test
-    public void TestGetPrintConfigNotSuccessful(){
+    public void TestPrintSuccessful() throws Exception {
+        PrintRequestHelper printRequestHelper = new PrintRequestHelper();
+        String correctPollFile = "./test_examples/correct_request_test.txt";
+        PrintRequest request = printRequestHelper.makeRequestFromFile(Paths.get(correctPollFile));
 
+        PMBClient client = mock(PMBClient.class);
+        doCallRealMethod().when(client).print(request);
+        client.print(request);
+
+        verify(client, times(1)).buildJson(request);
+        verify(client, times(1)).postJson(any(), any());
     }
 
     @Test
-    public void whenGivenRequestIsNull(){
-
+    public void TestPrintEmptyRequest() throws Exception {
+        try {
+            PMBClient client = new PMBClient();
+            client.print(null);
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
+            assertEquals(e.getMessage(), "Null request in PMBClient.print");
+        }
     }
 
     @Test
     public void whenBuildingJson() throws JSONException, IOException {
 
-        Map<String, Integer> templateIds = new HashMap<>();
-        templateIds.put("d304bc", 6);
-        templateIds.put("e367bc", 0);
-        PMBClient pmbClient = new PMBClient(new PrintConfig("", templateIds));
+        Map<String, Integer> templateIds = PrinterProperties.getPrinterTemplateIdList();
+        PMBClient pmbClient = new PMBClient();
 
         Map<String, String> fieldMap = new HashMap<>();
         fieldMap.put("cell_line", "zogh");
         fieldMap.put("barcode", "2000000100");
 
         PrintRequest.Label label1 = new PrintRequest.Label(fieldMap);
-        String printerName = "e367bc";
+
+        String printerName = "123456";
         PrintRequest request = new PrintRequest(printerName, Collections.singletonList(label1));
 
         JSONObject result = pmbClient.buildJson(request);
@@ -51,7 +69,7 @@ public class PMBClientTest {
         JSONObject attr = data.getJSONObject("attributes");
         assertEquals(attr.length(), 3);
         assertEquals(attr.getString("printer_name"), printerName);
-        assertEquals(attr.getInt("label_template_id"), (int) templateIds.get("e367bc"));
+        assertEquals(attr.getInt("label_template_id"), (int) templateIds.get("123456"));
 
         JSONObject labels = attr.getJSONObject("labels");
         assertEquals(labels.length(), 1);

@@ -34,7 +34,7 @@ public class PMBClient implements PrintService {
     /**
      * Builds a JSON object from the new print job request
      */
-    private JSONObject buildJson(PrintRequest request) throws JSONException {
+    protected JSONObject buildJson(PrintRequest request) throws JSONException {
         JSONObject requestJson = new JSONObject();
 
         String printer = request.getPrinterName();
@@ -69,7 +69,7 @@ public class PMBClient implements PrintService {
      * @param targetURL the url to send the request to
      * @param jsonObject JSON to post
      */
-    private void postJson(URL targetURL, Object jsonObject) throws IOException {
+    protected void postJson(URL targetURL, Object jsonObject) throws IOException {
         HttpURLConnection connection = null;
         int responseCode = 0;
         try {
