@@ -28,7 +28,7 @@ public class PropertiesFileReaderTest {
         try {
             MailProperties.loadFile("./test_properties_folder/empty.properties");
         } catch (IOException e) {
-            assertEquals(e.getMessage().trim(), "There has been an error when trying to load a property file.");
+            assertEquals(e.getMessage().trim(), "The property file is empty.");
         }
 
     }

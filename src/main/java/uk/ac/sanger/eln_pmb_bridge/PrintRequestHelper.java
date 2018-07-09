@@ -21,8 +21,8 @@ public class PrintRequestHelper {
     public PrintRequestHelper() {
         this.printerList = PrinterProperties.getPrinterList();
 
-        if (printerList.isEmpty()) {
-            String msg = "Cannot make print request because: "+ ErrorType.NO_PRINTERS;
+        if (printerList == null || printerList.isEmpty()) {
+            String msg = "Cannot make print request because: "+ ErrorType.NO_PRINTERS.getMessage();
             throw new NullPointerException(msg);
         }
     }

@@ -1,4 +1,4 @@
-%BTW% /D="%Trigger File Name%" /R=3 /P /PRN="d304bc" /C=1
+%BTW% /D="%Trigger File Name%" /R=3 /P /PRN="e367bc" /C=1
 %END%
 Barcode,Cell line,Date,Passage number
 THAW-19012018-000034,test,22 January 2018,2

@@ -1,34 +1,24 @@
 package uk.ac.sanger.eln_pmb_bridge;
 
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.util.Properties;
+import java.io.IOException;
 
 import static org.testng.Assert.assertEquals;
-
 /**
  * @author hc6
  */
 public class EmailServiceTest {
-    private static final PropertiesFileReader properties = new PropertiesFileReader("test_properties_folder");
-    protected EmailService emailService;
+
+    @BeforeClass
+    public void setUp() throws IOException {
+        MailProperties.setProperties("./test_properties_folder/mail.properties");
+    }
 
     @Test
     public void TestGetMailPropertiesSuccessful() throws Exception {
-        properties.setProperties();
-        Properties mailProperties = properties.getMailProperties();
-        emailService = new EmailService(mailProperties);
-
-        String toAddress = mailProperties.getProperty("to", "").trim();
+        String toAddress = MailProperties.getMailTo().trim();
         assertEquals(toAddress, "user@here.com");
-    }
-
-    @Test
-    public void TestSendEmailSuccessful() throws Exception {
-    }
-
-    @Test
-    public void TestSendEmailNotSuccessful(){
-
     }
 }

@@ -21,7 +21,7 @@ public class ELNPMBPropertiesTest {
         assertTrue(ELNPMBProperties.getPollFolder().equals("./poll_folder/"));
         assertTrue(ELNPMBProperties.getArchiveFolder().equals("./archive_folder/"));
         assertTrue(ELNPMBProperties.getErrorFolder().equals("./error_folder/"));
-        assertTrue(ELNPMBProperties.getPMBURL().equals("print_job_url"));
+        assertTrue(ELNPMBProperties.getPMBURL().equals("http://testurl:123/print_jobs"));
     }
 
     @Test
