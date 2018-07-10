@@ -21,14 +21,14 @@ public class Main {
          * When a host has both IPv4 and IPv6 addresses, change preference to use IPv6 addresses over IPv4
          */
         System.setProperty("java.net.preferIPv6Addresses", "true");
-
+        EmailService emailService = EmailService.getService();
         try {
             createFolders();
             setProperties();
             FileWatcher.startService();
         } catch (Exception e) {
             log.error(ErrorType.FATAL.getMessage(), e);
-            EmailService.sendErrorEmail(ErrorType.ELN_PMB_SUBJECT.getMessage() + ErrorType.FATAL.getMessage(), e);
+            emailService.sendErrorEmail(ErrorType.ELN_PMB_SUBJECT.getMessage() + ErrorType.FATAL.getMessage(), e);
         }
     }
     /**

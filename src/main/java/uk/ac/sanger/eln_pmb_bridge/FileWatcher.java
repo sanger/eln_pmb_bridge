@@ -20,6 +20,8 @@ public class FileWatcher {
 
     protected static void startService() throws Exception {
         PrintRequestHelper printRequestHelper = new PrintRequestHelper();
+        EmailService emailService= EmailService.getService();
+
         /**
          * A new WatchService monitors the polling folder specified in eln_pmb.properties
          * The polling directory is registered to watch for entry create events
@@ -30,7 +32,7 @@ public class FileWatcher {
         Path pollPath = Paths.get(ELNPMBProperties.getPollFolder());
         WatchService service = pollPath.getFileSystem().newWatchService();
         pollPath.register(service, StandardWatchEventKinds.ENTRY_CREATE);
-        EmailService.sendStartUpEmail();
+        emailService.sendStartUpEmail();
         log.info("Successfully started service.");
 
         PMBClient pmbClient = new PMBClient();
@@ -53,7 +55,7 @@ public class FileWatcher {
                     log.error(ErrorType.RECOVERABLE.getMessage(), e);
                     moveFileToFolder(pollFile, ELNPMBProperties.getErrorFolder());
                     String subject = ErrorType.ELN_PMB_SUBJECT.getMessage() + ErrorType.RECOVERABLE.getMessage();
-                    EmailService.sendErrorEmail(subject, e);
+                    emailService.sendErrorEmail(subject, e);
                 }
             }
             watchKey.reset();
