@@ -17,26 +17,24 @@ import java.util.List;
  */
 public class FileWatcher {
     private static final Logger log = LoggerFactory.getLogger(Main.class);
+    private static PrintRequestHelper printRequestHelper;
+    private static EmailService emailService;
+    private static WatchService service;
+    private static PMBClient pmbClient;
 
+    /**
+     * A new WatchService monitors the polling folder specified in eln_pmb.properties
+     * The polling directory is registered to watch for entry create events
+     * When any create event is detected, a key is added to the watch service que
+     * The take method returns the watch key from the que
+     * The event is processed and the newly created filename returned
+     */
     protected static void startService() throws Exception {
-        PrintRequestHelper printRequestHelper = new PrintRequestHelper();
-        EmailService emailService= EmailService.getService();
+        registerService();
+        startPolling();
+    }
 
-        /**
-         * A new WatchService monitors the polling folder specified in eln_pmb.properties
-         * The polling directory is registered to watch for entry create events
-         * When any create event is detected, a key is added to the watch service que
-         * The take method returns the watch key from the que
-         * The event is processed and the newly created filename returned
-         */
-        Path pollPath = Paths.get(ELNPMBProperties.getPollFolder());
-        WatchService service = pollPath.getFileSystem().newWatchService();
-        pollPath.register(service, StandardWatchEventKinds.ENTRY_CREATE);
-        emailService.sendStartUpEmail();
-        log.info("Successfully started service.");
-
-        PMBClient pmbClient = new PMBClient();
-
+    private static void startPolling() throws Exception {
         while (true) {
             WatchKey watchKey = service.take();
 
@@ -60,6 +58,19 @@ public class FileWatcher {
             }
             watchKey.reset();
         }
+    }
+
+    protected static void registerService() throws Exception {
+        printRequestHelper = new PrintRequestHelper();
+        emailService = EmailService.getService();
+        pmbClient = new PMBClient();
+
+        Path pollPath = Paths.get(ELNPMBProperties.getPollFolder());
+        service = pollPath.getFileSystem().newWatchService();
+        pollPath.register(service, StandardWatchEventKinds.ENTRY_CREATE);
+
+        emailService.sendStartUpEmail();
+        log.info("Successfully started service.");
     }
 
     private static void moveFileToFolder(Path fileToMove, String folderToMoveTo) throws IOException {

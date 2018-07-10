@@ -43,21 +43,26 @@ public class Main {
     /**
      *  TODO: do this in the building of jar/ control script
      */
-    private static void createFolders() {
+    private static void createFolders() throws IOException {
         List<String> directories = Arrays.asList("poll_folder", "archive_folder", "error_folder", "properties_folder");
+
         for (String directory : directories) {
             Path directoryPath = Paths.get(directory);
             if (!Files.exists(directoryPath)) {
-                try {
-                    Files.createDirectory(directoryPath);
-                } catch (IOException e) {
-                    String msg = ErrorType.FAILED_FOLDER_CREATION.getMessage() + directoryPath
-                            + String.format("Exception: %s", e);
-                    log.debug(msg, e);
-                }
+                createFolder(directoryPath);
             }
         }
         log.info("Successfully created directories if they didn't already exist.");
+    }
+
+    private static void createFolder(Path directoryPath) throws IOException {
+        try {
+            Files.createDirectory(directoryPath);
+        } catch (IOException e) {
+            String msg = ErrorType.FAILED_FOLDER_CREATION.getMessage() + directoryPath;
+            log.debug(msg, e);
+            throw new IOException(msg, e);
+        }
     }
 
 }
