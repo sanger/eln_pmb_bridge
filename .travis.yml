@@ -1,1 +1,6 @@
 language: java
+install: true
+
+env:
+  global:
+    - CC_TEST_REPORTER_ID=e935769678470258b3060435629ca58960e2a913534e2ead568459ddecb1e061
