@@ -1,6 +1,6 @@
 # PMB ELN Bridge
 
-[![Build Status](https://travis-ci.org/sanger/eln_pmb_bridge.svg?branch=master)](https://travis-ci.org/sanger/eln_pmb_bridge)
+[![Build Status](https://travis-ci.org/sanger/eln_pmb_bridge.svg)](https://travis-ci.org/sanger/eln_pmb_bridge)
 [![Maintainability](https://api.codeclimate.com/v1/badges/e8292513bf0c61d22acf/maintainability)](https://codeclimate.com/github/sanger/eln_pmb_bridge/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/e8292513bf0c61d22acf/test_coverage)](https://codeclimate.com/github/sanger/eln_pmb_bridge/test_coverage)
 
