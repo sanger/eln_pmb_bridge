@@ -3,6 +3,7 @@ package uk.ac.sanger.eln_pmb_bridge;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -30,7 +31,7 @@ public class PrintRequestHelper {
     public PrintRequest makeRequestFromFile(Path file) throws IOException {
         if (!Files.exists(file)){
             log.debug(String.format("Failed to find file %s in polling folder", file));
-            throw new NullPointerException(file +" does not exist");
+            throw new FileNotFoundException(file +" does not exist");
         }
 
         Scanner fileData = new Scanner(file);

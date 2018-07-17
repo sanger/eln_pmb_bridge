@@ -2,6 +2,7 @@ package uk.ac.sanger.eln_pmb_bridge;
 
 import org.testng.annotations.Test;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -47,7 +48,7 @@ public class PrintRequestHelperTest {
 
         try {
             helper.makeRequestFromFile(path);
-        } catch (NullPointerException e){
+        } catch (FileNotFoundException e){
             assertEquals(e.getMessage().trim(), path.toString()+" does not exist");
         }
     }

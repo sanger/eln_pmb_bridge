@@ -34,6 +34,19 @@ public class FileWatcher {
         startPolling();
     }
 
+    protected static void registerService() throws Exception {
+        printRequestHelper = new PrintRequestHelper();
+        emailService = EmailService.getService();
+        pmbClient = new PMBClient();
+
+        Path pollPath = Paths.get(ELNPMBProperties.getPollFolder());
+        service = pollPath.getFileSystem().newWatchService();
+        pollPath.register(service, StandardWatchEventKinds.ENTRY_CREATE);
+
+        emailService.sendStartUpEmail();
+        log.info("Successfully started service.");
+    }
+
     private static void startPolling() throws Exception {
         while (true) {
             WatchKey watchKey = service.take();
@@ -58,19 +71,6 @@ public class FileWatcher {
             }
             watchKey.reset();
         }
-    }
-
-    protected static void registerService() throws Exception {
-        printRequestHelper = new PrintRequestHelper();
-        emailService = EmailService.getService();
-        pmbClient = new PMBClient();
-
-        Path pollPath = Paths.get(ELNPMBProperties.getPollFolder());
-        service = pollPath.getFileSystem().newWatchService();
-        pollPath.register(service, StandardWatchEventKinds.ENTRY_CREATE);
-
-        emailService.sendStartUpEmail();
-        log.info("Successfully started service.");
     }
 
     private static void moveFileToFolder(Path fileToMove, String folderToMoveTo) throws IOException {
