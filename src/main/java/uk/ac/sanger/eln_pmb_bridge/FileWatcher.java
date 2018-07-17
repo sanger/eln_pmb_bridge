@@ -21,6 +21,7 @@ public class FileWatcher {
     private static EmailService emailService;
     private static WatchService service;
     private static PMBClient pmbClient;
+    private static boolean running = true;
 
     /**
      * A new WatchService monitors the polling folder specified in eln_pmb.properties
@@ -29,7 +30,7 @@ public class FileWatcher {
      * The take method returns the watch key from the que
      * The event is processed and the newly created filename returned
      */
-    protected static void startService() throws Exception {
+    protected static void runService() throws Exception {
         registerService();
         startPolling();
     }
@@ -48,7 +49,7 @@ public class FileWatcher {
     }
 
     private static void startPolling() throws Exception {
-        while (true) {
+        while (running) {
             WatchKey watchKey = service.take();
 
             List<WatchEvent<?>> watchEvents = watchKey.pollEvents();
@@ -82,6 +83,7 @@ public class FileWatcher {
             log.info(String.format("Successfully moved file \"%s\" to %s", fileToMove, folderToMoveTo+newFileName));
         } catch (IOException e) {
             String msg = String.format("Failed to move file \"%s\" to %s", fileToMove, folderToMoveTo+newFileName);
+            running = false;
             throw new IOException(msg, e);
         }
     }

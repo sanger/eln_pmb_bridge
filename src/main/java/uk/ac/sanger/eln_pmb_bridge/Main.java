@@ -25,7 +25,7 @@ public class Main {
         try {
             createFolders();
             setProperties();
-            FileWatcher.startService();
+            FileWatcher.runService();
         } catch (Exception e) {
             log.error(ErrorType.FATAL.getMessage(), e);
             emailService.sendErrorEmail(ErrorType.ELN_PMB_SUBJECT.getMessage() + ErrorType.FATAL.getMessage(), e);
