@@ -39,6 +39,30 @@ ELN PMB test is currently deployed at web-cgap-idbstest-01:sccp/eln_pmb_bridge
 
     `scp target/eln_pmb_bridge-1.0-jar-with-dependencies.jar web-cgap-idbstest-01:/sccp/eln_pmb_bridge/`
 
+- Change user to sccp
+
+  `sudo -su sccp sh`
+
+- Run the application (this will only create the folders):
+
+  `/sccp/jre/jre1.8.0_131/bin/java -jar eln_pmb_bridge-1.0-jar-with-dependencies.jar`
+
+- Change permission on folders to 777 (poll/prop/error/archive)
+
+  `chmod 777 archive_folder/ error_folder/ properties_folder/ poll_folder/`
+
+- Copy over the property files
+
+  `scp -r properties_folder/ web-cgap-idbstest-01:/sccp/eln_pmb_bridge`
+
+- Copy over the java control file
+
+  `scp -r java_control.sh web-cgap-idbstest-01:/sccp/eln_pmb_bridge`
+
+- Change permission on java control file to 775
+
+  `chmod 775 java_control.sh`
+
 - Run the application:
 
 The java_control.sh script allows you to start, stop and restard the java process automatically
