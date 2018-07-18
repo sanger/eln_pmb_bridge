@@ -58,6 +58,11 @@ public class FileWatcher {
                 String newFileName = event.context().toString();
                 log.info(String.format("New file %s in polling folder.", newFileName));
 
+                if (newFileName.endsWith("_TEMP")) {
+                    log.info("Ignoring {}", newFileName);
+                    continue;
+                }
+
                 Path pollFile = Paths.get(ELNPMBProperties.getPollFolder()+newFileName);
                 try {
                     PrintRequest request = printRequestHelper.makeRequestFromFile(pollFile);
