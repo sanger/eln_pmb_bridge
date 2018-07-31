@@ -33,6 +33,9 @@ public class PrintRequestHelper {
             log.debug(String.format("Failed to find file %s in polling folder", file));
             throw new FileNotFoundException(file +" does not exist");
         }
+        
+        log.info("File contents for "+file);
+        log.info(Files.readAllLines(file).toString());
 
         Scanner fileData = new Scanner(file);
         String firstLine = fileData.nextLine();
