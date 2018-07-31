@@ -1,4 +1,0 @@
-%BTW% /AF="Template" /D="%Trigger File Name%" /R=3 /P /PRN="e361bc"
-/C=1 %END%
-|THAW-19012018-000034|Thaw|$KMT2A_WT1|22 January 2018
-|THAW-19012018-000052|Thaw|xagu_1|22 January 2018

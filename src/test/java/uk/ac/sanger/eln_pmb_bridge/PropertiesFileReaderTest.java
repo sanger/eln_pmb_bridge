@@ -1,8 +1,8 @@
 package uk.ac.sanger.eln_pmb_bridge;
 
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
 
@@ -13,44 +13,48 @@ import static org.testng.AssertJUnit.assertTrue;
  * @author hc6
  */
 public class PropertiesFileReaderTest {
-    private static final PropertiesFileReader properties = new PropertiesFileReader("test_properties_folder");
 
-    @BeforeMethod
-    public void initMethod() throws Exception {
-        properties.setProperties();
+    @Test
+    public void TestLoadFileNoFilePath() throws IOException {
+        try {
+            MailProperties.loadFile(null);
+        } catch (FileNotFoundException e) {
+            assertEquals(e.getMessage().trim(), "Property file path is missing.");
+        }
     }
 
     @Test
-    public void TestSetPropertiesSuccessful(){
-        List<String> eln_keys = Arrays.asList("thin_template_id", "error_folder", "archive_folder", "fat_template_id", "poll_folder", "pmb_url");
-        assertTrue(properties.getElnPmbProperties().keySet().containsAll(eln_keys));
-        List<String> printer_keys = Arrays.asList("123456", "654321");
-        assertTrue(properties.getPrinterProperties().keySet().containsAll(printer_keys));
+    public void TestLoadFileEmptyPropertiesFile() throws IOException {
+        try {
+            MailProperties.loadFile("./test_properties_folder/empty.properties");
+        } catch (IOException e) {
+            assertEquals(e.getMessage().trim(), "The property file is empty.");
+        }
+
     }
 
     @Test
-    public void TestLoadMailProperties() throws IOException {
-        List<String> mail_keys = Arrays.asList("mail.smtp.host", "mail.smtp.port", "to");
-        assertTrue(properties.getMailProperties().keySet().containsAll(mail_keys));
-
-        Properties mailProperties = properties.getMailProperties();
-
-        String host = mailProperties.getProperty("mail.smtp.host");
-        assertEquals(host, "test_mail.com");
-
-        String port = mailProperties.getProperty("mail.smtp.port");
-        assertEquals(port, "9999");
-
-        String to = mailProperties.getProperty("to");
-        assertEquals(to, "user@here.com");
+    public void TestLoadFileForMailProperties() throws IOException {
+        Properties props = MailProperties.loadFile("./test_properties_folder/mail.properties");
+        List<String> mailKeys = Arrays.asList("mail.smtp.host", "mail.smtp.port", "to");
+        assertTrue(props.getClass().equals(Properties.class));
+        assertTrue(props.keySet().containsAll(mailKeys));
     }
 
     @Test
-    public void TestFolderPaths() {
-        Properties p = properties.getElnPmbProperties();
-        assertEquals(properties.getPollFolder(), p.getProperty("poll_folder"));
-        assertEquals(properties.getArchiveFolder(), p.getProperty("archive_folder"));
-        assertEquals(properties.getErrorFolder(), p.getProperty("error_folder"));
+    public void TestLoadFileForPrinterProperties() throws IOException {
+        Properties props = PrinterProperties.loadFile("./test_properties_folder/printer.properties");
+        List<String> printerKeys = Arrays.asList("123456", "654321");
+        assertTrue(props.getClass().equals(Properties.class));
+        assertTrue(props.keySet().containsAll(printerKeys));
+    }
+
+    @Test
+    public void TestLoadFileForELNPMBProperties() throws IOException {
+        Properties props = ELNPMBProperties.loadFile("./test_properties_folder/eln_pmb.properties");
+        List<String> ELNPMBKeys = Arrays.asList("pmb_url", "poll_folder", "archive_folder", "error_folder", "thin_template_id", "fat_template_id");
+        assertTrue(props.getClass().equals(Properties.class));
+        assertTrue(props.keySet().containsAll(ELNPMBKeys));
     }
 
 }

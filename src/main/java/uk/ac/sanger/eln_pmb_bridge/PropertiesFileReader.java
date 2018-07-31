@@ -4,71 +4,35 @@ package uk.ac.sanger.eln_pmb_bridge;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.file.*;
+import java.util.InvalidPropertiesFormatException;
 import java.util.Properties;
 
 /**
- * Properties helper class to
- *   - find properties files
- *   - set properties files
- *   - get properties
+ * An abstract Properties class, with instances such as MailProperties and PrinterProperties
+ * each calling loadFile, to read their respective property files.
  * @author hc6
  */
-public class PropertiesFileReader {
+public abstract class PropertiesFileReader {
     private static final Logger log = LoggerFactory.getLogger(PrintRequestHelper.class);
-    private Properties elnPmbProperties;
-    private Properties printerProperties;
-    private String propertiesFolder;
 
-    public PropertiesFileReader(String propertiesFolder) {
-        this.propertiesFolder = propertiesFolder;
+    public static Properties loadFile(String propertyFilePath) throws IOException {
+        if (propertyFilePath == null) {
+            throw new FileNotFoundException(ErrorType.MISSING_PROP_FILE.getMessage());
+        }
+        Path propertyFile = Paths.get(propertyFilePath);
+        Properties properties = new Properties();
+        try {
+            InputStream propertyFileInputStream = Files.newInputStream(propertyFile);
+            if (propertyFileInputStream.available() == 0){
+                throw new InvalidPropertiesFormatException(ErrorType.EMPTY_PROP_FILE.getMessage());
+            }
+            properties.load(propertyFileInputStream);
+        }  catch (IOException e) {
+            log.debug(e.getMessage(), e);
+            throw new IOException(e.getMessage(), e);
+        }
+        return properties;
     }
-
-    protected void setProperties() throws IOException {
-        Path elnPmbPropertiesFile = Paths.get("./"+propertiesFolder+"/eln_pmb.properties");
-        InputStream elnPmbFileInputStream = Files.newInputStream(elnPmbPropertiesFile);
-        this.elnPmbProperties = new Properties();
-        this.elnPmbProperties.load(elnPmbFileInputStream);
-
-        Path printerPropertiesFile = Paths.get("./"+propertiesFolder+"/printer.properties");
-        InputStream printerFileInputStream = Files.newInputStream(printerPropertiesFile);
-        this.printerProperties = new Properties();
-        this.printerProperties.load(printerFileInputStream);
-
-        log.info("Successfully set eln_pmb.properties");
-    }
-
-    protected Properties getElnPmbProperties() {
-        return this.elnPmbProperties;
-    }
-
-    protected Properties getPrinterProperties(){
-        return this.printerProperties;
-    }
-
-    /**
-     * Mail properties can be updated while service is running
-     */
-    protected Properties getMailProperties() throws IOException {
-        Path mailPropertiesFile = Paths.get("./"+propertiesFolder+"/mail.properties");
-        InputStream mailFileInputStream = Files.newInputStream(mailPropertiesFile);
-        Properties mailProperties = new Properties();
-        mailProperties.load(mailFileInputStream);
-        return mailProperties;
-    }
-
-    protected String getPollFolder() {
-        return elnPmbProperties.getProperty("poll_folder");
-    }
-
-    protected String getArchiveFolder() {
-        return elnPmbProperties.getProperty("archive_folder");
-    }
-
-    protected String getErrorFolder() {
-        return elnPmbProperties.getProperty("error_folder");
-    }
-
 }

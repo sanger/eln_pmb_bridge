@@ -14,11 +14,11 @@ import static org.testng.Assert.assertEquals;
 public class PrintRequestTest {
 
     @Test
-    public void TestPrintLabwareRequest() throws IOException {
+    public void TestPrintRequest() throws IOException {
 
-        final String printerName = "d304bc";
+        final String printerName = "123456";
         final String cellLine = "zogh";
-        final String barcode = "200";
+        final String barcode = "290re018d96";
 
         Map<String, String> fieldMap = new HashMap<>();
         fieldMap.put("cell_line", cellLine);
@@ -31,12 +31,12 @@ public class PrintRequestTest {
         String jsonString = objectMapper.writeValueAsString(request);
         PrintRequest result = objectMapper.readValue(jsonString, PrintRequest.class);
 
-        PrintRequest.Label label1 = result.getLabels().get(0);
         assertEquals(result, request);
         assertEquals(result.length(), 1);
         assertEquals(result.getPrinterName(), printerName);
+
+        PrintRequest.Label label1 = result.getLabels().get(0);
         assertEquals(label1.getField("cell_line"), cellLine);
         assertEquals(label1.getField("barcode"), barcode);
-
     }
 }

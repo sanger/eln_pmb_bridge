@@ -1,5 +1,5 @@
-%BTW% /AF="Template" /D="%Trigger File Name%" /R=3 /P /PRN="123456" /C=1
+%BTW% /D="%Trigger File Name%" /R=3 /P /PRN="d304bc" /C=1
 %END%
-Cell Line| Barcode | Passage Number | Date
-nawk | 200000000111 | 3 | 2016-10-17
-zogh | 200000000222 | 4 | 2015-12-06
+Barcode,Cell line,Date,Passage number
+THAW-19012018-000034,$KMT2A_WT1,22 January 2018,2
+THAW-19012018-000052,xagu_1,22 January 2018,3333

@@ -3,13 +3,13 @@ package uk.ac.sanger.eln_pmb_bridge;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /**
  * Helper class to build a PrintRequest from the polled file
@@ -17,42 +17,47 @@ import java.util.stream.Collectors;
  */
 public class PrintRequestHelper {
     private static final Logger log = LoggerFactory.getLogger(PrintRequestHelper.class);
-    protected Properties printerProperties;
+    protected List<String> printerList;
 
-    public PrintRequestHelper(Properties printerProperties) {
-        this.printerProperties = printerProperties;
+    public PrintRequestHelper() {
+        this.printerList = PrinterProperties.getPrinterList();
+
+        if (printerList == null || printerList.isEmpty()) {
+            String msg = "Cannot make print request because: "+ ErrorType.NO_PRINTERS.getMessage();
+            throw new NullPointerException(msg);
+        }
     }
 
     public PrintRequest makeRequestFromFile(Path file) throws IOException {
         if (!Files.exists(file)){
-            throw new NullPointerException(file +" does not exist");
+            log.debug(String.format("Failed to find file %s in polling folder", file));
+            throw new FileNotFoundException(file +" does not exist");
         }
-        List<String> printers = getPrinterList(printerProperties);
+        
+        log.info("File contents for "+file);
+        log.info(Files.readAllLines(file).toString());
 
-        if (printers.isEmpty()) {
-            String msg = "Cannot make print request because printer list is empty.";
-            throw new IllegalArgumentException(msg);
-        }
         Scanner fileData = new Scanner(file);
         String firstLine = fileData.nextLine();
         fileData.nextLine();
 
         List<PrintRequest.Label> labels = createLabels(fileData);
         String printerName = getPrinterName(firstLine);
-        boolean printerExists = printers.contains(printerName);
+        boolean printerExists = printerList.contains(printerName);
 
-        if (!printerExists || labels.isEmpty()){
-            String message = "";
-            if (!printerExists){
-                message += "Printer name "+printerName+" does not exist.";
-            }
-            if (labels.isEmpty()){
-                message += "Label list is empty.";
-            }
+        String message = "";
+        if (!printerExists){
+            message += "\n\t"+printerName+":"+ErrorType.UNKNOWN_PRINTER_NAME.getMessage();
+        }
+        if (labels.isEmpty()){
+            message += "\n\t"+ErrorType.NO_LABELS.getMessage();
+        }
+        if (!message.isEmpty()) {
             String msg = String.format("Cannot make print request because: %s", message);
             log.error(msg);
             throw new IllegalArgumentException(msg);
         }
+        log.info("Successfully made request from file.");
         return new PrintRequest(printerName, labels);
     }
 
@@ -61,7 +66,7 @@ public class PrintRequestHelper {
      */
     protected List<PrintRequest.Label> createLabels(Scanner fileData) {
         String columnHeadingLine = fileData.nextLine();
-        String[] columnHeadings = columnHeadingLine.split(Pattern.quote("|"));
+        String[] columnHeadings = columnHeadingLine.split("\\||,");
 
         List<String> columns = new ArrayList<>();
         for (String ch : columnHeadings) {
@@ -76,7 +81,7 @@ public class PrintRequestHelper {
             if (line.isEmpty()) {
                 continue;
             }
-            String[] data = line.split(Pattern.quote("|"));
+            String[] data = line.split("\\||,");
 
             Map<String, String> fieldMap = new HashMap<>();
             for (int i = 0; i < data.length; i++) {
@@ -104,21 +109,11 @@ public class PrintRequestHelper {
         Matcher matcher = Pattern.compile("PRN=\"([^\"]+)\"").matcher(firstLine);
         String printerName;
         if (matcher.find()) {
-            printerName = matcher.group(1);
+            printerName = matcher.group(1).toLowerCase().trim();
         } else {
-            throw new IllegalArgumentException("No printer name is given in print request");
+            throw new IllegalArgumentException(ErrorType.NO_PRINTER_NAME.getMessage());
         }
         return printerName;
-    }
-
-    /**
-     * Returns a list of printers configured in printer.properties
-     */
-    protected List<String> getPrinterList(Properties printerProperties) {
-        return printerProperties.keySet()
-                .stream()
-                .map(entry -> (String) entry)
-                .collect(Collectors.toList());
     }
 
 }

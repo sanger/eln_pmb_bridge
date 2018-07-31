@@ -13,38 +13,32 @@ import java.net.URL;
 import static java.net.HttpURLConnection.HTTP_CREATED;
 
 /**
- * Client for sending print job requests to PrintMyBarcode
+ * A printer client specifically for PrintMyBarcode
  * @author hc6
  */
-public class PMBClient {
+public class PMBClient implements PrintService {
     private static final Logger log = LoggerFactory.getLogger(PMBClient.class);
-    private final PrintConfig config;
 
-    public PMBClient(PrintConfig config) {
-        this.config = config;
-    }
-
+    @Override
     public void print(PrintRequest request) throws Exception {
         if (request==null){
             throw new IllegalArgumentException("Null request in PMBClient.print");
         }
-        URL url = new URL(config.getPmbURL());
+        URL url = new URL(ELNPMBProperties.getPMBURL());
         JSONObject jsonObject = buildJson(request);
         postJson(url, jsonObject);
-        for (PrintRequest.Label label : request.getLabels()) {
-            log.info(String.format("Printed barcode %s at printer %s",
-                    label.getField("barcode"), request.getPrinterName()));
-        }
+
+        logPrintSuccessful(request);
     }
 
     /**
      * Builds a JSON object from the new print job request
      */
-    public JSONObject buildJson(PrintRequest request) throws JSONException {
+    protected JSONObject buildJson(PrintRequest request) throws JSONException {
         JSONObject requestJson = new JSONObject();
 
         String printer = request.getPrinterName();
-        Integer templateId = config.getTemplateIdForPrinter(printer);
+        Integer templateId = PrinterProperties.getTemplateIdForPrinter(printer);
 
         JSONArray body = new JSONArray();
         for (PrintRequest.Label label : request.getLabels()){
@@ -102,4 +96,10 @@ public class PMBClient {
         }
     }
 
+    private void logPrintSuccessful(PrintRequest request) {
+        String printer = request.getPrinterName();
+        for (PrintRequest.Label label : request.getLabels()) {
+            log.info(String.format("Printed barcode %s at printer %s", label.getField("barcode"), printer));
+        }
+    }
 }

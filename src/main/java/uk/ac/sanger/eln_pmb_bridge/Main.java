@@ -5,8 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.*;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -15,93 +14,55 @@ import java.util.List;
  * Sends a print job request to PrintMyBarcode to print created labels
  */
 public class Main {
-    private static final Logger log = LoggerFactory.getLogger(PrintConfig.class);
-    private static final PropertiesFileReader properties = new PropertiesFileReader("properties_folder");
+    private static final Logger log = LoggerFactory.getLogger(Main.class);
 
     public static void main(String[] args) throws Exception {
         /**
          * When a host has both IPv4 and IPv6 addresses, change preference to use IPv6 addresses over IPv4
          */
         System.setProperty("java.net.preferIPv6Addresses", "true");
-
+        EmailService emailService = EmailService.getService();
         try {
-            properties.setProperties();
-            sendStartUpEmail();
-            startService();
+            createFolders();
+            setProperties();
+            FileWatcher.runService();
         } catch (Exception e) {
-            log.error("Fatal error", e);
-            sendErrorEmail("ELN PMB Bridge - fatal error", e);
+            log.error(ErrorType.FATAL.getMessage(), e);
+            emailService.sendErrorEmail(ErrorType.ELN_PMB_SUBJECT.getMessage() + ErrorType.FATAL.getMessage(), e);
         }
     }
+    /**
+     *  ELNPMBProperties have to be set before the PrinterProperties
+     */
+    private static void setProperties() throws IOException {
+        ELNPMBProperties.setProperties("./properties_folder/eln_pmb.properties");
+        PrinterProperties.setProperties("./properties_folder/printer.properties");
+        MailProperties.setProperties("./properties_folder/mail.properties");
+    }
 
-    private static void startService() throws Exception {
-        PrintRequestHelper printRequestHelper = new PrintRequestHelper(properties.getPrinterProperties());
-        PrintConfig printConfig = PrintConfig.loadConfig(properties);
-        /**
-         * A new WatchService monitors the polling folder specified in eln_pmb.properties
-         * The polling directory is registered to watch for entry create events
-         * When any create event is detected, a key is added to the watch service que
-         * The take method returns the watch key from the que
-         * The event is processed and the newly created filename returned
-         */
-        Path pollPath = Paths.get(properties.getPollFolder());
-        WatchService service = pollPath.getFileSystem().newWatchService();
-        pollPath.register(service, StandardWatchEventKinds.ENTRY_CREATE);
+    /**
+     *  TODO: do this in the building of jar/ control script
+     */
+    private static void createFolders() throws IOException {
+        List<String> directories = Arrays.asList("poll_folder", "archive_folder", "error_folder", "properties_folder");
 
-        while (true) {
-            WatchKey watchKey = service.take();
-            List<WatchEvent<?>> watchEvents = watchKey.pollEvents();
-
-            for (WatchEvent event : watchEvents) {
-                String newFileName = event.context().toString();
-                Path pollFile = Paths.get(properties.getPollFolder()+newFileName);
-                try {
-                    PrintRequest request = printRequestHelper.makeRequestFromFile(pollFile);
-                    PMBClient pmbClient = new PMBClient(printConfig);
-                    pmbClient.print(request);
-                    moveFileToFolder(pollFile, properties.getArchiveFolder());
-                } catch (Exception e) {
-                    log.error("Recoverable error", e);
-                    moveFileToFolder(pollFile, properties.getErrorFolder());
-                    sendErrorEmail("ELN PMB Bridge - recoverable error", e);
-                }
+        for (String directory : directories) {
+            Path directoryPath = Paths.get(directory);
+            if (!Files.exists(directoryPath)) {
+                createFolder(directoryPath);
             }
-            watchKey.reset();
         }
+        log.info("Successfully created directories if they didn't already exist.");
     }
 
-    private static void sendStartUpEmail() {
-        String currentTime = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
-        String message = String.format("Starting up ELN PMB Bridge Service at %s", currentTime);
-        sendEmail("Starting up ELN PMB Bridge Service", message);
-    }
-
-    private static void sendErrorEmail(String subject, Exception e) {
-        String message = String.format("Error when trying to print labels via PrintMyBarcode from an polled ELN file. " +
-                "Moving file to error folder. %s", e);
-        sendEmail(subject, message);
-    }
-
-    private static void sendEmail(String subject, String message) {
+    private static void createFolder(Path directoryPath) throws IOException {
         try {
-            EmailService emailManager = new EmailService(properties.getMailProperties());
-            emailManager.sendEmail(subject, message);
-        } catch (Exception e){
-            log.error(String.format("Failed to send email with subject %s", subject));
+            Files.createDirectory(directoryPath);
+        } catch (IOException e) {
+            String msg = ErrorType.FAILED_FOLDER_CREATION.getMessage() + directoryPath;
+            log.debug(msg, e);
+            throw new IOException(msg, e);
         }
-    }
-
-    private static void moveFileToFolder(Path fileToMove, String folderToMoveTo) throws IOException {
-        String time = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
-        String fileName = fileToMove.getFileName().toString();
-
-        int dotIndex = fileName.lastIndexOf('.');
-        if (dotIndex <= 0) {
-            dotIndex = fileName.length();
-        }
-        String newFileName = fileName.replace(" ", "_").substring(0, dotIndex) + "_" + time + ".txt";
-        Files.move(fileToMove, Paths.get(folderToMoveTo+newFileName));
-        log.info(String.format("Moved file \"%s\" to %s", fileToMove, folderToMoveTo+newFileName));
     }
 
 }
