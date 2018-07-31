@@ -13,8 +13,9 @@ Usage
 ---
 
 - Property folders contain config information for the ELN PMB Bridge, Printers and Mailing, and various setup directories.
-- A file, in the expected format is dropped by IDBS-ELN into the poll folder.
-- The Watch Service pulls the new file and create a print job request.
+- A file (with _TEMP extension) is dropped by IDBS-ELN into the poll folder.
+- IDBS-ELN populate the content of this file, then rename the file when completed (removing the TEMP extension.)
+- The Watch Service pulls the newly named file, and create a print job request.
 - This request is then sent to PMB, which prints the labels.
 
 Running
@@ -26,7 +27,9 @@ Execute the jar in the console:
 Deployment
 ---
 
-ELN PMB test is currently deployed at web-cgap-idbstest-01:sccp/eln_pmb_bridge
+ELN PMB WIP is currently deployed at web-cgap-idbstest-01:sccp/eln_pmb_bridge
+ELN PMB UAT is currently deployed at web-cgap-idbstest-02:sccp/eln_pmb_bridge
+ELN PMB PROD is currently deployed at web-cgap-idbsprod-02:sccp/eln_pmb_bridge
 
 - Build the jar using the jar-with-dependencies in pom.xml:
 
@@ -37,13 +40,16 @@ ELN PMB test is currently deployed at web-cgap-idbstest-01:sccp/eln_pmb_bridge
 
 - Secure copy the jar from local to the server:
 
-    `scp target/eln_pmb_bridge-1.0-jar-with-dependencies.jar web-cgap-idbstest-01:/sccp/eln_pmb_bridge/`
+    `scp target/eln_pmb_bridge-1.0-jar-with-dependencies.jar [host]:/sccp/eln_pmb_bridge/`
+
+- Secure copy the jre (if it doesn't exist) from one server to another
+    `scp -r /sccp/jre/ [host]:/sccp`
 
 - Change user to sccp
 
   `sudo -su sccp sh`
 
-- Run the application (this will only create the folders):
+- Run the application (this will only create the folders, then error out):
 
   `/sccp/jre/jre1.8.0_131/bin/java -jar eln_pmb_bridge-1.0-jar-with-dependencies.jar`
 
@@ -53,19 +59,19 @@ ELN PMB test is currently deployed at web-cgap-idbstest-01:sccp/eln_pmb_bridge
 
 - Copy over the property files
 
-  `scp -r properties_folder/ web-cgap-idbstest-01:/sccp/eln_pmb_bridge`
+  `scp -r properties_folder/ [host]:/sccp/eln_pmb_bridge`
 
 - Copy over the java control file
 
-  `scp -r java_control.sh web-cgap-idbstest-01:/sccp/eln_pmb_bridge`
+  `scp -r java_control.sh [host]:/sccp/eln_pmb_bridge`
 
 - Change permission on java control file to 775
 
-  `chmod 775 java_control.sh`
+   `chmod 775 java_control.sh`
 
 - Run the application:
 
-The java_control.sh script allows you to start, stop and restard the java process automatically
+The java_control.sh script allows you to start, stop and restart the java process automatically
 
     ./java_control.sh stop
     ./java_control.sh start
@@ -78,10 +84,14 @@ or
 Test
 ---
 
-Secure copy to drop a file into the polling folder on the server:
+Secure copy to drop a file into the polling folder on the server with the _TEMP extension:
+
+  `scp file.txt web-cgap-idbstest-01:/sccp/eln_pmb_bridge/poll_folder/file.txt_TEMP`
 
 
-    scp file.txt web-cgap-idbstest-01:/sccp/eln_pmb_bridge/poll_folder
+On the server, rename the file to remove the _TEMP extension:
+
+  `mv poll_folder/file.txt_TEMP poll_folder/file.txt`
 
 
 Example File
