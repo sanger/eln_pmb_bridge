@@ -37,6 +37,20 @@ public class PMBClientTest {
     }
 
     @Test
+    public void TestPrintSuccessfulWithMultipleNumOfCopies() throws Exception {
+        PrintRequestHelper printRequestHelper = new PrintRequestHelper();
+        String correctPollFile = "./test_examples/correct_request_test_multiple_copies.txt";
+        PrintRequest request = printRequestHelper.makeRequestFromFile(Paths.get(correctPollFile));
+
+        PMBClient client = mock(PMBClient.class);
+        doCallRealMethod().when(client).print(request);
+        client.print(request);
+
+        verify(client, times(1)).buildJson(request);
+        verify(client, times(3)).postJson(any(), any());
+    }
+
+    @Test
     public void TestPrintEmptyRequest() throws Exception {
         try {
             PMBClient client = new PMBClient();
@@ -59,7 +73,7 @@ public class PMBClientTest {
         PrintRequest.Label label1 = new PrintRequest.Label(fieldMap);
 
         String printerName = "123456";
-        PrintRequest request = new PrintRequest(printerName, Collections.singletonList(label1));
+        PrintRequest request = new PrintRequest(printerName, Collections.singletonList(label1), 1);
 
         JSONObject result = pmbClient.buildJson(request);
         assertEquals(result.length(), 1);

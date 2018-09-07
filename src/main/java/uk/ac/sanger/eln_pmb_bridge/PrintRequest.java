@@ -10,15 +10,18 @@ import java.util.*;
  * @author hc6
  */
 public class PrintRequest {
+    private final Integer numOfCopies;
     private String printerName;
     private List<Label> labels;
 
     @JsonCreator
     public PrintRequest(
             @JsonProperty("printerName") String printerName,
-            @JsonProperty("labels") List<Label> labels) {
+            @JsonProperty("labels") List<Label> labels,
+            @JsonProperty("numOfCopies") Integer numOfCopies) {
         this.printerName = printerName;
         this.labels = labels;
+        this.numOfCopies = numOfCopies;
     }
 
     public List<Label> getLabels() {
@@ -29,6 +32,8 @@ public class PrintRequest {
         return this.printerName;
     }
 
+    public Integer getNumOfCopies() { return this.numOfCopies; }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -36,7 +41,8 @@ public class PrintRequest {
 
         PrintRequest that = (PrintRequest) o;
         return (this.printerName.equals(that.printerName)
-                && this.labels.equals(that.labels));
+                && this.labels.equals(that.labels)
+                && this.numOfCopies.equals(that.numOfCopies));
     }
 
     @Override
@@ -44,6 +50,7 @@ public class PrintRequest {
         return "PrintRequest{" +
                 "printerName='" + printerName + '\'' +
                 ", labels=" + labels +
+                ", numOfCopies=" + numOfCopies +
                 '}';
     }
 

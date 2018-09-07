@@ -81,6 +81,19 @@ public class PrintRequestHelperTest {
     }
 
     @Test
+    public void TestGetNumberOfCopies() throws IOException {
+        setProperties();
+
+        Path path = Paths.get("./test_examples/correct_request_test_multiple_copies.txt");
+        Scanner expectedData = new Scanner(path);
+        String firstLine = expectedData.nextLine();
+
+        PrintRequestHelper helper = new PrintRequestHelper();
+        Integer numOfCopies= helper.getNumberOfCopies(firstLine);
+        assertEquals(numOfCopies, Integer.valueOf(3));
+    }
+
+    @Test
     public void TestGetPrinterNameDoesNotExist() throws IOException {
         setProperties();
 
@@ -155,6 +168,10 @@ public class PrintRequestHelperTest {
         PrintRequestHelper helper = new PrintRequestHelper();
         Path path = Paths.get("./test_examples/correct_request_test.txt");
         PrintRequest request = helper.makeRequestFromFile(path);
+
+        assertEquals(request.getPrinterName(), "123456");
+        assertEquals(request.getNumOfCopies(), Integer.valueOf(1));
+        assertEquals(request.getLabels().size(), 2);
 
         assertEquals(request.getLabels().get(0).getField("cell_line"), "nawk");
         assertEquals(request.getLabels().get(0).getField("barcode"), "200000000111");

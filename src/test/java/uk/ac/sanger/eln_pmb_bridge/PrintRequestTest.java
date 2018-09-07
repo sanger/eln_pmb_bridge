@@ -19,13 +19,14 @@ public class PrintRequestTest {
         final String printerName = "123456";
         final String cellLine = "zogh";
         final String barcode = "290re018d96";
+        final Integer numOfCopies = 3;
 
         Map<String, String> fieldMap = new HashMap<>();
         fieldMap.put("cell_line", cellLine);
         fieldMap.put("barcode", barcode);
 
         PrintRequest.Label label = new PrintRequest.Label(fieldMap);
-        PrintRequest request = new PrintRequest(printerName, Collections.singletonList(label));
+        PrintRequest request = new PrintRequest(printerName, Collections.singletonList(label), numOfCopies);
 
         ObjectMapper objectMapper = new ObjectMapper();
         String jsonString = objectMapper.writeValueAsString(request);
@@ -34,6 +35,7 @@ public class PrintRequestTest {
         assertEquals(result, request);
         assertEquals(result.length(), 1);
         assertEquals(result.getPrinterName(), printerName);
+        assertEquals(result.getNumOfCopies(), numOfCopies);
 
         PrintRequest.Label label1 = result.getLabels().get(0);
         assertEquals(label1.getField("cell_line"), cellLine);

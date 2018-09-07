@@ -16,13 +16,12 @@ public enum ErrorType {
     NO_TEMPLATE_ID("There is at least one template id missing in eln_pmb.properties. "),
     NO_LABELS("There are no labels to be printed in the request. "),
     NO_PRINTER_NAME("There is no printer name in the request. "),
+    NO_NUMBER_OF_COPIES("There is no number of copies specified in the request. "),
     NO_PRINTER_SIZE("The is no printer size for this printer in printer.properties. "),
     FAILED_EMAIL("Failed to send email. "),
     FAILED_FOLDER_CREATION("Failed to create new folder. "),
     MOVE_TO_ERROR_FOLDER("Moving file to error folder. "),
-    EMPTY_PROP_FILE("The property file is empty. "),
-    ERROR_PROP_FILE("There has been an error when trying to load a property file. ");
-
+    EMPTY_PROP_FILE("The property file is empty. ");
 
     private final String message;
 
