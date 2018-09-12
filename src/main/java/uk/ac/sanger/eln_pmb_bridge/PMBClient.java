@@ -103,7 +103,7 @@ public class PMBClient implements PrintService {
     private void logPrintSuccessful(PrintRequest request) {
         String printer = request.getPrinterName();
         for (PrintRequest.Label label : request.getLabels()) {
-            log.info(String.format("Printed barcode %s at printer %s", label.getField("barcode"), printer));
+            log.info(String.format("Printed cell line %s at printer %s", label.getField("cell_line"), printer));
         }
     }
 }

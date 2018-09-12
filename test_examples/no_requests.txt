@@ -1,4 +1,3 @@
 %BTW% /AF="Template" /D="%Trigger File Name%" /R=3 /P /PRN="123456" /C=1
 %END%
-Cell Line| Barcode | Passage Number | Date
-
+Cell Line| Passage Number | Date | Media type | User

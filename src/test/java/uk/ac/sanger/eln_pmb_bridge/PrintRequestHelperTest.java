@@ -145,9 +145,6 @@ public class PrintRequestHelperTest {
         for (String col : expectedColumns) {
             col = col.trim().toLowerCase().replaceAll("\\s+", "_");
             columns.add(col);
-            if (col.equals("barcode")) {
-                columns.add(col+"_text");
-            }
         }
 
         Scanner actualData = new Scanner(path);
@@ -174,14 +171,10 @@ public class PrintRequestHelperTest {
         assertEquals(request.getLabels().size(), 2);
 
         assertEquals(request.getLabels().get(0).getField("cell_line"), "nawk");
-        assertEquals(request.getLabels().get(0).getField("barcode"), "200000000111");
-        assertEquals(request.getLabels().get(0).getField("barcode_text"), "200000000111");
         assertEquals(request.getLabels().get(0).getField("passage_number"), "3");
         assertEquals(request.getLabels().get(0).getField("date"), "22 January 2018");
 
         assertEquals(request.getLabels().get(1).getField("cell_line"), "zogh");
-        assertEquals(request.getLabels().get(1).getField("barcode"), "200000000222");
-        assertEquals(request.getLabels().get(1).getField("barcode_text"), "200000000222");
         assertEquals(request.getLabels().get(1).getField("passage_number"), "4");
         assertEquals(request.getLabels().get(1).getField("date"), "22 January 2019");
     }

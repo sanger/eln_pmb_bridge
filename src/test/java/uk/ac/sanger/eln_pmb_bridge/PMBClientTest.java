@@ -68,7 +68,6 @@ public class PMBClientTest {
 
         Map<String, String> fieldMap = new HashMap<>();
         fieldMap.put("cell_line", "zogh");
-        fieldMap.put("barcode", "2000000100");
 
         PrintRequest.Label label1 = new PrintRequest.Label(fieldMap);
 

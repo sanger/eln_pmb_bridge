@@ -1,5 +1,5 @@
 %BTW% /D="%Trigger File Name%" /R=3 /P /PRN="123456" /C=1
 %END%
-Barcode,Cell line,Date,Passage number
-200000000111,nawk,22 January 2018,3
-200000000222,zogh,22 January 2019,4
+Cell line,Date,Passage number,Media type,User
+nawk,22 January 2018,3,Wnt1,user1@test
+zogh,22 January 2019,4,Wnt2,user2@test
