@@ -10,9 +10,9 @@ import java.util.*;
  * @author hc6
  */
 public class PrintRequest {
-    private final Integer numOfCopies;
     private String printerName;
     private List<Label> labels;
+    private final Integer numOfCopies;
 
     @JsonCreator
     public PrintRequest(
