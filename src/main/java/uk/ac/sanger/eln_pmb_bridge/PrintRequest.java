@@ -1,9 +1,7 @@
 package uk.ac.sanger.eln_pmb_bridge;
 
-import org.codehaus.jackson.annotate.JsonCreator;
-import org.codehaus.jackson.annotate.JsonProperty;
-
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A request object to print labels via PrintMyBarcode
@@ -14,11 +12,7 @@ public class PrintRequest {
     private List<Label> labels;
     private int numOfCopies;
 
-    @JsonCreator
-    public PrintRequest(
-            @JsonProperty("printerName") String printerName,
-            @JsonProperty("labels") List<Label> labels,
-            @JsonProperty("numOfCopies") int numOfCopies) {
+    public PrintRequest(String printerName, List<Label> labels, int numOfCopies) {
         this.printerName = printerName;
         this.labels = labels;
         this.numOfCopies = numOfCopies;
@@ -61,9 +55,7 @@ public class PrintRequest {
     public static class Label {
         private Map<String, String> fields;
 
-        @JsonCreator
-        public Label(
-                @JsonProperty("fields") Map<String, String> fields) {
+        public Label(Map<String, String> fields) {
             this.fields = fields;
         }
 
