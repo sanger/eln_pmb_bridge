@@ -12,7 +12,7 @@ import java.util.*;
 public class PrintRequest {
     private String printerName;
     private List<Label> labels;
-    private final Integer numOfCopies;
+    private int numOfCopies;
 
     @JsonCreator
     public PrintRequest(
@@ -32,7 +32,7 @@ public class PrintRequest {
         return this.printerName;
     }
 
-    public Integer getNumOfCopies() { return this.numOfCopies; }
+    public int getNumOfCopies() { return this.numOfCopies; }
 
     @Override
     public boolean equals(Object o) {
@@ -42,7 +42,7 @@ public class PrintRequest {
         PrintRequest that = (PrintRequest) o;
         return (this.printerName.equals(that.printerName)
                 && this.labels.equals(that.labels)
-                && this.numOfCopies.equals(that.numOfCopies));
+                && Integer.valueOf(this.numOfCopies).equals(that.numOfCopies));
     }
 
     @Override

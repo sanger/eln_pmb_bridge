@@ -18,7 +18,7 @@ public class PrintRequestTest {
 
         final String printerName = "123456";
         final String cellLine = "zogh";
-        final Integer numOfCopies = 3;
+        final int numOfCopies = 3;
 
         Map<String, String> fieldMap = new HashMap<>();
         fieldMap.put("cell_line", cellLine);

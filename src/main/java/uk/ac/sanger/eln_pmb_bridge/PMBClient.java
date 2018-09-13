@@ -24,12 +24,12 @@ public class PMBClient implements PrintService {
         if (request==null){
             throw new IllegalArgumentException("Null request in PMBClient.print");
         }
-        Integer numOfCopies = request.getNumOfCopies();
+        int numOfCopies = request.getNumOfCopies();
 
         URL url = new URL(ELNPMBProperties.getPMBURL());
         JSONObject jsonObject = buildJson(request);
 
-        for (Integer i = 0; i < numOfCopies; i++) {
+        for (int i = 0; i < numOfCopies; i++) {
             postJson(url, jsonObject);
         }
         logPrintSuccessful(request);

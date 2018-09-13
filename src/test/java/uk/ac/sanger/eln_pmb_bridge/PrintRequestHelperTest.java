@@ -167,7 +167,7 @@ public class PrintRequestHelperTest {
         PrintRequest request = helper.makeRequestFromFile(path);
 
         assertEquals(request.getPrinterName(), "123456");
-        assertEquals(request.getNumOfCopies(), Integer.valueOf(1));
+        assertEquals(request.getNumOfCopies(), 1);
         assertEquals(request.getLabels().size(), 2);
 
         assertEquals(request.getLabels().get(0).getField("cell_line"), "nawk");
