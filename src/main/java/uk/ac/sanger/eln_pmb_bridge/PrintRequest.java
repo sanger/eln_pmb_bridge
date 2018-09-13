@@ -18,7 +18,7 @@ public class PrintRequest {
     public PrintRequest(
             @JsonProperty("printerName") String printerName,
             @JsonProperty("labels") List<Label> labels,
-            @JsonProperty("numOfCopies") Integer numOfCopies) {
+            @JsonProperty("numOfCopies") int numOfCopies) {
         this.printerName = printerName;
         this.labels = labels;
         this.numOfCopies = numOfCopies;
@@ -42,7 +42,7 @@ public class PrintRequest {
         PrintRequest that = (PrintRequest) o;
         return (this.printerName.equals(that.printerName)
                 && this.labels.equals(that.labels)
-                && Integer.valueOf(this.numOfCopies).equals(that.numOfCopies));
+                && this.numOfCopies == that.numOfCopies);
     }
 
     @Override

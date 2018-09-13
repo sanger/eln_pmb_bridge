@@ -43,7 +43,7 @@ public class PrintRequestHelper {
 
         List<PrintRequest.Label> labels = createLabels(fileData);
         String printerName = getPrinterName(firstLine);
-        Integer numOfCopies = getNumberOfCopies(firstLine);
+        int numOfCopies = getNumberOfCopies(firstLine);
         boolean printerExists = printerList.contains(printerName);
 
         String message = "";
@@ -116,9 +116,9 @@ public class PrintRequestHelper {
     /**
      * Gets the number of copies from the first row in the polled file
      */
-    protected Integer getNumberOfCopies(String firstLine) {
+    protected int getNumberOfCopies(String firstLine) {
         Matcher matcher = Pattern.compile("C=([0-9]+)").matcher(firstLine);
-        Integer numOfCopies;
+        int numOfCopies;
         if (matcher.find()) {
             numOfCopies = Integer.parseInt(matcher.group(1).toLowerCase().trim());
         } else {

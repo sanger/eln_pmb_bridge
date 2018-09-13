@@ -89,8 +89,8 @@ public class PrintRequestHelperTest {
         String firstLine = expectedData.nextLine();
 
         PrintRequestHelper helper = new PrintRequestHelper();
-        Integer numOfCopies= helper.getNumberOfCopies(firstLine);
-        assertEquals(numOfCopies, Integer.valueOf(3));
+        int numOfCopies= helper.getNumberOfCopies(firstLine);
+        assertEquals(numOfCopies, 3);
     }
 
     @Test
