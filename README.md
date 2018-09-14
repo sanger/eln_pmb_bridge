@@ -28,7 +28,7 @@ Deployment
 ---
 
 ELN PMB WIP is currently deployed at web-cgap-idbstest-01:sccp/eln_pmb_bridge (used locally for test)
-ELN PMB UAT is currently deployed at web-cgap-idbstest-02:sccp/eln_pmb_bridge (used by ELN for test)
+ELN PMB UAT is currently deployed at web-cgap-idbstest-02:sccp/eln_pmb_bridge (used by ELN for test from UAT branch)
 ELN PMB PROD is currently deployed at web-cgap-idbsprod-02:sccp/eln_pmb_bridge (used by ELN for prod)
 
 - Build the jar using the jar-with-dependencies in pom.xml:
