@@ -43,6 +43,7 @@ public class PrintRequestHelper {
 
         List<PrintRequest.Label> labels = createLabels(fileData);
         String printerName = getPrinterName(firstLine);
+        int numOfCopies = getNumberOfCopies(firstLine);
         boolean printerExists = printerList.contains(printerName);
 
         String message = "";
@@ -58,7 +59,7 @@ public class PrintRequestHelper {
             throw new IllegalArgumentException(msg);
         }
         log.info("Successfully made request from file.");
-        return new PrintRequest(printerName, labels);
+        return new PrintRequest(printerName, labels, numOfCopies);
     }
 
     /**
@@ -85,10 +86,6 @@ public class PrintRequestHelper {
 
             Map<String, String> fieldMap = new HashMap<>();
             for (int i = 0; i < data.length; i++) {
-                if (columns.get(i).equals("barcode")) {
-                    fieldMap.put("barcode", data[i].trim());
-                    fieldMap.put("barcode_text", data[i].trim());
-                }
                 fieldMap.put(columns.get(i), data[i].trim());
             }
             fields.add(fieldMap);
@@ -114,6 +111,20 @@ public class PrintRequestHelper {
             throw new IllegalArgumentException(ErrorType.NO_PRINTER_NAME.getMessage());
         }
         return printerName;
+    }
+
+    /**
+     * Gets the number of copies from the first row in the polled file
+     */
+    protected int getNumberOfCopies(String firstLine) {
+        Matcher matcher = Pattern.compile("C=([0-9]+)").matcher(firstLine);
+        int numOfCopies;
+        if (matcher.find()) {
+            numOfCopies = Integer.parseInt(matcher.group(1).toLowerCase().trim());
+        } else {
+            throw new IllegalArgumentException(ErrorType.NO_NUMBER_OF_COPIES.getMessage());
+        }
+        return numOfCopies;
     }
 
 }

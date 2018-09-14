@@ -81,6 +81,19 @@ public class PrintRequestHelperTest {
     }
 
     @Test
+    public void TestGetNumberOfCopies() throws IOException {
+        setProperties();
+
+        Path path = Paths.get("./test_examples/correct_request_test_multiple_copies.txt");
+        Scanner expectedData = new Scanner(path);
+        String firstLine = expectedData.nextLine();
+
+        PrintRequestHelper helper = new PrintRequestHelper();
+        int numOfCopies= helper.getNumberOfCopies(firstLine);
+        assertEquals(numOfCopies, 3);
+    }
+
+    @Test
     public void TestGetPrinterNameDoesNotExist() throws IOException {
         setProperties();
 
@@ -132,9 +145,6 @@ public class PrintRequestHelperTest {
         for (String col : expectedColumns) {
             col = col.trim().toLowerCase().replaceAll("\\s+", "_");
             columns.add(col);
-            if (col.equals("barcode")) {
-                columns.add(col+"_text");
-            }
         }
 
         Scanner actualData = new Scanner(path);
@@ -156,15 +166,15 @@ public class PrintRequestHelperTest {
         Path path = Paths.get("./test_examples/correct_request_test.txt");
         PrintRequest request = helper.makeRequestFromFile(path);
 
+        assertEquals(request.getPrinterName(), "123456");
+        assertEquals(request.getNumOfCopies(), 1);
+        assertEquals(request.getLabels().size(), 2);
+
         assertEquals(request.getLabels().get(0).getField("cell_line"), "nawk");
-        assertEquals(request.getLabels().get(0).getField("barcode"), "200000000111");
-        assertEquals(request.getLabels().get(0).getField("barcode_text"), "200000000111");
         assertEquals(request.getLabels().get(0).getField("passage_number"), "3");
         assertEquals(request.getLabels().get(0).getField("date"), "22 January 2018");
 
         assertEquals(request.getLabels().get(1).getField("cell_line"), "zogh");
-        assertEquals(request.getLabels().get(1).getField("barcode"), "200000000222");
-        assertEquals(request.getLabels().get(1).getField("barcode_text"), "200000000222");
         assertEquals(request.getLabels().get(1).getField("passage_number"), "4");
         assertEquals(request.getLabels().get(1).getField("date"), "22 January 2019");
     }

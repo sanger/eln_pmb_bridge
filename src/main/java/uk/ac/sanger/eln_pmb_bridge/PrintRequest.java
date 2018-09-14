@@ -1,9 +1,7 @@
 package uk.ac.sanger.eln_pmb_bridge;
 
-import org.codehaus.jackson.annotate.JsonCreator;
-import org.codehaus.jackson.annotate.JsonProperty;
-
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A request object to print labels via PrintMyBarcode
@@ -12,13 +10,12 @@ import java.util.*;
 public class PrintRequest {
     private String printerName;
     private List<Label> labels;
+    private int numOfCopies;
 
-    @JsonCreator
-    public PrintRequest(
-            @JsonProperty("printerName") String printerName,
-            @JsonProperty("labels") List<Label> labels) {
+    public PrintRequest(String printerName, List<Label> labels, int numOfCopies) {
         this.printerName = printerName;
         this.labels = labels;
+        this.numOfCopies = numOfCopies;
     }
 
     public List<Label> getLabels() {
@@ -29,6 +26,8 @@ public class PrintRequest {
         return this.printerName;
     }
 
+    public int getNumOfCopies() { return this.numOfCopies; }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -36,7 +35,8 @@ public class PrintRequest {
 
         PrintRequest that = (PrintRequest) o;
         return (this.printerName.equals(that.printerName)
-                && this.labels.equals(that.labels));
+                && this.labels.equals(that.labels)
+                && this.numOfCopies == that.numOfCopies);
     }
 
     @Override
@@ -44,6 +44,7 @@ public class PrintRequest {
         return "PrintRequest{" +
                 "printerName='" + printerName + '\'' +
                 ", labels=" + labels +
+                ", numOfCopies=" + numOfCopies +
                 '}';
     }
 
@@ -54,9 +55,7 @@ public class PrintRequest {
     public static class Label {
         private Map<String, String> fields;
 
-        @JsonCreator
-        public Label(
-                @JsonProperty("fields") Map<String, String> fields) {
+        public Label(Map<String, String> fields) {
             this.fields = fields;
         }
 

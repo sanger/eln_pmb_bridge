@@ -1,6 +1,5 @@
 package uk.ac.sanger.eln_pmb_bridge;
 
-import org.codehaus.jackson.map.ObjectMapper;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
@@ -16,27 +15,28 @@ public class PrintRequestTest {
     @Test
     public void TestPrintRequest() throws IOException {
 
-        final String printerName = "123456";
-        final String cellLine = "zogh";
-        final String barcode = "290re018d96";
+        String printerName = "123456";
+        String cellLine = "zogh";
+        int numOfCopies = 3;
+        String passage_number = "123";
 
         Map<String, String> fieldMap = new HashMap<>();
         fieldMap.put("cell_line", cellLine);
-        fieldMap.put("barcode", barcode);
+        fieldMap.put("passage_number", passage_number);
 
         PrintRequest.Label label = new PrintRequest.Label(fieldMap);
-        PrintRequest request = new PrintRequest(printerName, Collections.singletonList(label));
+        List<PrintRequest.Label> labels = Collections.singletonList(label);
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        String jsonString = objectMapper.writeValueAsString(request);
-        PrintRequest result = objectMapper.readValue(jsonString, PrintRequest.class);
+        PrintRequest request = new PrintRequest(printerName, labels, numOfCopies);
 
-        assertEquals(result, request);
-        assertEquals(result.length(), 1);
-        assertEquals(result.getPrinterName(), printerName);
+        assertEquals(request.getLabels(), labels);
+        assertEquals(request.getPrinterName(), printerName);
+        assertEquals(request.getNumOfCopies(), numOfCopies);
+        assertEquals(request.length(), labels.size());
 
-        PrintRequest.Label label1 = result.getLabels().get(0);
-        assertEquals(label1.getField("cell_line"), cellLine);
-        assertEquals(label1.getField("barcode"), barcode);
+        PrintRequest.Label requestLabel = request.getLabels().get(0);
+        assertEquals(requestLabel.getFields(), fieldMap);
+        assertEquals(requestLabel.getField("cell_line"), cellLine);
+        assertEquals(requestLabel.getField("passage_number"), passage_number);
     }
 }

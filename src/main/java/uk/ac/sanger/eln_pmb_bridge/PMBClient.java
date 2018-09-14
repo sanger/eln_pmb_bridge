@@ -24,10 +24,14 @@ public class PMBClient implements PrintService {
         if (request==null){
             throw new IllegalArgumentException("Null request in PMBClient.print");
         }
+        int numOfCopies = request.getNumOfCopies();
+
         URL url = new URL(ELNPMBProperties.getPMBURL());
         JSONObject jsonObject = buildJson(request);
-        postJson(url, jsonObject);
 
+        for (int i = 0; i < numOfCopies; i++) {
+            postJson(url, jsonObject);
+        }
         logPrintSuccessful(request);
     }
 
@@ -99,7 +103,7 @@ public class PMBClient implements PrintService {
     private void logPrintSuccessful(PrintRequest request) {
         String printer = request.getPrinterName();
         for (PrintRequest.Label label : request.getLabels()) {
-            log.info(String.format("Printed barcode %s at printer %s", label.getField("barcode"), printer));
+            log.info(String.format("Printed cell line %s at printer %s", label.getField("cell_line"), printer));
         }
     }
 }
