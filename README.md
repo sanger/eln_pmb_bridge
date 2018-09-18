@@ -27,7 +27,7 @@ Execute the jar in the console:
 Pass in a command line argument into Main such as `env=devel`
 
 Or when running it from IntelliJ:
-ctrl + alt + r > Edit Configurations > Program Arguments
+`ctrl + alt + r > Edit Configurations > Program Arguments`
 
 
 Deployment
