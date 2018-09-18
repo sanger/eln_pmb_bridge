@@ -1,4 +1,4 @@
-%BTW% /D="%Trigger File Name%" /R=3 /P /PRN="e361bc" /C=1
+%BTW% /D="%Trigger File Name%" /R=3 /P /PRN="e367bc" /C=2
 %END%
 Cell line,Date,Passage number,Media type,User
-$KMT2A_WT2111,212 January 2018,2,mtyp12e,hctest1234798320
+$KMT2A_WT2111,1 January 2018,2,mtyp12e,hc6testing
