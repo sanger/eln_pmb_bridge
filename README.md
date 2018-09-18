@@ -92,7 +92,6 @@ Different environments are:
 - wip
 - uat
 - prod
-- unknown
 
 Test
 ---

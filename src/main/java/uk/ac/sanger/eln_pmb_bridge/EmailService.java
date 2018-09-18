@@ -22,8 +22,8 @@ public class EmailService {
         EmailService.mode = mode;
     }
 
-    public static void setService(Main.EnvironmentMode mode) throws NullPointerException {
-        if (mode == null) throw new NullPointerException(ErrorType.NO_ENV_MODE_FOR_EMAIL_SERVICE.getMessage());
+    public static void setService(Main.EnvironmentMode mode) throws IllegalArgumentException {
+        if (mode == null) throw new IllegalArgumentException(ErrorType.NO_ENV_MODE_FOR_EMAIL_SERVICE.getMessage());
         if (service == null) {
             service = new EmailService(mode);
         }

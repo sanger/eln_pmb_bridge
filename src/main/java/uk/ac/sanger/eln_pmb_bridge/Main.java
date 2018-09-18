@@ -16,15 +16,14 @@ import java.util.List;
  */
 public class Main {
     private static final Logger log = LoggerFactory.getLogger(Main.class);
-    protected static EnvironmentMode startMode = EnvironmentMode.UNKNOWN;
+    protected static EnvironmentMode startMode = EnvironmentMode.DEVEL;
 
     public enum EnvironmentMode {
         TEST("devel"),
         DEVEL("devel"),
         WIP("devel"),
         UAT("devel"),
-        PROD("prod"),
-        UNKNOWN("x");
+        PROD("prod");
 
         public final String property_folder;
 
@@ -54,7 +53,7 @@ public class Main {
 
     public static void setEnvironmentMode(String[] args) {
         if (args.length == 0) {
-            throw new NullPointerException(ErrorType.NO_ENV_MODE_IN_MAIN_ARGS.getMessage());
+            throw new IllegalArgumentException(ErrorType.NO_ENV_MODE_IN_MAIN_ARGS.getMessage());
         } else {
             for (String arg : args) {
                 arg = arg.toUpperCase();
@@ -63,7 +62,7 @@ public class Main {
                     try {
                         startMode = EnvironmentMode.valueOf(modeString);
                     } catch (IllegalArgumentException e) {
-                        throw new NullPointerException(ErrorType.UNKNOWN_ENV_MODE.getMessage());
+                        throw new IllegalArgumentException(ErrorType.UNKNOWN_ENV_MODE.getMessage());
                     }
                 }
             }
@@ -80,8 +79,9 @@ public class Main {
             ELNPMBProperties.setProperties(String.format("./properties_folder/%s/eln_pmb.properties", folder));
             PrinterProperties.setProperties(String.format("./properties_folder/%s/printer.properties", folder));
             MailProperties.setProperties(String.format("./properties_folder/%s/mail.properties", folder));
-        } catch (NullPointerException e) {
-            log.debug("Error when trying to set properties", e);
+        } catch (IOException e) {
+            log.debug(ErrorType.FAILED_SETTING_PROPERTIES.getMessage(), e);
+            throw new IOException(ErrorType.FAILED_SETTING_PROPERTIES.getMessage(), e);
         }
     }
 
