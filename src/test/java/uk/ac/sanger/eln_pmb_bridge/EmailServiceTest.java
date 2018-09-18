@@ -28,29 +28,13 @@ public class EmailServiceTest {
     public void TestSetEmailServiceEnvModeNull() {
         try {
             EmailService.setService(null);
-        } catch (NullPointerException e) {
+        } catch (IllegalArgumentException e) {
             assertEquals(e.getMessage().trim(), "No environment mode was provided for Email Service.");
         }
     }
 
     @Test
     public void TestSetEmailServiceSuccessful() {
-        EmailService.setService(Main.EnvironmentMode.TEST);
-        assertNotNull(EmailService.getService());
-    }
-
-    @Test
-    public void TestSetEmailServiceNullMode() throws NullPointerException {
-        EmailService.setService(Main.EnvironmentMode.TEST);
-        try {
-            EmailService.getService();
-        } catch (Exception e) {
-            assertEquals(e.getMessage().trim(), "No environment mode is provided for Email Service.");
-        }
-    }
-
-    @Test
-    public void TestGetEmailServiceSuccessful() {
         EmailService.setService(Main.EnvironmentMode.TEST);
         assertNotNull(EmailService.getService());
     }
@@ -82,7 +66,6 @@ public class EmailServiceTest {
 
         verify(emailService, times(1)).sendEmail(anyString(), anyString());
         verify(emailService, times(1)).send(any());
-
     }
 
 }
