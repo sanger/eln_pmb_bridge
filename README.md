@@ -24,6 +24,12 @@ Execute the jar in the console:
 
     java -jar target/eln_pmb_bridge-1.0-jar-with-dependencies.jar
 
+Pass in a command line argument into Main such as `env=devel`
+
+Or when running it from IntelliJ:
+ctrl + alt + r > Edit Configurations > Program Arguments
+
+
 Deployment
 ---
 
@@ -73,13 +79,20 @@ ELN PMB PROD is currently deployed at web-cgap-idbsprod-02:sccp/eln_pmb_bridge (
 
 The java_control.sh script allows you to start, stop and restart the java process automatically
 
-    ./java_control.sh stop
-    ./java_control.sh start
+    ./java_control.sh stop env=abc
+    ./java_control.sh start env=abc
 
 or
 
-    ./java_control.sh restart
+    ./java_control.sh restart env=abc
 
+Different environments are:
+- test
+- devel
+- wip
+- uat
+- prod
+- unknown
 
 Test
 ---
