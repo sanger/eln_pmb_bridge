@@ -110,4 +110,4 @@ On the server, rename the file to remove the _TEMP extension:
 Example File
 ---
 
-[An example IDBS-ELN file](https://github.com/sanger/eln_pmb_bridge/blob/refactor/test_examples/correct_request.txt)
+[An example IDBS-ELN file](https://github.com/sanger/eln_pmb_bridge/blob/master/test_examples/correct_request.txt)
