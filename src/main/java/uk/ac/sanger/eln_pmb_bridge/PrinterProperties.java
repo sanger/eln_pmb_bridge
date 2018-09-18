@@ -32,7 +32,6 @@ public class PrinterProperties extends PropertiesFileReader {
 
         if (printerList.isEmpty()) {
             String msg = String.format("Cannot load print config because: %s", ErrorType.NO_PRINTERS.getMessage());
-            log.error(msg);
             throw new IllegalArgumentException(msg);
         }
     }

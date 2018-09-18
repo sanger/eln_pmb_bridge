@@ -75,14 +75,9 @@ public class Main {
      */
     private static void setProperties() throws IOException {
         String folder = startMode.property_folder;
-        try {
-            ELNPMBProperties.setProperties(String.format("./properties_folder/%s/eln_pmb.properties", folder));
-            PrinterProperties.setProperties(String.format("./properties_folder/%s/printer.properties", folder));
-            MailProperties.setProperties(String.format("./properties_folder/%s/mail.properties", folder));
-        } catch (IOException e) {
-            log.debug(ErrorType.FAILED_SETTING_PROPERTIES.getMessage(), e);
-            throw new IOException(ErrorType.FAILED_SETTING_PROPERTIES.getMessage(), e);
-        }
+        ELNPMBProperties.setProperties(String.format("./properties_folder/%s/eln_pmb.properties", folder));
+        PrinterProperties.setProperties(String.format("./properties_folder/%s/printer.properties", folder));
+        MailProperties.setProperties(String.format("./properties_folder/%s/mail.properties", folder));
     }
 
     /**

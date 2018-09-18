@@ -25,8 +25,7 @@ public enum ErrorType {
     NO_EMAIL_SERVICE("There is no Email Service. "),
     NO_ENV_MODE_FOR_EMAIL_SERVICE("No environment mode was provided for Email Service. "),
     NO_ENV_MODE_IN_MAIN_ARGS("No environment mode was provided in Main args. "),
-    UNKNOWN_ENV_MODE("Unknown environment mode was provided. "),
-    FAILED_SETTING_PROPERTIES("Error when trying to set properties. ");
+    UNKNOWN_ENV_MODE("Unknown environment mode was provided. ");
 
     private final String message;
 

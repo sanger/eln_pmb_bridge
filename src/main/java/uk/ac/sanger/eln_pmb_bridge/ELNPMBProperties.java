@@ -40,7 +40,6 @@ public class ELNPMBProperties extends PropertiesFileReader {
 
         if (!message.isEmpty()) {
             String msg = String.format("Cannot load print config because: %s", message);
-            log.error(msg);
             throw new InvalidPropertiesFormatException(msg);
         }
     }

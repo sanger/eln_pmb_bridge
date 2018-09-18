@@ -54,9 +54,7 @@ public class EmailService {
             message.setContent(text, "text/html; charset=utf-8");
             send(message);
         } catch (MessagingException e) {
-            e.printStackTrace();
-            log.error(ErrorType.FAILED_EMAIL + String.format("Subject: %s", subjectWithEnv));
-            throw new Exception();
+            throw new MessagingException(ErrorType.FAILED_EMAIL + String.format("Subject: %s", subjectWithEnv));
         }
 
         log.info(String.format("Successfully sent email (subject: \"%s\") to \"%s\"", subjectWithEnv, toAddress));
