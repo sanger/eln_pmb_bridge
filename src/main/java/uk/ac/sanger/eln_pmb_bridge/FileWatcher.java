@@ -14,6 +14,7 @@ import java.util.List;
  * A PrintRequest is made from the polled file
  * The request then gets sent to the printer service
  * If successful, the polled file moves to the archive folder, or the error folder
+ * @author hc6
  */
 public class FileWatcher {
     private static final Logger log = LoggerFactory.getLogger(Main.class);

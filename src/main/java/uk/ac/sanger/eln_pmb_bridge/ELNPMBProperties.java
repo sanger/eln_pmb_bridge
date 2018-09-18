@@ -8,7 +8,7 @@ import java.util.InvalidPropertiesFormatException;
 import java.util.Properties;
 
 /**
- * Created by hc6 on 02/07/2018.
+ * @author hc6
  */
 public class ELNPMBProperties extends PropertiesFileReader {
     private static final Logger log = LoggerFactory.getLogger(PrintRequestHelper.class);
