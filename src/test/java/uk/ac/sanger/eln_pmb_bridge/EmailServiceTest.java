@@ -5,12 +5,11 @@ import org.testng.annotations.Test;
 
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
+
 /**
  * @author hc6
  */
-
-//@PrepareForTest({EmailService.class})
-//@RunWith(PowerMockRunner.class)
 
 public class EmailServiceTest {
 
@@ -26,8 +25,25 @@ public class EmailServiceTest {
     }
 
     @Test
+    public void TestSetEmailServiceEnvModeNull() {
+        try {
+            EmailService.setService(null);
+        } catch (IllegalArgumentException e) {
+            assertEquals(e.getMessage().trim(), "No environment mode was provided for Email Service.");
+        }
+    }
+
+    @Test
+    public void TestSetEmailServiceSuccessful() {
+        EmailService.setService(Main.EnvironmentMode.TEST);
+        assertNotNull(EmailService.getService());
+    }
+
+    @Test
     public void TestSendStartUpEmail() throws Exception {
+        EmailService.setService(Main.EnvironmentMode.TEST);
         EmailService emailService = mock(EmailService.class);
+
         doCallRealMethod().when(emailService).sendStartUpEmail();
         doCallRealMethod().when(emailService).sendEmail(anyString(), anyString());
 
@@ -40,6 +56,7 @@ public class EmailServiceTest {
 
     @Test
     public void TestSendErrorEmail() throws Exception {
+        EmailService.setService(Main.EnvironmentMode.TEST);
         EmailService emailService = mock(EmailService.class);
 
         doCallRealMethod().when(emailService).sendErrorEmail(anyString(), any());
@@ -49,7 +66,6 @@ public class EmailServiceTest {
 
         verify(emailService, times(1)).sendEmail(anyString(), anyString());
         verify(emailService, times(1)).send(any());
-
     }
 
 }

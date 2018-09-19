@@ -10,7 +10,7 @@ function java_start() {
   fi
 
   cd $CURRENT_PATH
-  /sccp/jre/jre1.8.0_131/bin/java -jar eln_pmb_bridge-1.0-jar-with-dependencies.jar &
+  /sccp/jre/jre1.8.0_131/bin/java -jar eln_pmb_bridge-1.0-jar-with-dependencies.jar ${ENV} &
   PID=$!
   echo $PID > $PID_FILE
 }
@@ -29,4 +29,5 @@ function java_restart() {
   echo 'Performing hot restart'
 }
 
+ENV=${2}
 java_${1}
