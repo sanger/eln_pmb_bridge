@@ -10,7 +10,7 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
 /**
- * Created by hc6 on 04/07/2018.
+ * @author hc6
  */
 public class PrinterPropertiesTest {
 

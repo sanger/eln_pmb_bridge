@@ -8,7 +8,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Created by hc6 on 02/07/2018.
+ * @author hc6
  */
 public class PrinterProperties extends PropertiesFileReader {
     private static final Logger log = LoggerFactory.getLogger(PrintRequestHelper.class);
@@ -32,7 +32,6 @@ public class PrinterProperties extends PropertiesFileReader {
 
         if (printerList.isEmpty()) {
             String msg = String.format("Cannot load print config because: %s", ErrorType.NO_PRINTERS.getMessage());
-            log.error(msg);
             throw new IllegalArgumentException(msg);
         }
     }
