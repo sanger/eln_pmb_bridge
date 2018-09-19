@@ -55,7 +55,6 @@ public class PrintRequestHelper {
         }
         if (!message.isEmpty()) {
             String msg = String.format("Cannot make print request because: %s", message);
-            log.error(msg);
             throw new IllegalArgumentException(msg);
         }
         log.info("Successfully made request from file.");

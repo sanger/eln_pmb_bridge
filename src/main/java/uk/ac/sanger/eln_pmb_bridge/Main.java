@@ -12,15 +12,34 @@ import java.util.List;
  * ELN PMB Bridge is an application that polls files from (current: web-cgap-idbstest-01)
  * Builds a print request from the file
  * Sends a print job request to PrintMyBarcode to print created labels
+ * @author hc6
  */
 public class Main {
     private static final Logger log = LoggerFactory.getLogger(Main.class);
+    protected static EnvironmentMode startMode = EnvironmentMode.DEVEL;
+
+    public enum EnvironmentMode {
+        TEST("devel"),
+        DEVEL("devel"),
+        WIP("devel"),
+        UAT("devel"),
+        PROD("prod");
+
+        public final String property_folder;
+
+        EnvironmentMode(String property_folder) {
+            this.property_folder = property_folder;
+        }
+    }
 
     public static void main(String[] args) throws Exception {
         /**
          * When a host has both IPv4 and IPv6 addresses, change preference to use IPv6 addresses over IPv4
          */
         System.setProperty("java.net.preferIPv6Addresses", "true");
+        setEnvironmentMode(args);
+
+        EmailService.setService(startMode);
         EmailService emailService = EmailService.getService();
         try {
             createFolders();
@@ -31,13 +50,34 @@ public class Main {
             emailService.sendErrorEmail(ErrorType.ELN_PMB_SUBJECT.getMessage() + ErrorType.FATAL.getMessage(), e);
         }
     }
+
+    public static void setEnvironmentMode(String[] args) {
+        if (args.length == 0) {
+            throw new IllegalArgumentException(ErrorType.NO_ENV_MODE_IN_MAIN_ARGS.getMessage());
+        } else {
+            for (String arg : args) {
+                arg = arg.toUpperCase();
+                if (arg.startsWith("ENV=")) {
+                    String modeString = arg.substring(4).trim();
+                    try {
+                        startMode = EnvironmentMode.valueOf(modeString);
+                    } catch (IllegalArgumentException e) {
+                        throw new IllegalArgumentException(ErrorType.UNKNOWN_ENV_MODE.getMessage());
+                    }
+                }
+            }
+        }
+        log.info(String.format("Successfully set environment mode %s.", startMode));
+    }
+
     /**
      *  ELNPMBProperties have to be set before the PrinterProperties
      */
     private static void setProperties() throws IOException {
-        ELNPMBProperties.setProperties("./properties_folder/eln_pmb.properties");
-        PrinterProperties.setProperties("./properties_folder/printer.properties");
-        MailProperties.setProperties("./properties_folder/mail.properties");
+        String folder = startMode.property_folder;
+        ELNPMBProperties.setProperties(String.format("./properties_folder/%s/eln_pmb.properties", folder));
+        PrinterProperties.setProperties(String.format("./properties_folder/%s/printer.properties", folder));
+        MailProperties.setProperties(String.format("./properties_folder/%s/mail.properties", folder));
     }
 
     /**
