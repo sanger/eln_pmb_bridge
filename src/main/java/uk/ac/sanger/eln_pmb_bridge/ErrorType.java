@@ -1,7 +1,7 @@
 package uk.ac.sanger.eln_pmb_bridge;
 
 /**
- * Created by hc6 on 29/06/2018.
+ * @author hc6
  */
 public enum ErrorType {
 
@@ -21,7 +21,11 @@ public enum ErrorType {
     FAILED_EMAIL("Failed to send email. "),
     FAILED_FOLDER_CREATION("Failed to create new folder. "),
     MOVE_TO_ERROR_FOLDER("Moving file to error folder. "),
-    EMPTY_PROP_FILE("The property file is empty. ");
+    EMPTY_PROP_FILE("The property file is empty. "),
+    NO_EMAIL_SERVICE("There is no Email Service. "),
+    NO_ENV_MODE_FOR_EMAIL_SERVICE("No environment mode was provided for Email Service. "),
+    NO_ENV_MODE_IN_MAIN_ARGS("No environment mode was provided in Main args. "),
+    UNKNOWN_ENV_MODE("Unknown environment mode was provided. ");
 
     private final String message;
 
