@@ -24,14 +24,11 @@ public class PMBClient implements PrintService {
         if (request==null){
             throw new IllegalArgumentException("Null request in PMBClient.print");
         }
-        int numOfCopies = request.getNumOfCopies();
 
         URL url = new URL(ELNPMBProperties.getPMBURL());
         JSONObject jsonObject = buildJson(request);
 
-        for (int i = 0; i < numOfCopies; i++) {
-            postJson(url, jsonObject);
-        }
+        postJson(url, jsonObject);
         logPrintSuccessful(request);
     }
 
@@ -39,20 +36,38 @@ public class PMBClient implements PrintService {
      * Builds a JSON object from the new print job request
      */
     protected JSONObject buildJson(PrintRequest request) throws JSONException {
-        JSONObject requestJson = new JSONObject();
+        JSONArray JSONBody = createJSONBody(request);
+        return constructJSONRequest(request, JSONBody);
+    }
+
+    /**
+     * Builds the JSON object for the labels
+     */
+    private JSONArray createJSONBody(PrintRequest request) throws JSONException {
+        JSONArray body = new JSONArray();
+
+        int labelIndex = 1;
+        for (PrintRequest.Label label : request.getLabels()){
+            JSONObject labelJson = new JSONObject();
+            String labelNumber = String.format("label_%s", labelIndex++);
+            labelJson.put(labelNumber, new JSONObject(label.getFields()));
+
+            for (int i = 0; i < request.getNumOfCopies(); i++) {
+                body.put(labelJson);
+            }
+        }
+        return body;
+    }
+
+    /**
+     * Builds the rest of the JSON request
+     */
+    private JSONObject constructJSONRequest(PrintRequest request, JSONArray JSONBody) throws JSONException {
+        JSONObject labels = new JSONObject();
+        labels.put("body", JSONBody);
 
         String printer = request.getPrinterName();
         Integer templateId = PrinterProperties.getTemplateIdForPrinter(printer);
-
-        JSONArray body = new JSONArray();
-        for (PrintRequest.Label label : request.getLabels()){
-            JSONObject labelJson = new JSONObject();
-            labelJson.put("label_1", new JSONObject(label.getFields()));
-            body.put(labelJson);
-        }
-
-        JSONObject labels = new JSONObject();
-        labels.put("body", body);
 
         JSONObject attributes = new JSONObject();
         attributes.put("printer_name", printer);
@@ -62,9 +77,8 @@ public class PMBClient implements PrintService {
         JSONObject data = new JSONObject();
         data.put("attributes", attributes);
 
-        requestJson.put("data", data);
-
-        return requestJson;
+        JSONObject JSONRequest = new JSONObject();
+        return JSONRequest.put("data", data);
     }
 
     /**
