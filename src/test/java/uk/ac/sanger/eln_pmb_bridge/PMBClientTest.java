@@ -91,10 +91,9 @@ public class PMBClientTest {
         assertEquals(body.getJSONObject(0).getJSONObject("label_1").get("cell_line"), fieldMap1.get("cell_line"));
         assertEquals(body.getJSONObject(1).getJSONObject("label_1").get("cell_line"), fieldMap1.get("cell_line"));
         assertEquals(body.getJSONObject(2).getJSONObject("label_1").get("cell_line"), fieldMap1.get("cell_line"));
-        assertEquals(body.getJSONObject(3).getJSONObject("label_2").get("cell_line"), fieldMap2.get("cell_line"));
-        assertEquals(body.getJSONObject(4).getJSONObject("label_2").get("cell_line"), fieldMap2.get("cell_line"));
-        assertEquals(body.getJSONObject(5).getJSONObject("label_2").get("cell_line"), fieldMap2.get("cell_line"));
-
+        assertEquals(body.getJSONObject(3).getJSONObject("label_1").get("cell_line"), fieldMap2.get("cell_line"));
+        assertEquals(body.getJSONObject(4).getJSONObject("label_1").get("cell_line"), fieldMap2.get("cell_line"));
+        assertEquals(body.getJSONObject(5).getJSONObject("label_1").get("cell_line"), fieldMap2.get("cell_line"));
     }
 
     @Test
