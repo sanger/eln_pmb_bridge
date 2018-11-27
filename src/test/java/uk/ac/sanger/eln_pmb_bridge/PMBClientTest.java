@@ -47,7 +47,7 @@ public class PMBClientTest {
         client.print(request);
 
         verify(client, times(1)).buildJson(request);
-        verify(client, times(3)).postJson(any(), any());
+        verify(client, times(1)).postJson(any(), any());
     }
 
     @Test
@@ -66,38 +66,34 @@ public class PMBClientTest {
         Map<String, Integer> templateIds = PrinterProperties.getPrinterTemplateIdList();
         PMBClient pmbClient = new PMBClient();
 
-        Map<String, String> fieldMap = new HashMap<>();
-        fieldMap.put("cell_line", "zogh");
+        Map<String, String> fieldMap1 = new HashMap<>();
+        fieldMap1.put("cell_line", "zogh");
 
-        PrintRequest.Label label1 = new PrintRequest.Label(fieldMap);
+        Map<String, String> fieldMap2 = new HashMap<>();
+        fieldMap2.put("cell_line", "nawk");
+
+        PrintRequest.Label label1 = new PrintRequest.Label(fieldMap1);
+        PrintRequest.Label label2 = new PrintRequest.Label(fieldMap2);
 
         String printerName = "123456";
-        PrintRequest request = new PrintRequest(printerName, Collections.singletonList(label1), 1);
+        PrintRequest request = new PrintRequest(printerName, Arrays.asList(label1, label2), 3);
 
         JSONObject result = pmbClient.buildJson(request);
-        assertEquals(result.length(), 1);
-
         JSONObject data = result.getJSONObject("data");
         JSONObject attr = data.getJSONObject("attributes");
-        assertEquals(attr.length(), 3);
+
         assertEquals(attr.getString("printer_name"), printerName);
         assertEquals(attr.getInt("label_template_id"), (int) templateIds.get("123456"));
-
         JSONObject labels = attr.getJSONObject("labels");
-        assertEquals(labels.length(), 1);
         JSONArray body = labels.getJSONArray("body");
 
-        int i = 0;
-        for (PrintRequest.Label label : request.getLabels()) {
-            JSONObject labelJson = body.getJSONObject(i);
-            assertEquals(labelJson.length(), 1);
-            JSONObject fieldsMap = labelJson.getJSONObject("label_1");
-            assertEquals(fieldsMap.length(), label.getFields().size());
-            for (Map.Entry<String, String> entry : label.getFields().entrySet()) {
-                assertEquals(fieldsMap.get(entry.getKey()), entry.getValue());
-            }
-            ++i;
-        }
+        assertEquals(body.length(), 6);
+        assertEquals(body.getJSONObject(0).getJSONObject("label_1").get("cell_line"), fieldMap1.get("cell_line"));
+        assertEquals(body.getJSONObject(1).getJSONObject("label_1").get("cell_line"), fieldMap1.get("cell_line"));
+        assertEquals(body.getJSONObject(2).getJSONObject("label_1").get("cell_line"), fieldMap1.get("cell_line"));
+        assertEquals(body.getJSONObject(3).getJSONObject("label_1").get("cell_line"), fieldMap2.get("cell_line"));
+        assertEquals(body.getJSONObject(4).getJSONObject("label_1").get("cell_line"), fieldMap2.get("cell_line"));
+        assertEquals(body.getJSONObject(5).getJSONObject("label_1").get("cell_line"), fieldMap2.get("cell_line"));
     }
 
     @Test
