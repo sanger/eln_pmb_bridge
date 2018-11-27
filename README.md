@@ -110,3 +110,29 @@ Example File
 ---
 
 [An example IDBS-ELN file](https://github.com/sanger/eln_pmb_bridge/blob/master/test_examples/correct_request.txt)
+
+Request
+---
+
+Format of the request built in PMBClient buildJson():
+{
+    "data":{
+        "attributes":{
+            "printer_name":"",
+            "label_template_id":,
+            "labels":{
+                "body":[
+                    { "label_1":
+                        {
+                            "date":"",
+                            "media_type":"",
+                            "cell_line":"",
+                            "passage_number":"",
+                            "user":""
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}
