@@ -42,15 +42,14 @@ public class PMBClient implements PrintService {
 
     /**
      * Builds the JSON object for the labels
+     * PMB only accepts label data object with key "label_1"
      */
     private JSONArray createJSONBody(PrintRequest request) throws JSONException {
         JSONArray body = new JSONArray();
 
-        int labelIndex = 1;
         for (PrintRequest.Label label : request.getLabels()){
             JSONObject labelJson = new JSONObject();
-            String labelNumber = String.format("label_%s", labelIndex++);
-            labelJson.put(labelNumber, new JSONObject(label.getFields()));
+            labelJson.put("label_1", new JSONObject(label.getFields()));
 
             for (int i = 0; i < request.getNumOfCopies(); i++) {
                 body.put(labelJson);
