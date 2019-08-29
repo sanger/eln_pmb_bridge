@@ -1,0 +1,72 @@
+{
+  "labelSize": {
+    "width": 90,
+    "height": 8,
+    "displacement": 11
+  },
+  "barcodeFields": [
+    {
+      "x": 52,
+      "y": 1,
+      "barcodeType": "datamatrix",
+      "cellWidth": 0.3,
+      "value": "#barcode#"
+    }
+  ],
+  "textFields": [
+    {
+      "x": 0,
+      "y": 3,
+      "fontSize": 3,
+      "value": "#contents#"
+    },
+    {
+      "x": 0,
+      "y": 6,
+      "fontSize": 3,
+      "value": "#barcode_text#"
+    },
+    {
+      "x": 28,
+      "y": 3,
+      "fontSize": 3,
+      "value": "#adherence#"
+    },
+    {
+      "x": 36,
+      "y": 3,
+      "fontSize": 3,
+      "value": "#passage#"
+    },
+    {
+      "x": 35,
+      "y": 6,
+      "fontSize": 3,
+      "value": "#exp_num#"
+    },
+    {
+      "x": 45,
+      "y": 6,
+      "fontSize": 3,
+      "value": "#enumeration#"
+    },
+    {
+      "x": 60,
+      "y": 3,
+      "fontSize": 3,
+      "value": "#fate#"
+    },
+    {
+      "x": 60,
+      "y": 6,
+      "fontSize": 3,
+      "value": "#date#"
+    },
+    {
+      "x": 78,
+      "y": 6,
+      "fontSize": 3,
+      "value": "#environment#"
+    }
+  ]
+}

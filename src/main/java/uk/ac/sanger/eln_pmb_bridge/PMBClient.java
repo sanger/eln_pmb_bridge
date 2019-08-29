@@ -3,21 +3,26 @@ package uk.ac.sanger.eln_pmb_bridge;
 import org.codehaus.jettison.json.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.ac.sanger.eln_pmb_bridge.PrinterConfig.Entry;
 
-import javax.xml.ws.http.HTTPException;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
 import java.net.URL;
-
-import static java.net.HttpURLConnection.HTTP_CREATED;
 
 /**
  * A printer client specifically for PrintMyBarcode
  * @author hc6
  */
-public class PMBClient implements PrintService {
+public class PMBClient extends BaseClient implements PrintService {
     private static final Logger log = LoggerFactory.getLogger(PMBClient.class);
+
+    private PrinterConfig printerConfig;
+
+    public PMBClient(PrinterConfig printerConfig) {
+        this.printerConfig = printerConfig;
+    }
+
+    public PMBClient() {
+        this(PrinterConfig.getInstance());
+    }
 
     @Override
     public void print(PrintRequest request) throws Exception {
@@ -28,7 +33,7 @@ public class PMBClient implements PrintService {
         URL url = new URL(ELNPMBProperties.getPMBURL());
         JSONObject jsonObject = buildJson(request);
 
-        postJson(url, jsonObject);
+        postJsonVoid(url, jsonObject);
         logPrintSuccessful(request);
     }
 
@@ -66,7 +71,8 @@ public class PMBClient implements PrintService {
         labels.put("body", JSONBody);
 
         String printer = request.getPrinterName();
-        Integer templateId = PrinterProperties.getTemplateIdForPrinter(printer);
+        Entry entry = printerConfig.getPrinterConfig(printer);
+        Integer templateId = ELNPMBProperties.getPMBTemplateId(entry.labelType);
 
         JSONObject attributes = new JSONObject();
         attributes.put("printer_name", printer);
@@ -78,39 +84,6 @@ public class PMBClient implements PrintService {
 
         JSONObject JSONRequest = new JSONObject();
         return JSONRequest.put("data", data);
-    }
-
-    /**
-     * Opens a connection and sets the request headers
-     * Posts JSON object to PrintMyBarcode
-     * @param targetURL the url to send the request to
-     * @param jsonObject JSON to post
-     */
-    protected void postJson(URL targetURL, Object jsonObject) throws IOException {
-        HttpURLConnection connection = null;
-        int responseCode = 0;
-        try {
-            connection = (HttpURLConnection) targetURL.openConnection();
-            connection.setDoOutput(true);
-            connection.setRequestMethod("POST");
-            connection.setRequestProperty("Content-Type", "application/json");
-
-            OutputStreamWriter out = new OutputStreamWriter(connection.getOutputStream());
-            out.write(jsonObject.toString());
-            out.flush();
-        } finally {
-            if (connection != null) {
-                responseCode = connection.getResponseCode();
-                connection.disconnect();
-            }
-        }
-
-        if (responseCode!=HTTP_CREATED) {
-            log.error("HTTP Response code: " + responseCode);
-            throw new HTTPException(responseCode);
-        } else {
-            log.info("HTTP Response code: " + responseCode);
-        }
     }
 
     private void logPrintSuccessful(PrintRequest request) {

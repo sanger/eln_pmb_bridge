@@ -18,16 +18,7 @@ public class PrintRequestHelperTest {
 
     public void setProperties() throws IOException {
         ELNPMBProperties.setProperties("./test_properties_folder/eln_pmb.properties");
-        PrinterProperties.setProperties("./test_properties_folder/printer.properties");
-    }
-
-    @Test
-    public void TestPrinterListSuccessful() throws Exception {
-        setProperties();
-        List<String> printer_keys = Arrays.asList("123456", "654321");
-
-        PrintRequestHelper helper = new PrintRequestHelper();
-        assertTrue(helper.printerList.containsAll(printer_keys));
+        PrinterConfig.initialise("./test_properties_folder/printer.properties");
     }
 
     @Test
@@ -133,7 +124,7 @@ public class PrintRequestHelperTest {
         Scanner expectedData = new Scanner(path);
         expectedData.nextLine();
         expectedData.nextLine();
-        String[] expectedColumns = expectedData.nextLine().split("\\||,");
+        String[] expectedColumns = expectedData.nextLine().split("[|,]");
 
         int numOfRequestedLabels = 0;
         while(expectedData.hasNext()) {

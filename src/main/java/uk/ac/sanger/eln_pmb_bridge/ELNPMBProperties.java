@@ -62,4 +62,8 @@ public class ELNPMBProperties extends PropertiesFileReader {
         return PMBURL;
     }
 
+    public static Integer getPMBTemplateId(LabelType labelType) {
+        return Integer.valueOf(properties.getProperty(labelType.name().toLowerCase()+"_template_id"));
+    }
+
 }
