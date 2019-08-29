@@ -15,7 +15,7 @@ import java.util.Properties;
  * @author hc6
  */
 public abstract class PropertiesFileReader {
-    private static final Logger log = LoggerFactory.getLogger(PrintRequestHelper.class);
+    private static final Logger log = LoggerFactory.getLogger(PropertiesFileReader.class);
 
     public static Properties loadFile(String propertyFilePath) throws IOException {
         if (propertyFilePath == null) {

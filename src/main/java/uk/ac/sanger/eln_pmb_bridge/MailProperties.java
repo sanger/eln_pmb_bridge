@@ -10,7 +10,7 @@ import java.util.Properties;
  * @author hc6
  */
 public class MailProperties extends PropertiesFileReader {
-    private static final Logger log = LoggerFactory.getLogger(PrintRequestHelper.class);
+    private static final Logger log = LoggerFactory.getLogger(MailProperties.class);
     private static Properties properties;
 
     public static void setProperties(String filePath) throws IOException {

@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
  * @author hc6
  */
 public class PrinterProperties extends PropertiesFileReader {
-    private static final Logger log = LoggerFactory.getLogger(PrintRequestHelper.class);
+    private static final Logger log = LoggerFactory.getLogger(PrinterProperties.class);
     private static Properties properties;
     private static List<String> printerList;
     private static Map<String, Integer> printerTemplateIdList;

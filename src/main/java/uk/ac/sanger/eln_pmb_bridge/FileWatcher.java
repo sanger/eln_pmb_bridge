@@ -17,7 +17,7 @@ import java.util.List;
  * @author hc6
  */
 public class FileWatcher {
-    private static final Logger log = LoggerFactory.getLogger(Main.class);
+    private static final Logger log = LoggerFactory.getLogger(FileWatcher.class);
     private static PrintRequestHelper printRequestHelper;
     private static EmailService emailService;
     private static WatchService service;

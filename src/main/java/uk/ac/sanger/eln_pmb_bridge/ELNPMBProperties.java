@@ -11,7 +11,7 @@ import java.util.Properties;
  * @author hc6
  */
 public class ELNPMBProperties extends PropertiesFileReader {
-    private static final Logger log = LoggerFactory.getLogger(PrintRequestHelper.class);
+    private static final Logger log = LoggerFactory.getLogger(ELNPMBProperties.class);
     private static Properties properties;
     private static String PMBURL;
 
