@@ -16,7 +16,7 @@ public class SPrintConfigTest {
         SPrintConfig.initialise("./test_properties_folder/sprint.properties");
         SPrintConfig sc = SPrintConfig.getInstance();
 
-        assertEquals(sc.getHost(), "sprint_url/graphiql");
+        assertEquals(sc.getHost(), "sprint_url/graphql");
 
         assertEquals(sc.getTemplate(LabelType.thin).substitute(Collections.singletonMap("barcode", "CGAP-123")),
                 "{ \"barcode\":  \"CGAP-123\" }");

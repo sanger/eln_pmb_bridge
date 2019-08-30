@@ -29,7 +29,7 @@ public class SPrintClientTest {
         template = new StringTemplate("{\"barcode\":\"#barcode#\"}", "#", "#");
         Map<LabelType, StringTemplate> templates = new EnumMap<>(LabelType.class);
         templates.put(LabelType.thin, template);
-        sprintConfig = new SPrintConfig("http://sprint/graphiql", templates);
+        sprintConfig = new SPrintConfig("http://sprint/graphql", templates);
         printerConfig = new PrinterConfig(Collections.singletonMap(printerName,
                 new Entry(PrinterConfig.Service.SPRINT, LabelType.thin)));
         List<Label> labels = Arrays.asList(

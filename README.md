@@ -33,9 +33,9 @@ Or when running it from IntelliJ:
 Deployment
 ---
 
-ELN PMB WIP is currently deployed at web-cgap-idbstest-01:sccp/eln_pmb_bridge (used locally for test)
-ELN PMB UAT is currently deployed at web-cgap-idbstest-02:sccp/eln_pmb_bridge (used by ELN for test)
-ELN PMB PROD is currently deployed at web-cgap-idbsprod-02:sccp/eln_pmb_bridge (used by ELN for prod)
+ELN PMB WIP is currently deployed at `web-cgap-idbstest-01:sccp/eln_pmb_bridge` (used locally for test)
+ELN PMB UAT is currently deployed at `web-cgap-idbstest-02:sccp/eln_pmb_bridge` (used by ELN for test)
+ELN PMB PROD is currently deployed at `web-cgap-idbsprod-02:sccp/eln_pmb_bridge` (used by ELN for prod)
 
 - Build the jar using the jar-with-dependencies in pom.xml:
 
@@ -87,6 +87,7 @@ or
     ./java_control.sh restart env=abc
 
 Different environments are:
+
 - test
 - devel
 - wip
@@ -98,12 +99,12 @@ Test
 
 Secure copy to drop a file into the polling folder on the server with the _TEMP extension:
 
-  `scp file.txt web-cgap-idbstest-01:/sccp/eln_pmb_bridge/poll_folder/file.txt_TEMP`
+    scp file.txt web-cgap-idbstest-01:/sccp/eln_pmb_bridge/poll_folder/file.txt_TEMP
 
 
 On the server, rename the file to remove the _TEMP extension:
 
-  `mv poll_folder/file.txt_TEMP poll_folder/file.txt`
+    mv poll_folder/file.txt_TEMP poll_folder/file.txt
 
 
 Example File
@@ -115,24 +116,25 @@ Request
 ---
 
 Format of the request built in PMBClient buildJson():
-{
-    "data":{
-        "attributes":{
-            "printer_name":"",
-            "label_template_id":,
-            "labels":{
-                "body":[
-                    { "label_1":
-                        {
-                            "date":"",
-                            "media_type":"",
-                            "cell_line":"",
-                            "passage_number":"",
-                            "user":""
-                        }
-                    }
-                ]
-            }
-        }
-    }
-}
+
+	{
+	    "data":{
+	        "attributes":{
+	            "printer_name":"",
+	            "label_template_id":,
+	            "labels":{
+	                "body":[
+	                    { "label_1":
+	                        {
+	                            "date":"",
+	                            "media_type":"",
+	                            "cell_line":"",
+	                            "passage_number":"",
+	                            "user":""
+	                        }
+	                    }
+	                ]
+	            }
+	        }
+	    }
+	}
