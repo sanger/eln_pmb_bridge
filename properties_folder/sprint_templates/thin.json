@@ -1,0 +1,39 @@
+{
+  "labelSize": {
+    "width": 90,
+    "height": 8,
+    "displacement": 11
+  },
+  "textFields": [
+    {
+      "x": 10,
+      "y": 3,
+      "fontSize": 3,
+      "value": "#cell_line#"
+    },
+    {
+      "x": 10,
+      "y": 6,
+      "fontSize": 3,
+      "value": "#media_type#"
+    },
+    {
+      "x": 50,
+      "y": 3,
+      "fontSize": 3,
+      "value": "#user#"
+    },
+    {
+      "x": 50,
+      "y": 6,
+      "fontSize": 3,
+      "value": "#date#"
+    },
+    {
+      "x": 80,
+      "y": 3,
+      "fontSize": 3,
+      "value": "#passage_number#"
+    }
+  ]
+}

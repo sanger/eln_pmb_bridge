@@ -17,15 +17,14 @@ import java.util.regex.Pattern;
  */
 public class PrintRequestHelper {
     private static final Logger log = LoggerFactory.getLogger(PrintRequestHelper.class);
-    protected List<String> printerList;
+    protected PrinterConfig printerConfig;
+
+    public PrintRequestHelper(PrinterConfig printerConfig) {
+        this.printerConfig = printerConfig;
+    }
 
     public PrintRequestHelper() {
-        this.printerList = PrinterProperties.getPrinterList();
-
-        if (printerList == null || printerList.isEmpty()) {
-            String msg = "Cannot make print request because: "+ ErrorType.NO_PRINTERS.getMessage();
-            throw new NullPointerException(msg);
-        }
+        this(PrinterConfig.getInstance());
     }
 
     public PrintRequest makeRequestFromFile(Path file) throws IOException {
@@ -44,7 +43,7 @@ public class PrintRequestHelper {
         List<PrintRequest.Label> labels = createLabels(fileData);
         String printerName = getPrinterName(firstLine);
         int numOfCopies = getNumberOfCopies(firstLine);
-        boolean printerExists = printerList.contains(printerName);
+        boolean printerExists = printerConfig.hasPrinterConfig(printerName);
 
         String message = "";
         if (!printerExists){
@@ -66,7 +65,7 @@ public class PrintRequestHelper {
      */
     protected List<PrintRequest.Label> createLabels(Scanner fileData) {
         String columnHeadingLine = fileData.nextLine();
-        String[] columnHeadings = columnHeadingLine.split("\\||,");
+        String[] columnHeadings = columnHeadingLine.split("[|,]");
 
         List<String> columns = new ArrayList<>();
         for (String ch : columnHeadings) {
@@ -81,7 +80,7 @@ public class PrintRequestHelper {
             if (line.isEmpty()) {
                 continue;
             }
-            String[] data = line.split("\\||,");
+            String[] data = line.split("[|,]");
 
             Map<String, String> fieldMap = new HashMap<>();
             for (int i = 0; i < data.length; i++) {
