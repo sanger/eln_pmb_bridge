@@ -4,69 +4,36 @@
     "height": 8,
     "displacement": 11
   },
-  "barcodeFields": [
-    {
-      "x": 52,
-      "y": 1,
-      "barcodeType": "datamatrix",
-      "cellWidth": 0.3,
-      "value": "#barcode#"
-    }
-  ],
   "textFields": [
     {
-      "x": 0,
+      "x": 10,
       "y": 3,
       "fontSize": 3,
-      "value": "#contents#"
+      "value": "#cell_line#"
     },
     {
-      "x": 0,
+      "x": 10,
       "y": 6,
       "fontSize": 3,
-      "value": "#barcode_text#"
+      "value": "#media_type#"
     },
     {
-      "x": 28,
+      "x": 50,
       "y": 3,
       "fontSize": 3,
-      "value": "#adherence#"
+      "value": "#user#"
     },
     {
-      "x": 36,
-      "y": 3,
-      "fontSize": 3,
-      "value": "#passage#"
-    },
-    {
-      "x": 35,
-      "y": 6,
-      "fontSize": 3,
-      "value": "#exp_num#"
-    },
-    {
-      "x": 45,
-      "y": 6,
-      "fontSize": 3,
-      "value": "#enumeration#"
-    },
-    {
-      "x": 60,
-      "y": 3,
-      "fontSize": 3,
-      "value": "#fate#"
-    },
-    {
-      "x": 60,
+      "x": 50,
       "y": 6,
       "fontSize": 3,
       "value": "#date#"
     },
     {
-      "x": 78,
-      "y": 6,
+      "x": 80,
+      "y": 3,
       "fontSize": 3,
-      "value": "#environment#"
+      "value": "#passage_number#"
     }
   ]
 }
