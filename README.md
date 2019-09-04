@@ -16,7 +16,7 @@ Usage
 - A file (with _TEMP extension) is dropped by IDBS-ELN into the poll folder.
 - IDBS-ELN populate the content of this file, then rename the file when completed (removing the TEMP extension.)
 - The Watch Service pulls the newly named file, and create a print job request.
-- This request is then sent to PMB, which prints the labels.
+- This request is then sent to a print service, which prints the labels.
 
 Running
 ---
@@ -33,58 +33,72 @@ Or when running it from IntelliJ:
 Deployment
 ---
 
-ELN PMB WIP is currently deployed at `web-cgap-idbstest-01:sccp/eln_pmb_bridge` (used locally for test)
-ELN PMB UAT is currently deployed at `web-cgap-idbstest-02:sccp/eln_pmb_bridge` (used by ELN for test)
-ELN PMB PROD is currently deployed at `web-cgap-idbsprod-02:sccp/eln_pmb_bridge` (used by ELN for prod)
+* ELN PMB WIP is currently deployed at `web-cgap-idbstest-01:sccp/eln_pmb_bridge` (used locally for test)
+* ELN PMB UAT is currently deployed at `web-cgap-idbstest-02:sccp/eln_pmb_bridge` (used by ELN for test)
+* ELN PMB PROD is currently deployed at `web-cgap-idbsprod-02:sccp/eln_pmb_bridge` (used by ELN for prod)
 
-- Build the jar using the jar-with-dependencies in pom.xml:
+Build the jar using the jar-with-dependencies in pom.xml:
 
-    `
     Maven > Lifecycle > clean
     Maven > Lifecycle > package
-    `
 
-- Secure copy the jar from local to the server:
+Secure copy the jar from local to the server:
 
-    `scp target/eln_pmb_bridge-1.0-jar-with-dependencies.jar [host]:/sccp/eln_pmb_bridge/`
+    scp target/eln_pmb_bridge-1.0-jar-with-dependencies.jar [host]:/sccp/eln_pmb_bridge/`
 
-- Secure copy the jre (if it doesn't exist) from one server to another
-    `scp -r /sccp/jre/ [host]:/sccp`
+Secure copy the jre (if it doesn't exist) from one server to another
+    scp -r /sccp/jre/ [host]:/sccp`
 
-- Change user to sccp
+Change user to sccp
 
-  `sudo -su sccp sh`
+    sudo -u sccp bash
 
-- Run the application (this will only create the folders, then error out):
+Run the application (this will only create the folders, then error out):
 
-  `/sccp/jre/jre1.8.0_131/bin/java -jar eln_pmb_bridge-1.0-jar-with-dependencies.jar`
+    /sccp/jre/jre1.8.0_131/bin/java -jar eln_pmb_bridge-1.0-jar-with-dependencies.jar
 
-- Change permission on folders to 777 (poll/prop/error/archive)
+Change permission on folders to 777 (poll/prop/error/archive)
 
-  `chmod 777 archive_folder/ error_folder/ properties_folder/ poll_folder/`
+    chmod 777 archive_folder/ error_folder/ properties_folder/ poll_folder/
 
-- Copy over the property files
+Copy over the property files
 
-  `scp -r properties_folder/ [host]:/sccp/eln_pmb_bridge`
+    scp -r properties_folder/devel [host]:/sccp/eln_pmb_bridge/properties_folder/devel
 
-- Copy over the java control file
+(or `prod` in place of `devel` when deploying to production)
 
-  `scp -r java_control.sh [host]:/sccp/eln_pmb_bridge`
+Copy over the java control file
 
-- Change permission on java control file to 775
+    scp -r java_control.sh [host]:/sccp/eln_pmb_bridge
 
-   `chmod 775 java_control.sh`
+Make sure all files are owned by the sccp user.  
+`chown` is not available to normal users, so the way to get the files under the correct ownership is:
+  
+* become sccp: `sudo -u sccp bash`
+* rename the old file: `mv myfile myfile_old`
+* create a copy (owned by sccp): `cp myfile_old myfile`
+* delete the old file: `rm myfile_old`
+   
+You can do this on a whole directory at once, if you use the `-r` flag for `cp` and `rm`. (Be careful with `rm`.)
 
-- Run the application:
+Change permission on java control file to 755 (only executable by the owner)
 
-The java_control.sh script allows you to start, stop and restart the java process automatically
+    chmod 755 java_control.sh
+
+
+Start the application using `java_control`.
+
+The `java_control.sh` script allows you to start, stop and restart the java process:
 
     ./java_control.sh stop env=abc
     ./java_control.sh start env=abc
-
-or
-
     ./java_control.sh restart env=abc
+
+The `env=abc` part can be omitted if the `java_control.sh` script includes:
+
+    ENV=${2:-env=abc}
+
+using the appropriate environment for that server in place of `abc`.
 
 Different environments are:
 
