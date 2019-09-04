@@ -33,9 +33,7 @@ public class Main {
     }
 
     public static void main(String[] args) throws Exception {
-        /**
-         * When a host has both IPv4 and IPv6 addresses, change preference to use IPv6 addresses over IPv4
-         */
+        // When a host has both IPv4 and IPv6 addresses, change preference to use IPv6 addresses over IPv4
         System.setProperty("java.net.preferIPv6Addresses", "true");
         setEnvironmentMode(args);
 
@@ -74,10 +72,11 @@ public class Main {
      *  ELNPMBProperties have to be set before the PrinterProperties
      */
     private static void setProperties() throws IOException {
-        String folder = startMode.property_folder;
-        ELNPMBProperties.setProperties(String.format("./properties_folder/%s/eln_pmb.properties", folder));
-        PrinterProperties.setProperties(String.format("./properties_folder/%s/printer.properties", folder));
-        MailProperties.setProperties(String.format("./properties_folder/%s/mail.properties", folder));
+        String folder = String.format("./properties_folder/%s/", startMode.property_folder);
+        MailProperties.setProperties(folder + "mail.properties");
+        ELNPMBProperties.setProperties(folder + "eln_pmb.properties");
+        SPrintConfig.initialise(folder + "sprint.properties");
+        PrinterConfig.initialise(folder + "printer.properties");
     }
 
     /**

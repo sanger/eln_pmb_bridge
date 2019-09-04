@@ -19,7 +19,7 @@ public class PMBClientTest {
     @BeforeClass
     public void setUp() throws IOException {
         ELNPMBProperties.setProperties("./test_properties_folder/eln_pmb.properties");
-        PrinterProperties.setProperties("./test_properties_folder/printer.properties");
+        PrinterConfig.initialise("./test_properties_folder/printer.properties");
     }
 
     @Test
@@ -33,7 +33,7 @@ public class PMBClientTest {
         client.print(request);
 
         verify(client, times(1)).buildJson(request);
-        verify(client, times(1)).postJson(any(), any());
+        verify(client, times(1)).postJsonVoid(any(), any());
     }
 
     @Test
@@ -47,7 +47,7 @@ public class PMBClientTest {
         client.print(request);
 
         verify(client, times(1)).buildJson(request);
-        verify(client, times(1)).postJson(any(), any());
+        verify(client, times(1)).postJsonVoid(any(), any());
     }
 
     @Test
@@ -62,8 +62,6 @@ public class PMBClientTest {
 
     @Test
     public void whenBuildingJson() throws JSONException, IOException {
-
-        Map<String, Integer> templateIds = PrinterProperties.getPrinterTemplateIdList();
         PMBClient pmbClient = new PMBClient();
 
         Map<String, String> fieldMap1 = new HashMap<>();
@@ -83,7 +81,7 @@ public class PMBClientTest {
         JSONObject attr = data.getJSONObject("attributes");
 
         assertEquals(attr.getString("printer_name"), printerName);
-        assertEquals(attr.getInt("label_template_id"), (int) templateIds.get("123456"));
+        assertEquals(attr.getInt("label_template_id"), 1);
         JSONObject labels = attr.getJSONObject("labels");
         JSONArray body = labels.getJSONArray("body");
 

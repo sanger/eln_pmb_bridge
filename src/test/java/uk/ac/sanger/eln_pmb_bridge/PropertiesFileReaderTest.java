@@ -37,23 +37,13 @@ public class PropertiesFileReaderTest {
     public void TestLoadFileForMailProperties() throws IOException {
         Properties props = MailProperties.loadFile("./test_properties_folder/mail.properties");
         List<String> mailKeys = Arrays.asList("mail.smtp.host", "mail.smtp.port", "to");
-        assertTrue(props.getClass().equals(Properties.class));
         assertTrue(props.keySet().containsAll(mailKeys));
-    }
-
-    @Test
-    public void TestLoadFileForPrinterProperties() throws IOException {
-        Properties props = PrinterProperties.loadFile("./test_properties_folder/printer.properties");
-        List<String> printerKeys = Arrays.asList("123456", "654321");
-        assertTrue(props.getClass().equals(Properties.class));
-        assertTrue(props.keySet().containsAll(printerKeys));
     }
 
     @Test
     public void TestLoadFileForELNPMBProperties() throws IOException {
         Properties props = ELNPMBProperties.loadFile("./test_properties_folder/eln_pmb.properties");
         List<String> ELNPMBKeys = Arrays.asList("pmb_url", "poll_folder", "archive_folder", "error_folder", "thin_template_id", "fat_template_id");
-        assertTrue(props.getClass().equals(Properties.class));
         assertTrue(props.keySet().containsAll(ELNPMBKeys));
     }
 

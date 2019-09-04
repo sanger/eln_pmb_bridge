@@ -2,6 +2,7 @@ package uk.ac.sanger.eln_pmb_bridge;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.ac.sanger.eln_pmb_bridge.PrinterConfig.Entry;
 
 import java.io.IOException;
 import java.nio.file.*;
@@ -17,11 +18,13 @@ import java.util.List;
  * @author hc6
  */
 public class FileWatcher {
-    private static final Logger log = LoggerFactory.getLogger(Main.class);
+    private static final Logger log = LoggerFactory.getLogger(FileWatcher.class);
     private static PrintRequestHelper printRequestHelper;
     private static EmailService emailService;
     private static WatchService service;
     private static PMBClient pmbClient;
+    private static PrintService sprintClient;
+    private static PrinterConfig printerConfig;
     private static boolean running = true;
 
     /**
@@ -40,6 +43,8 @@ public class FileWatcher {
         printRequestHelper = new PrintRequestHelper();
         emailService = EmailService.getService();
         pmbClient = new PMBClient();
+        sprintClient = new SPrintClient();
+        printerConfig = PrinterConfig.getInstance();
 
         Path pollPath = Paths.get(ELNPMBProperties.getPollFolder());
         service = pollPath.getFileSystem().newWatchService();
@@ -67,7 +72,9 @@ public class FileWatcher {
                 Path pollFile = Paths.get(ELNPMBProperties.getPollFolder()+newFileName);
                 try {
                     PrintRequest request = printRequestHelper.makeRequestFromFile(pollFile);
-                    pmbClient.print(request);
+                    String printerName = request.getPrinterName();
+                    Entry printerEntry = printerConfig.getPrinterConfig(printerName);
+                    getPrintService(printerEntry.service).print(request);
                     moveFileToFolder(pollFile, ELNPMBProperties.getArchiveFolder());
                 } catch (Exception e) {
                     log.error(ErrorType.RECOVERABLE.getMessage(), e);
@@ -78,6 +85,14 @@ public class FileWatcher {
             }
             watchKey.reset();
         }
+    }
+
+    private static PrintService getPrintService(PrinterConfig.Service serviceType) {
+        switch (serviceType) {
+            case PMB: return pmbClient;
+            case SPRINT: return sprintClient;
+        }
+        throw new IllegalArgumentException(ErrorType.UNKNOWN_PRINT_SERVICE.getMessage()+serviceType);
     }
 
     private static void moveFileToFolder(Path fileToMove, String folderToMoveTo) throws IOException {
