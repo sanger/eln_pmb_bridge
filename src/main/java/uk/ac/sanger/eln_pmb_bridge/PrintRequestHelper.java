@@ -5,8 +5,9 @@ import org.slf4j.LoggerFactory;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.lang.reflect.Array;
+import java.nio.file.*;
+import java.text.*;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -18,6 +19,7 @@ import java.util.regex.Pattern;
 public class PrintRequestHelper {
     private static final Logger log = LoggerFactory.getLogger(PrintRequestHelper.class);
     protected PrinterConfig printerConfig;
+    protected DateFormat badDateFormat;
 
     public PrintRequestHelper(PrinterConfig printerConfig) {
         this.printerConfig = printerConfig;
@@ -68,19 +70,35 @@ public class PrintRequestHelper {
         String[] columnHeadings = columnHeadingLine.split("[|,]");
 
         List<String> columns = new ArrayList<>();
+        int dateIndex = -1;
         for (String ch : columnHeadings) {
             ch = ch.trim().toLowerCase().replaceAll("\\s+", "_");
+            if (ch.equals("date")) {
+                dateIndex = columns.size();
+            }
             columns.add(ch);
         }
 
         List<Map<String, String>> fields = new ArrayList<>();
 
-        while(fileData.hasNext()){
+        while (fileData.hasNext()) {
             String line = fileData.nextLine().trim();
             if (line.isEmpty()) {
                 continue;
             }
             String[] data = line.split("[|,]");
+            if (data.length > columns.size()) {
+                if (data.length==columns.size() + 1 && dateIndex >= 0) {
+                    String dateValue = data[dateIndex] + ","+ data[dateIndex+1];
+                    if (isBadlyFormattedDate(dateValue)) {
+                        data = omit(data, dateIndex);
+                        data[dateIndex] = dateValue;
+                    }
+                }
+                if (data.length > columns.size()) {
+                    throw new IllegalArgumentException(ErrorType.WRONG_ROW_LENGTH.getMessage());
+                }
+            }
 
             Map<String, String> fieldMap = new HashMap<>();
             for (int i = 0; i < data.length; i++) {
@@ -123,6 +141,41 @@ public class PrintRequestHelper {
             throw new IllegalArgumentException(ErrorType.NO_NUMBER_OF_COPIES.getMessage());
         }
         return numOfCopies;
+    }
+
+    /**
+     * Is the given string a date with a comma in it?
+     * We try to parse it using the format {@code "MMM dd,yy"},
+     * e.g. {@code "Dec 20,19"} or {@code "December 20, 2019"},
+     * which is the format we tend to see of bad dates in print requests.
+     * @param string a string that might be a date
+     * @return true if the string appears to be a date in the wrong format,
+     *   false otherwise
+     */
+    protected boolean isBadlyFormattedDate(String string) {
+        try {
+            if (badDateFormat==null) {
+                badDateFormat = new SimpleDateFormat("MMM dd,yy");
+            }
+            badDateFormat.parse(string);
+            return true;
+        } catch (ParseException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Creates a new array omitting one value.
+     * @param old the original array
+     * @param index the index to omit
+     * @return a new shorter array
+     */
+    protected static <E> E[] omit(E[] old, int index) {
+        @SuppressWarnings("unchecked")
+        E[] shorter = (E[]) Array.newInstance(old.getClass().getComponentType(), old.length-1);
+        System.arraycopy(old, 0, shorter, 0, index);
+        System.arraycopy(old, index+1, shorter, index, shorter.length-index);
+        return shorter;
     }
 
 }
