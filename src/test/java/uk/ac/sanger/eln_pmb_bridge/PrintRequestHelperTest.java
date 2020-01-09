@@ -8,8 +8,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.Assert.*;
 
 /**
  * @author hc6
@@ -115,6 +114,19 @@ public class PrintRequestHelperTest {
     }
 
     @Test
+    public void TestRowWrongLength() throws IOException {
+        setProperties();
+        PrintRequestHelper helper = new PrintRequestHelper();
+        Path path = Paths.get("./test_examples/row_wrong_length_request.txt");
+
+        try {
+            helper.makeRequestFromFile(path);
+        } catch (IllegalArgumentException e) {
+            assertEquals(e.getMessage(), ErrorType.WRONG_ROW_LENGTH.getMessage());
+        }
+    }
+
+    @Test
     public void TestCreatingLabels() throws IOException {
         setProperties();
 
@@ -168,6 +180,66 @@ public class PrintRequestHelperTest {
         assertEquals(request.getLabels().get(1).getField("cell_line"), "zogh");
         assertEquals(request.getLabels().get(1).getField("passage_number"), "4");
         assertEquals(request.getLabels().get(1).getField("date"), "22 January 2019");
+    }
+
+    @Test
+    public void TestRequestWithCommaInDate() throws IOException {
+        setProperties();
+        PrintRequestHelper helper = new PrintRequestHelper();
+        Path path = Paths.get("./test_examples/comma_date_request_test.txt");
+        PrintRequest request = helper.makeRequestFromFile(path);
+
+        assertEquals(request.getPrinterName(), "123456");
+        assertEquals(request.getNumOfCopies(), 1);
+        assertEquals(request.getLabels().size(), 2);
+
+        assertEquals(request.getLabels().get(0).getField("cell_line"), "nawk");
+        assertEquals(request.getLabels().get(0).getField("passage_number"), "3");
+        assertEquals(request.getLabels().get(0).getField("date"), "January 22, 2018");
+
+        assertEquals(request.getLabels().get(1).getField("cell_line"), "zogh");
+        assertEquals(request.getLabels().get(1).getField("passage_number"), "4");
+        assertEquals(request.getLabels().get(1).getField("date"), "Jan 22,19");
+
+    }
+
+    @Test
+    public void TestIsBadlyFormattedDate() {
+        String[] shouldBeTrue = {
+                "Dec 20, 2019",
+                "Dec 20,2019",
+                "December 20, 2019",
+                "Dec 20,19",
+        };
+        String[] shouldBeFalse = {
+                "Bananas",
+                "Alpha,Beta",
+                "Any,Other,String",
+                ""
+        };
+        PrintRequestHelper helper = new PrintRequestHelper();
+        for (String string : shouldBeTrue) {
+            assertTrue(helper.isBadlyFormattedDate(string), string);
+        }
+        for (String string : shouldBeFalse) {
+            assertFalse(helper.isBadlyFormattedDate(string), string);
+        }
+    }
+
+    @Test
+    public void TestOmit() {
+        String[] stringArray = { "Alpha", "Beta", "Gamma" };
+        assertEquals(PrintRequestHelper.omit(stringArray, 0),
+                new String[] { "Beta", "Gamma" });
+        assertEquals(PrintRequestHelper.omit(stringArray, 1),
+                new String[] { "Alpha", "Gamma" });
+        assertEquals(PrintRequestHelper.omit(stringArray, 2),
+                new String[] { "Alpha", "Beta" });
+        String[] withNull = { "", null };
+        assertEquals(PrintRequestHelper.omit(withNull, 0),
+                new String[] { null });
+        assertEquals(PrintRequestHelper.omit(withNull, 1),
+                new String[] { "" });
     }
 
 }
