@@ -21,16 +21,6 @@ public class PrintRequestHelperTest {
     }
 
     @Test
-    public void TestPrinterListEmpty() throws Exception {
-        try {
-            new PrintRequestHelper();
-        } catch (NullPointerException e) {
-            assertEquals(e.getMessage().trim(),
-                    "Cannot make print request because: The list of printers is empty in the properties folder.");
-        }
-    }
-
-    @Test
     public void TestFileNameDoesNotExist() throws Exception {
         setProperties();
         Path path = Paths.get("xx");
@@ -38,6 +28,7 @@ public class PrintRequestHelperTest {
 
         try {
             helper.makeRequestFromFile(path);
+            fail("An exception should have been thrown.");
         } catch (FileNotFoundException e){
             assertEquals(e.getMessage().trim(), path.toString()+" does not exist");
         }
@@ -51,6 +42,7 @@ public class PrintRequestHelperTest {
 
         try {
             helper.makeRequestFromFile(path);
+            fail("An exception should have been thrown.");
         } catch (IllegalArgumentException e) {
             assertEquals(e.getMessage(), "Cannot make print request because: \n" +
                     "\txxx:The printer name does not exist. ");
@@ -94,6 +86,7 @@ public class PrintRequestHelperTest {
         PrintRequestHelper helper = new PrintRequestHelper();
         try {
             helper.getPrinterName(firstLine);
+            fail("An exception should have been thrown.");
         } catch (IllegalArgumentException e) {
             assertEquals(e.getMessage(), "There is no printer name in the request. ");
         }
@@ -107,6 +100,7 @@ public class PrintRequestHelperTest {
 
         try {
             helper.makeRequestFromFile(path);
+            fail("An exception should have been thrown.");
         } catch (IllegalArgumentException e) {
             assertEquals(e.getMessage(), "Cannot make print request because: \n" +
                     "\tThere are no labels to be printed in the request. ");
@@ -121,6 +115,7 @@ public class PrintRequestHelperTest {
 
         try {
             helper.makeRequestFromFile(path);
+            fail("An exception should have been thrown.");
         } catch (IllegalArgumentException e) {
             assertEquals(e.getMessage(), ErrorType.WRONG_ROW_LENGTH.getMessage());
         }
@@ -187,20 +182,12 @@ public class PrintRequestHelperTest {
         setProperties();
         PrintRequestHelper helper = new PrintRequestHelper();
         Path path = Paths.get("./test_examples/comma_date_request_test.txt");
-        PrintRequest request = helper.makeRequestFromFile(path);
-
-        assertEquals(request.getPrinterName(), "123456");
-        assertEquals(request.getNumOfCopies(), 1);
-        assertEquals(request.getLabels().size(), 2);
-
-        assertEquals(request.getLabels().get(0).getField("cell_line"), "nawk");
-        assertEquals(request.getLabels().get(0).getField("passage_number"), "3");
-        assertEquals(request.getLabels().get(0).getField("date"), "January 22, 2018");
-
-        assertEquals(request.getLabels().get(1).getField("cell_line"), "zogh");
-        assertEquals(request.getLabels().get(1).getField("passage_number"), "4");
-        assertEquals(request.getLabels().get(1).getField("date"), "Jan 22,19");
-
+        try {
+            helper.makeRequestFromFile(path);
+            fail("An exception should have been thrown.");
+        } catch (IllegalArgumentException e) {
+            assertEquals(e.getMessage(), ErrorType.BAD_DATE_FORMAT.getMessage());
+        }
     }
 
     @Test
@@ -225,21 +212,4 @@ public class PrintRequestHelperTest {
             assertFalse(helper.isBadlyFormattedDate(string), string);
         }
     }
-
-    @Test
-    public void TestOmit() {
-        String[] stringArray = { "Alpha", "Beta", "Gamma" };
-        assertEquals(PrintRequestHelper.omit(stringArray, 0),
-                new String[] { "Beta", "Gamma" });
-        assertEquals(PrintRequestHelper.omit(stringArray, 1),
-                new String[] { "Alpha", "Gamma" });
-        assertEquals(PrintRequestHelper.omit(stringArray, 2),
-                new String[] { "Alpha", "Beta" });
-        String[] withNull = { "", null };
-        assertEquals(PrintRequestHelper.omit(withNull, 0),
-                new String[] { null });
-        assertEquals(PrintRequestHelper.omit(withNull, 1),
-                new String[] { "" });
-    }
-
 }

@@ -91,8 +91,7 @@ public class PrintRequestHelper {
                 if (data.length==columns.size() + 1 && dateIndex >= 0) {
                     String dateValue = data[dateIndex] + ","+ data[dateIndex+1];
                     if (isBadlyFormattedDate(dateValue)) {
-                        data = omit(data, dateIndex);
-                        data[dateIndex] = dateValue;
+                        throw new IllegalArgumentException(ErrorType.BAD_DATE_FORMAT.getMessage());
                     }
                 }
                 if (data.length > columns.size()) {
@@ -162,20 +161,6 @@ public class PrintRequestHelper {
         } catch (ParseException e) {
             return false;
         }
-    }
-
-    /**
-     * Creates a new array omitting one value.
-     * @param old the original array
-     * @param index the index to omit
-     * @return a new shorter array
-     */
-    protected static <E> E[] omit(E[] old, int index) {
-        @SuppressWarnings("unchecked")
-        E[] shorter = (E[]) Array.newInstance(old.getClass().getComponentType(), old.length-1);
-        System.arraycopy(old, 0, shorter, 0, index);
-        System.arraycopy(old, index+1, shorter, index, shorter.length-index);
-        return shorter;
     }
 
 }

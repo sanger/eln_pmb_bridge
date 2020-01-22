@@ -4,10 +4,8 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.util.InvalidPropertiesFormatException;
-import java.util.Properties;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.Assert.*;
 
 /**
  *  @author hc6
@@ -17,17 +15,18 @@ public class ELNPMBPropertiesTest {
     public void TestSetPropertiesSuccessful() throws IOException {
         ELNPMBProperties.setProperties("./test_properties_folder/eln_pmb.properties");
 
-        assertTrue(ELNPMBProperties.getProperties().getClass().equals(Properties.class));
-        assertTrue(ELNPMBProperties.getPollFolder().equals("./poll_folder/"));
-        assertTrue(ELNPMBProperties.getArchiveFolder().equals("./archive_folder/"));
-        assertTrue(ELNPMBProperties.getErrorFolder().equals("./error_folder/"));
-        assertTrue(ELNPMBProperties.getPMBURL().equals("http://testurl:123/print_jobs"));
+        assertNotNull(ELNPMBProperties.getProperties());
+        assertEquals(ELNPMBProperties.getPollFolder(), "./poll_folder/");
+        assertEquals(ELNPMBProperties.getArchiveFolder(), "./archive_folder/");
+        assertEquals(ELNPMBProperties.getErrorFolder(), "./error_folder/");
+        assertEquals(ELNPMBProperties.getPMBURL(), "http://testurl:123/print_jobs");
     }
 
     @Test
     public void TestSetPropertiesMissingPMBURL() throws IOException {
         try {
             ELNPMBProperties.setProperties("./test_properties_folder/eln_pmb_no_url.properties");
+            fail("An exception should have been thrown.");
         } catch (InvalidPropertiesFormatException e) {
             assertEquals(e.getMessage().trim(), "Cannot load print config because: \n" +
                     "\tPrint My Barcode's url is missing from the properties folder.");
@@ -38,6 +37,7 @@ public class ELNPMBPropertiesTest {
     public void TestSetPropertiesMissingTemplateId() throws IOException {
         try {
             ELNPMBProperties.setProperties("./test_properties_folder/eln_pmb_missing_template_id.properties");
+            fail("An exception should have been thrown.");
         } catch (InvalidPropertiesFormatException e) {
             assertEquals(e.getMessage().trim(), "Cannot load print config because: \n" +
                     "\tThere is at least one template id missing in eln_pmb.properties.");
@@ -48,6 +48,7 @@ public class ELNPMBPropertiesTest {
     public void TestSetPropertiesMissingFolder() throws IOException {
         try {
             ELNPMBProperties.setProperties("./test_properties_folder/eln_pmb_missing_folder.properties");
+            fail("An exception should have been thrown.");
         } catch (InvalidPropertiesFormatException e) {
             assertEquals(e.getMessage().trim(), "Cannot load print config because: \n" +
                     "\tDirectory paths are missing from the eln_pmb.properties");
