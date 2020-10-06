@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.*;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.fail;
 import static org.testng.AssertJUnit.assertTrue;
 
 /**
@@ -18,6 +19,7 @@ public class PropertiesFileReaderTest {
     public void TestLoadFileNoFilePath() throws IOException {
         try {
             MailProperties.loadFile(null);
+            fail("An exception should have been thrown.");
         } catch (FileNotFoundException e) {
             assertEquals(e.getMessage().trim(), "Property file path is missing.");
         }
@@ -27,6 +29,7 @@ public class PropertiesFileReaderTest {
     public void TestLoadFileEmptyPropertiesFile() throws IOException {
         try {
             MailProperties.loadFile("./test_properties_folder/empty.properties");
+            fail("An exception should have been thrown.");
         } catch (IOException e) {
             assertEquals(e.getMessage().trim(), "The property file is empty.");
         }

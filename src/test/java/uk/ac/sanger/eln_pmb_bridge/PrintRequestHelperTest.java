@@ -8,8 +8,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.Assert.*;
 
 /**
  * @author hc6
@@ -22,16 +21,6 @@ public class PrintRequestHelperTest {
     }
 
     @Test
-    public void TestPrinterListEmpty() throws Exception {
-        try {
-            new PrintRequestHelper();
-        } catch (NullPointerException e) {
-            assertEquals(e.getMessage().trim(),
-                    "Cannot make print request because: The list of printers is empty in the properties folder.");
-        }
-    }
-
-    @Test
     public void TestFileNameDoesNotExist() throws Exception {
         setProperties();
         Path path = Paths.get("xx");
@@ -39,6 +28,7 @@ public class PrintRequestHelperTest {
 
         try {
             helper.makeRequestFromFile(path);
+            fail("An exception should have been thrown.");
         } catch (FileNotFoundException e){
             assertEquals(e.getMessage().trim(), path.toString()+" does not exist");
         }
@@ -52,6 +42,7 @@ public class PrintRequestHelperTest {
 
         try {
             helper.makeRequestFromFile(path);
+            fail("An exception should have been thrown.");
         } catch (IllegalArgumentException e) {
             assertEquals(e.getMessage(), "Cannot make print request because: \n" +
                     "\txxx:The printer name does not exist. ");
@@ -95,6 +86,7 @@ public class PrintRequestHelperTest {
         PrintRequestHelper helper = new PrintRequestHelper();
         try {
             helper.getPrinterName(firstLine);
+            fail("An exception should have been thrown.");
         } catch (IllegalArgumentException e) {
             assertEquals(e.getMessage(), "There is no printer name in the request. ");
         }
@@ -108,9 +100,24 @@ public class PrintRequestHelperTest {
 
         try {
             helper.makeRequestFromFile(path);
+            fail("An exception should have been thrown.");
         } catch (IllegalArgumentException e) {
             assertEquals(e.getMessage(), "Cannot make print request because: \n" +
                     "\tThere are no labels to be printed in the request. ");
+        }
+    }
+
+    @Test
+    public void TestRowWrongLength() throws IOException {
+        setProperties();
+        PrintRequestHelper helper = new PrintRequestHelper();
+        Path path = Paths.get("./test_examples/row_wrong_length_request.txt");
+
+        try {
+            helper.makeRequestFromFile(path);
+            fail("An exception should have been thrown.");
+        } catch (IllegalArgumentException e) {
+            assertEquals(e.getMessage(), ErrorType.WRONG_ROW_LENGTH.getMessage());
         }
     }
 
@@ -170,4 +177,39 @@ public class PrintRequestHelperTest {
         assertEquals(request.getLabels().get(1).getField("date"), "22 January 2019");
     }
 
+    @Test
+    public void TestRequestWithCommaInDate() throws IOException {
+        setProperties();
+        PrintRequestHelper helper = new PrintRequestHelper();
+        Path path = Paths.get("./test_examples/comma_date_request_test.txt");
+        try {
+            helper.makeRequestFromFile(path);
+            fail("An exception should have been thrown.");
+        } catch (IllegalArgumentException e) {
+            assertEquals(e.getMessage(), ErrorType.BAD_DATE_FORMAT.getMessage());
+        }
+    }
+
+    @Test
+    public void TestIsBadlyFormattedDate() {
+        String[] shouldBeTrue = {
+                "Dec 20, 2019",
+                "Dec 20,2019",
+                "December 20, 2019",
+                "Dec 20,19",
+        };
+        String[] shouldBeFalse = {
+                "Bananas",
+                "Alpha,Beta",
+                "Any,Other,String",
+                ""
+        };
+        PrintRequestHelper helper = new PrintRequestHelper();
+        for (String string : shouldBeTrue) {
+            assertTrue(helper.isBadlyFormattedDate(string), string);
+        }
+        for (String string : shouldBeFalse) {
+            assertFalse(helper.isBadlyFormattedDate(string), string);
+        }
+    }
 }

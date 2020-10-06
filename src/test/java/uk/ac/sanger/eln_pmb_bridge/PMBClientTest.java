@@ -10,6 +10,7 @@ import java.util.*;
 
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.fail;
 
 /**
  * @author hc6
@@ -55,6 +56,7 @@ public class PMBClientTest {
         try {
             PMBClient client = new PMBClient();
             client.print(null);
+            fail("An exception should have been thrown.");
         } catch (IllegalArgumentException e) {
             assertEquals(e.getMessage(), "Null request in PMBClient.print");
         }

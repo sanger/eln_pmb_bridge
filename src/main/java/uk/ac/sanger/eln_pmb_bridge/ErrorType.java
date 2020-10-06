@@ -28,6 +28,8 @@ public enum ErrorType {
     UNKNOWN_PRINT_SERVICE("Unknown print service: "),
     MISSING_TEMPLATE("No suitable template found for label type "),
     MISSING_SPRINT_URL("SPrint url missing from config. "),
+    WRONG_ROW_LENGTH("A row in the print request had a different number of elements to the header. "),
+    BAD_DATE_FORMAT("The print request appears to contain badly formatted dates. "),
     ;
 
     private final String message;

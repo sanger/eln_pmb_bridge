@@ -4,8 +4,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import static org.mockito.Mockito.*;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.*;
 
 /**
  * @author hc6
@@ -28,6 +27,7 @@ public class EmailServiceTest {
     public void TestSetEmailServiceEnvModeNull() {
         try {
             EmailService.setService(null);
+            fail("An exception should have been thrown.");
         } catch (IllegalArgumentException e) {
             assertEquals(e.getMessage().trim(), "No environment mode was provided for Email Service.");
         }
