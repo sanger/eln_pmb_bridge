@@ -60,7 +60,7 @@ public class FileWatcher {
 
             List<WatchEvent<?>> watchEvents = watchKey.pollEvents();
 
-            for (WatchEvent event : watchEvents) {
+            for (WatchEvent<?> event : watchEvents) {
                 String newFileName = event.context().toString();
                 log.info(String.format("New file %s in polling folder.", newFileName));
 

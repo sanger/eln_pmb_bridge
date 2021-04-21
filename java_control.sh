@@ -31,7 +31,7 @@ function java_restart() {
   echo 'Performing hot restart'
 }
 
-# For simplicity of use, you might change this,
-#  for instance, to: ENV=${2:-env=uat}
+# For simplicity, fill in the correct environment and change the next line to:
+# ENV="env=uat $2"
 ENV=${2}
 java_${1}

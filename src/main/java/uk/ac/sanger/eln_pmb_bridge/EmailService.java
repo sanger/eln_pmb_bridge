@@ -6,8 +6,7 @@ import org.slf4j.LoggerFactory;
 import javax.mail.*;
 import javax.mail.internet.MimeMessage;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * Service for sending emails implementing the Singleton design pattern
@@ -16,23 +15,27 @@ import java.util.Properties;
 public class EmailService {
     private static final Logger log = LoggerFactory.getLogger(EmailService.class);
     private static EmailService service = null;
-    protected static Main.EnvironmentMode mode;
 
-    public EmailService(Main.EnvironmentMode mode) {
-        EmailService.mode = mode;
+    protected Main.EnvironmentMode mode;
+    protected boolean sendStartupEmail;
+
+    public EmailService(Main.EnvironmentMode mode, boolean sendStartupEmail) {
+        this.mode = mode;
+        this.sendStartupEmail = sendStartupEmail;
     }
 
-    public static void setService(Main.EnvironmentMode mode) throws IllegalArgumentException {
-        if (mode == null) throw new IllegalArgumentException(ErrorType.NO_ENV_MODE_FOR_EMAIL_SERVICE.getMessage());
-        if (service == null) {
-            service = new EmailService(mode);
+    public static EmailService createService(Main.EnvironmentMode mode, boolean sendStartEmail) throws IllegalArgumentException {
+        Objects.requireNonNull(mode, ErrorType.NO_ENV_MODE_FOR_EMAIL_SERVICE.getMessage());
+        if (service != null) {
+            throw new IllegalStateException("Email service already exists.");
         }
+        // Not thread safe
+        service = new EmailService(mode, sendStartEmail);
+        return service;
     }
 
     public static EmailService getService() throws NullPointerException {
-        if (service == null) {
-            throw new NullPointerException(ErrorType.NO_EMAIL_SERVICE.getMessage());
-        }
+        Objects.requireNonNull(ErrorType.NO_EMAIL_SERVICE.getMessage());
         return service;
     }
 
@@ -41,7 +44,6 @@ public class EmailService {
     }
 
     protected void sendEmail(String subject, String text) throws Exception {
-
         Properties mailProperties = MailProperties.getProperties();
         Session session = Session.getInstance(mailProperties);
         MimeMessage message = new MimeMessage(session);
@@ -61,9 +63,11 @@ public class EmailService {
     }
 
     protected void sendStartUpEmail() throws Exception {
-        String currentTime = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
-        String message = String.format("Starting up ELN PMB Bridge Service at %s", currentTime);
-        sendEmail("Starting up ELN PMB Bridge Service", message);
+        if (sendStartupEmail) {
+            String currentTime = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
+            String message = String.format("Starting up ELN PMB Bridge Service at %s", currentTime);
+            sendEmail("Starting up ELN PMB Bridge Service", message);
+        }
     }
 
     protected void sendErrorEmail(String subject, Exception e) throws Exception {

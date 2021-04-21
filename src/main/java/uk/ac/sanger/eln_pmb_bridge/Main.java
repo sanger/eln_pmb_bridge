@@ -16,14 +16,14 @@ import java.util.List;
  */
 public class Main {
     private static final Logger log = LoggerFactory.getLogger(Main.class);
-    protected static EnvironmentMode startMode = EnvironmentMode.DEVEL;
 
     public enum EnvironmentMode {
         TEST("devel"),
         DEVEL("devel"),
         WIP("devel"),
         UAT("devel"),
-        PROD("prod");
+        PROD("prod"),
+        ;
 
         public final String property_folder;
 
@@ -35,13 +35,13 @@ public class Main {
     public static void main(String[] args) throws Exception {
         // When a host has both IPv4 and IPv6 addresses, change preference to use IPv6 addresses over IPv4
         System.setProperty("java.net.preferIPv6Addresses", "true");
-        setEnvironmentMode(args);
+        EnvironmentMode mode = readMode(args);
+        boolean sendStartupEmail = readSendStartupEmail(args);
 
-        EmailService.setService(startMode);
-        EmailService emailService = EmailService.getService();
+        EmailService emailService = EmailService.createService(mode, sendStartupEmail);
         try {
             createFolders();
-            setProperties();
+            setProperties(mode);
             FileWatcher.runService();
         } catch (Exception e) {
             log.error(ErrorType.FATAL.getMessage(), e);
@@ -49,30 +49,35 @@ public class Main {
         }
     }
 
-    public static void setEnvironmentMode(String[] args) {
-        if (args.length == 0) {
-            throw new IllegalArgumentException(ErrorType.NO_ENV_MODE_IN_MAIN_ARGS.getMessage());
-        } else {
-            for (String arg : args) {
-                arg = arg.toUpperCase();
-                if (arg.startsWith("ENV=")) {
-                    String modeString = arg.substring(4).trim();
-                    try {
-                        startMode = EnvironmentMode.valueOf(modeString);
-                    } catch (IllegalArgumentException e) {
-                        throw new IllegalArgumentException(ErrorType.UNKNOWN_ENV_MODE.getMessage());
-                    }
+    private static EnvironmentMode readMode(String[] args) {
+        EnvironmentMode mode = null;
+        for (String arg : args) {
+            arg = arg.toUpperCase();
+            if (arg.startsWith("ENV=")) {
+                String modeString = arg.substring(4).trim();
+                try {
+                    mode = EnvironmentMode.valueOf(modeString);
+                } catch (IllegalArgumentException e) {
+                    throw new IllegalArgumentException(ErrorType.UNKNOWN_ENV_MODE.getMessage());
                 }
             }
         }
-        log.info(String.format("Successfully set environment mode %s.", startMode));
+        if (mode==null) {
+            throw new IllegalArgumentException(ErrorType.NO_ENV_MODE_IN_MAIN_ARGS.getMessage());
+        }
+        log.info(String.format("Successfully set environment mode %s.", mode));
+        return mode;
+    }
+
+    private static boolean readSendStartupEmail(String[] args) {
+        return Arrays.stream(args).noneMatch("--nostartemail"::equalsIgnoreCase);
     }
 
     /**
      *  ELNPMBProperties have to be set before the PrinterProperties
      */
-    private static void setProperties() throws IOException {
-        String folder = String.format("./properties_folder/%s/", startMode.property_folder);
+    private static void setProperties(EnvironmentMode mode) throws IOException {
+        String folder = String.format("./properties_folder/%s/", mode.property_folder);
         MailProperties.setProperties(folder + "mail.properties");
         ELNPMBProperties.setProperties(folder + "eln_pmb.properties");
         SPrintConfig.initialise(folder + "sprint.properties");

@@ -24,25 +24,26 @@ public class EmailServiceTest {
     }
 
     @Test
-    public void TestSetEmailServiceEnvModeNull() {
+    public void TestCreateEmailServiceEnvModeNull() {
         try {
-            EmailService.setService(null);
+            EmailService.createService(null, false);
             fail("An exception should have been thrown.");
-        } catch (IllegalArgumentException e) {
+        } catch (NullPointerException e) {
             assertEquals(e.getMessage().trim(), "No environment mode was provided for Email Service.");
         }
     }
 
     @Test
-    public void TestSetEmailServiceSuccessful() {
-        EmailService.setService(Main.EnvironmentMode.TEST);
+    public void TestCreateEmailServiceSuccessful() {
+        EmailService.createService(Main.EnvironmentMode.TEST, false);
         assertNotNull(EmailService.getService());
     }
 
     @Test
     public void TestSendStartUpEmail() throws Exception {
-        EmailService.setService(Main.EnvironmentMode.TEST);
         EmailService emailService = mock(EmailService.class);
+        emailService.mode = Main.EnvironmentMode.TEST;
+        emailService.sendStartupEmail = true;
 
         doCallRealMethod().when(emailService).sendStartUpEmail();
         doCallRealMethod().when(emailService).sendEmail(anyString(), anyString());
@@ -51,13 +52,12 @@ public class EmailServiceTest {
 
         verify(emailService, times(1)).sendEmail(anyString(), anyString());
         verify(emailService, times(1)).send(any());
-
     }
 
     @Test
     public void TestSendErrorEmail() throws Exception {
-        EmailService.setService(Main.EnvironmentMode.TEST);
         EmailService emailService = mock(EmailService.class);
+        emailService.mode = Main.EnvironmentMode.TEST;
 
         doCallRealMethod().when(emailService).sendErrorEmail(anyString(), any());
         doCallRealMethod().when(emailService).sendEmail(anyString(), anyString());
