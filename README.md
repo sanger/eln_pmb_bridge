@@ -22,7 +22,7 @@ Running
 ---
 Execute the jar in the console:
 
-    java -jar target/eln_pmb_bridge-1.0-jar-with-dependencies.jar
+    java -jar target/eln_pmb_bridge-jar-with-dependencies.jar
 
 Pass in a command line argument into Main such as `env=devel`
 
@@ -44,7 +44,7 @@ Build the jar using the jar-with-dependencies in pom.xml:
 
 Secure copy the jar from local to the server:
 
-    scp target/eln_pmb_bridge-1.0-jar-with-dependencies.jar [host]:/sccp/eln_pmb_bridge/`
+    scp target/eln_pmb_bridge-jar-with-dependencies.jar [host]:/sccp/eln_pmb_bridge/`
 
 Secure copy the jre (if it doesn't exist) from one server to another
     scp -r /sccp/jre/ [host]:/sccp`
@@ -55,7 +55,7 @@ Change user to sccp
 
 Run the application (this will only create the folders, then error out):
 
-    /sccp/jre/jre1.8.0_131/bin/java -jar eln_pmb_bridge-1.0-jar-with-dependencies.jar
+    /sccp/jre/jre1.8.0_131/bin/java -jar eln_pmb_bridge-jar-with-dependencies.jar
 
 Change permission on folders to 777 (poll/prop/error/archive)
 

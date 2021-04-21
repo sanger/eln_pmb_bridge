@@ -94,9 +94,7 @@ public class PrintRequestHelper {
                         throw new IllegalArgumentException(ErrorType.BAD_DATE_FORMAT.getMessage());
                     }
                 }
-                if (data.length > columns.size()) {
-                    throw new IllegalArgumentException(ErrorType.WRONG_ROW_LENGTH.getMessage());
-                }
+                throw new IllegalArgumentException(ErrorType.WRONG_ROW_LENGTH.getMessage());
             }
 
             Map<String, String> fieldMap = new HashMap<>();

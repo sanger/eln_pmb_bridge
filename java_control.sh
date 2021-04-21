@@ -2,15 +2,17 @@
 
 CURRENT_PATH="/sccp/eln_pmb_bridge"
 PID_FILE="/sccp/eln_pmb_bridge/java.pid"
+JAR_FILE="eln_pmb_bridge-jar-with-dependencies.jar"
+JRE="/sccp/jre/jre1.8.0_131/bin/java"
 
 function java_start() {
   if [ -f $PID_FILE ] && ps -p `cat $PID_FILE` >> /dev/null ; then
     echo 'Existing server appears to be running'
-    exit $SERVER_ALREADY_EXISTS
+    exit 1
   fi
 
   cd $CURRENT_PATH
-  /sccp/jre/jre1.8.0_131/bin/java -jar eln_pmb_bridge-1.0-jar-with-dependencies.jar ${ENV} &
+  $JRE -jar $JAR_FILE ${ENV} &
   PID=$!
   echo $PID > $PID_FILE
 }
