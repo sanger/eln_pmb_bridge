@@ -98,10 +98,15 @@ public class PrintRequestHelper {
             }
 
             Map<String, String> fieldMap = new HashMap<>();
+            boolean anyValues = false;
             for (int i = 0; i < data.length; i++) {
-                fieldMap.put(columns.get(i), data[i].trim());
+                String value = data[i].trim();
+                anyValues |= !value.isEmpty();
+                fieldMap.put(columns.get(i), value);
             }
-            fields.add(fieldMap);
+            if (anyValues) {
+                fields.add(fieldMap);
+            }
         }
 
         List<PrintRequest.Label> labels = new ArrayList<>();
