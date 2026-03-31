@@ -1,22 +1,19 @@
 # PMB ELN Bridge
 
-[![Build Status](https://travis-ci.org/sanger/eln_pmb_bridge.svg)](https://travis-ci.org/sanger/eln_pmb_bridge)
-[![Maintainability](https://api.codeclimate.com/v1/badges/e8292513bf0c61d22acf/maintainability)](https://codeclimate.com/github/sanger/eln_pmb_bridge/maintainability)
-[![Test Coverage](https://api.codeclimate.com/v1/badges/e8292513bf0c61d22acf/test_coverage)](https://codeclimate.com/github/sanger/eln_pmb_bridge/test_coverage)
-
 Description
 ---
 
-A polling service for printing labels from IDBS-ELN via Print My Barcode (PMB).
+A polling service for printing labels from the IDBS electronic lab notebook (ELN) via Print My Barcode (PMB) and SPrint.
 
 Usage
 ---
 
 - Property folders contain config information for the ELN PMB Bridge, Printers and Mailing, and various setup directories.
-- A file (with _TEMP extension) is dropped by IDBS-ELN into the poll folder.
-- IDBS-ELN populate the content of this file, then rename the file when completed (removing the TEMP extension.)
+- The ELN drops a file whose name ends in _TEMP into the poll folder.
+- The ELN adds the print request to this file, then renames it, removing the _TEMP suffix.
 - The Watch Service pulls the newly named file, and create a print job request.
-- This request is then sent to a print service, which prints the labels.
+- This request is sent to a print service, which prints the labels.
+- The file is moved to an archive or an error directory.
 
 Running
 ---
@@ -33,25 +30,30 @@ Or when running it from IntelliJ:
 Deployment
 ---
 
-* ELN PMB WIP is currently deployed at `web-cgap-idbstest-01:sccp/eln_pmb_bridge` (used locally for test)
-* ELN PMB UAT is currently deployed at `web-cgap-idbstest-02:sccp/eln_pmb_bridge` (used by ELN for test)
-* ELN PMB PROD is currently deployed at `web-cgap-idbsprod-02:sccp/eln_pmb_bridge` (used by ELN for prod)
+* The test version is deployed at `web-idbs-dev02:/sccp/eln_pmb_bridge` (used by ELN for test)
+* The prod version is deployed at `web-idbs-live02:/sccp/eln_pmb_bridge` (used by ELN for prod)
 
 Build the jar using the jar-with-dependencies in pom.xml:
 
     Maven > Lifecycle > clean
     Maven > Lifecycle > package
 
+> ###Make sure you use JDK 1.8 to compile
+> Even with the target version set to 1.8, compiling with a later JDK
+> has been seen to cause runtime errors when the application is deployed and running on JRE 1.8.
+
 Secure copy the jar from local to the server:
 
-    scp target/eln_pmb_bridge-jar-with-dependencies.jar [host]:/sccp/eln_pmb_bridge/`
+    scp target/eln_pmb_bridge-jar-with-dependencies.jar [host]:.
 
 Secure copy the jre (if it doesn't exist) from one server to another
-    scp -r /sccp/jre/ [host]:/sccp`
+    scp -r /sccp/jre/ [host]:/sccp
+
+Ssh onto the host.
 
 Change user to sccp
 
-    sudo -u sccp bash
+    sudo -su sccp
 
 Run the application (this will only create the folders, then error out):
 
@@ -69,16 +71,15 @@ Copy over the property files
 
 Copy over the java control file
 
-    scp -r java_control.sh [host]:/sccp/eln_pmb_bridge
+    scp -r java_control.sh [host]:/sccp/eln_pmb_bridge/.
 
 Make sure all files are owned by the sccp user.  
 `chown` is not available to normal users, so the way to get the files under the correct ownership is:
   
 * become sccp: `sudo -u sccp bash`
-* rename the old file: `mv myfile myfile_old`
-* create a copy (owned by sccp): `cp myfile_old myfile`
-* delete the old file: `rm myfile_old`
-   
+* create a copy (owned by sccp): `cp ~username/eln_pmb_bridge-jar-with-dependencies.jar /sccp/eln_pmb_bridge/.`
+* delete the old file: `rm ~username/eln_pmb_bridge-jar-with-dependencies.jar`
+
 You can do this on a whole directory at once, if you use the `-r` flag for `cp` and `rm`. (Be careful with `rm`.)
 
 Change permission on java control file to 755 (only executable by the owner)
@@ -100,6 +101,10 @@ The `env=abc` part can be omitted if the `java_control.sh` script includes:
 
 using the appropriate environment for that server in place of `abc`.
 
+Another option is:
+
+    ./java_control.sh start --nostartemail
+
 Different environments are:
 
 - test
@@ -113,7 +118,7 @@ Test
 
 Secure copy to drop a file into the polling folder on the server with the _TEMP extension:
 
-    scp file.txt web-cgap-idbstest-01:/sccp/eln_pmb_bridge/poll_folder/file.txt_TEMP
+    scp file.txt web-idbs-dev02:/sccp/eln_pmb_bridge/poll_folder/file.txt_TEMP
 
 
 On the server, rename the file to remove the _TEMP extension:

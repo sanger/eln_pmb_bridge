@@ -35,7 +35,7 @@ public class EmailService {
     }
 
     public static EmailService getService() throws NullPointerException {
-        Objects.requireNonNull(ErrorType.NO_EMAIL_SERVICE.getMessage());
+        Objects.requireNonNull(service, ErrorType.NO_EMAIL_SERVICE.getMessage());
         return service;
     }
 
